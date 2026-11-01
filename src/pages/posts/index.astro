@@ -1,40 +1,185 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostRow from '@/components/PostRow.astro';
+import SiteIcon from '@/components/SiteIcon.astro';
 import { formatDate } from '@/lib/formatDate';
+import { categories, categoryHint, readingMinutes, sortByDate } from '@/lib/postMeta';
 
-const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
-	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sortByDate);
+const [featured, ...rest] = posts;
+
+const years = [...new Set(rest.map((p) => p.data.date.getFullYear()))];
 ---
 
-<BaseLayout title="随笔" description="Eliauk 的技术随笔与项目记录。">
-	<section class="mx-auto max-w-4xl px-6 pt-40">
+<BaseLayout title="随笔" description="EliaukUsagi 的随笔：大模型应用、工程实践、交互细节，以及代码之外的事。">
+	<section class="mx-auto max-w-6xl px-6 pt-40">
 		<p class="rise label mb-6" style="--d:0">
-			<span class="text-cream">03</span> / Writing
+			<span class="text-accent">Writing</span> / Notes
 		</p>
-		<h1 class="rise display text-6xl text-paper md:text-8xl" style="--d:1">
-			随笔<span class="text-blush">.</span>
-		</h1>
-		<p class="rise mt-6 text-lg text-mute" style="--d:2">
-			记录做项目时踩过的坑、做过的取舍。
-		</p>
+		<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+			<h1 class="rise display text-6xl text-fg md:text-8xl" style="--d:1">
+				随笔<span class="text-accent">.</span>
+			</h1>
+			<p class="rise max-w-sm text-mute md:pb-3 md:text-right" style="--d:2">
+				写给未来的自己：问题是怎么出现的，当时怎么想，最后为什么这么做。
+			</p>
+		</div>
 
-		<ul class="mt-20 divide-y divide-line border-y border-line">
-			{posts.map((post) => (
-				<li class="reveal">
-					<a href={`/posts/${post.id}`} class="group block py-9">
-						<div class="flex items-center gap-4 font-mono text-xs text-faint">
-							<time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-							{post.data.tags.map((tag) => (
-								<span>#{tag}</span>
-							))}
-						</div>
-						<h2 class="display mt-3 text-3xl text-paper transition-colors group-hover:text-cream">{post.data.title}</h2>
-						<p class="mt-3 text-mute">{post.data.description}</p>
-					</a>
-				</li>
+		{featured && (
+			<a
+				href={`/posts/${featured.id}`}
+				class="rise group relative mt-16 block overflow-hidden rounded-3xl border border-line bg-card p-8 transition duration-500 hover:border-line-strong md:p-12"
+				style="--d:3"
+			>
+				<span
+					class="display pointer-events-none absolute -right-4 -bottom-16 text-[13rem] leading-none text-fg/[0.04] italic transition-transform duration-1000 ease-[var(--ease-out-expo)] select-none group-hover:-translate-x-4 md:text-[18rem]"
+					aria-hidden="true"
+				>
+					{featured.data.category}
+				</span>
+				<div class="relative flex flex-wrap items-center gap-3 font-mono text-xs text-faint">
+					<span class="rounded-full bg-accent px-2.5 py-1 text-canvas">最新</span>
+					<span class="text-accent">{featured.data.category}</span>
+					<time datetime={featured.data.date.toISOString()}>{formatDate(featured.data.date)}</time>
+					<span>· {readingMinutes(featured.body)} min</span>
+				</div>
+				<h2 class="display relative mt-6 max-w-4xl text-4xl leading-tight text-balance text-fg md:text-5xl">
+					{featured.data.title}
+				</h2>
+				<p class="relative mt-5 max-w-2xl text-lg leading-relaxed text-mute">{featured.data.description}</p>
+				<span class="relative mt-10 inline-flex items-center gap-2 text-sm text-fg">
+					阅读全文
+					<SiteIcon name="arrow" class="size-4 transition-transform duration-500 group-hover:translate-x-1.5" />
+				</span>
+			</a>
+		)}
+
+		<div class="rise mt-20 flex flex-wrap items-center gap-2" style="--d:4" role="tablist" aria-label="按分类筛选">
+			<button type="button" data-filter="all" class="filter-chip is-active" role="tab" aria-selected="true">
+				全部 <span>{rest.length}</span>
+			</button>
+			{categories.map((c) => (
+				<button
+					type="button"
+					data-filter={c}
+					class="filter-chip"
+					role="tab"
+					aria-selected="false"
+					title={categoryHint[c]}
+				>
+					{c} <span>{rest.filter((p) => p.data.category === c).length}</span>
+				</button>
 			))}
-		</ul>
+		</div>
+
+		<div data-post-list class="mt-6">
+			{years.map((year) => (
+				<section data-year-group class="grid gap-4 border-t border-line pt-8 md:grid-cols-[10rem_1fr] md:gap-10">
+					<h2 class="display text-5xl text-fg/20 md:sticky md:top-28 md:self-start">{year}</h2>
+					<div>
+						{rest
+							.filter((p) => p.data.date.getFullYear() === year)
+							.map((post) => (
+								<PostRow post={post} />
+							))}
+					</div>
+				</section>
+			))}
+		</div>
+		<p data-empty class="hidden py-16 text-center text-mute">
+			这个分类暂时还没有更早的文章。
+		</p>
 	</section>
 </BaseLayout>
+
+<style>
+	.filter-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.45rem 1rem;
+		border: 1px solid var(--line);
+		border-radius: 9999px;
+		font-size: 0.875rem;
+		color: var(--mute);
+		transition:
+			color 0.3s ease,
+			background-color 0.3s ease,
+			border-color 0.3s ease;
+	}
+
+	.filter-chip span {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		color: var(--faint);
+	}
+
+	.filter-chip:hover {
+		color: var(--fg);
+		border-color: var(--line-strong);
+	}
+
+	.filter-chip.is-active {
+		background: var(--fg);
+		border-color: var(--fg);
+		color: var(--canvas);
+	}
+
+	.filter-chip.is-active span {
+		color: color-mix(in srgb, var(--canvas) 65%, transparent);
+	}
+
+	:global([data-category]) {
+		transition:
+			opacity 0.35s ease,
+			transform 0.5s var(--ease-out-expo);
+	}
+
+	:global([data-category].is-dim) {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+</style>
+
+<script>
+	const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+	const rows = [...document.querySelectorAll<HTMLElement>('[data-post-list] [data-category]')];
+	const groups = [...document.querySelectorAll<HTMLElement>('[data-year-group]')];
+	const empty = document.querySelector<HTMLElement>('[data-empty]');
+
+	chips.forEach((chip) =>
+		chip.addEventListener('click', () => {
+			const filter = chip.dataset.filter;
+			chips.forEach((c) => {
+				c.classList.toggle('is-active', c === chip);
+				c.setAttribute('aria-selected', String(c === chip));
+			});
+
+			// 先淡出再隐藏，避免列表瞬间跳动
+			rows.forEach((row) => {
+				const show = filter === 'all' || row.dataset.category === filter;
+				if (show) {
+					row.hidden = false;
+					requestAnimationFrame(() => row.classList.remove('is-dim'));
+				} else {
+					row.classList.add('is-dim');
+					setTimeout(() => {
+						if (row.classList.contains('is-dim')) row.hidden = true;
+					}, 300);
+				}
+			});
+
+			setTimeout(() => {
+				let visible = 0;
+				groups.forEach((group) => {
+					const count = group.querySelectorAll('[data-category]:not([hidden])').length;
+					group.hidden = count === 0;
+					visible += count;
+				});
+				if (empty) empty.hidden = visible > 0;
+				empty?.classList.toggle('hidden', visible > 0);
+			}, 320);
+		}),
+	);
+</script>

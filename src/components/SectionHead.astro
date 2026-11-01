@@ -6,9 +6,9 @@ const { no, title, en, id } = Astro.props;
 <div id={id} class="reveal mb-12 flex scroll-mt-28 items-end justify-between gap-6 border-b border-line pb-6">
 	<div>
 		<p class="label mb-4">
-			<span class="text-cream">{no}</span> / {en}
+			<span class="text-accent">{no}</span> / {en}
 		</p>
-		<h2 class="display text-4xl text-paper md:text-5xl">{title}</h2>
+		<h2 class="display text-4xl text-fg md:text-5xl">{title}</h2>
 	</div>
 	<div class="shrink-0 pb-1">
 		<slot />

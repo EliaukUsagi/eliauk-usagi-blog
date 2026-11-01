@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import mascot from '@/assets/brand/usagi-mascot.svg';
 import SiteIcon from '@/components/SiteIcon.astro';
+import ThemeToggle from '@/components/ThemeToggle.astro';
 import { nav, site } from '@/site.config';
 
 const path = Astro.url.pathname;
@@ -10,41 +11,48 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 
 <header class="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
 	<nav
-		class="flex w-full max-w-5xl items-center justify-between gap-4 rounded-full border border-line bg-ink/70 py-2 pr-2 pl-3 shadow-[0_10px_40px_-12px_rgb(0_0_0/0.6)] backdrop-blur-xl"
+		data-site-nav
+		class="site-nav flex w-full items-center justify-between gap-4 rounded-full py-2 pr-2 pl-2.5"
 		aria-label="主导航"
 	>
-		<a href="/" class="group flex items-center gap-2.5" aria-label={`${site.name} 首页`}>
-			<span class="grid size-9 place-items-center rounded-full bg-cream/10 ring-1 ring-cream/20 transition-transform duration-500 group-hover:-rotate-12">
-				<Image src={mascot} alt="" class="size-6" />
+		<a href="/" class="group flex items-center gap-3" aria-label={`${site.name} 首页`}>
+			<span class="grid size-10 place-items-center rounded-full bg-gradient-to-br from-fg/[0.02] to-fg/[0.07] ring-1 ring-fg/10 transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-rotate-12 group-hover:scale-105">
+				<Image src={mascot} alt="" class="size-[1.6rem]" />
 			</span>
-			<span class="display text-[1.05rem] text-paper">{site.name}</span>
+			<span class="flex flex-col leading-none">
+				<span class="display text-[1.05rem] text-fg">{site.name}</span>
+				<span class="mt-1 font-mono text-[0.58rem] tracking-[0.18em] text-faint uppercase">{site.nameEn}</span>
+			</span>
 		</a>
 
-		<ul class="hidden items-center gap-1 md:flex">
+		<ul data-nav-list class="relative hidden items-center md:flex">
+			<span data-nav-pill class="nav-pill" aria-hidden="true"></span>
 			{nav.map((item) => (
-				<li>
+				<li class="relative">
 					<a
 						href={item.href}
+						data-nav-item
+						aria-current={isActive(item.href) ? 'page' : undefined}
 						class:list={[
-							'group flex items-baseline gap-1.5 rounded-full px-3.5 py-1.5 text-sm transition-colors',
-							isActive(item.href) ? 'bg-paper/8 text-paper' : 'text-mute hover:text-paper',
+							'nav-item relative z-10 block px-4 py-2 text-sm transition-colors duration-300',
+							isActive(item.href) ? 'text-fg' : 'text-mute hover:text-fg',
 						]}
 					>
-						<span class="font-mono text-[0.62rem] text-faint group-hover:text-cream">{item.no}</span>
 						{item.label}
 					</a>
 				</li>
 			))}
 		</ul>
 
-		<div class="flex items-center gap-1">
+		<div class="flex items-center gap-1.5">
+			<ThemeToggle />
 			<a
 				href={site.github}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="flex items-center gap-2 rounded-full bg-paper px-3.5 py-1.5 text-sm font-medium text-ink transition hover:bg-cream"
+				class="group flex items-center gap-2 rounded-full bg-fg px-4 py-2 text-sm font-medium text-canvas transition duration-300 hover:bg-accent"
 			>
-				<SiteIcon name="github" class="size-4" />
+				<SiteIcon name="github" class="size-4 transition-transform duration-500 group-hover:rotate-[-8deg]" />
 				<span class="hidden sm:inline">GitHub</span>
 			</a>
 		</div>
@@ -52,14 +60,14 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 </header>
 
 <nav class="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 md:hidden" aria-label="移动端导航">
-	<ul class="flex gap-1 rounded-full border border-line bg-ink/80 p-1.5 backdrop-blur-xl">
+	<ul class="flex gap-1 rounded-full border border-line bg-canvas/85 p-1.5 shadow-[var(--shadow-nav)] backdrop-blur-xl">
 		{nav.map((item) => (
 			<li>
 				<a
 					href={item.href}
 					class:list={[
 						'block rounded-full px-4 py-1.5 text-sm',
-						isActive(item.href) ? 'bg-paper text-ink' : 'text-mute',
+						isActive(item.href) ? 'bg-fg text-canvas' : 'text-mute',
 					]}
 				>
 					{item.label}
@@ -68,3 +76,88 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 		))}
 	</ul>
 </nav>
+
+<style>
+	.site-nav {
+		max-width: 64rem;
+		border: 1px solid transparent;
+		background: color-mix(in srgb, var(--canvas) 55%, transparent);
+		backdrop-filter: blur(14px) saturate(1.4);
+		transition:
+			max-width 0.7s var(--ease-out-expo),
+			background-color 0.5s ease,
+			border-color 0.5s ease,
+			box-shadow 0.5s ease;
+	}
+
+	/* 滚动后收窄并加深玻璃感 */
+	.site-nav[data-scrolled] {
+		max-width: 56rem;
+		border-color: var(--line);
+		background: color-mix(in srgb, var(--canvas) 78%, transparent);
+		box-shadow: var(--shadow-nav);
+	}
+
+	.nav-pill {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		border-radius: 9999px;
+		background: color-mix(in srgb, var(--fg) 6%, transparent);
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			transform 0.5s var(--ease-out-expo),
+			width 0.5s var(--ease-out-expo),
+			opacity 0.3s ease;
+	}
+
+	.nav-item[aria-current='page']::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		bottom: 0.15rem;
+		width: 4px;
+		height: 4px;
+		margin-left: -2px;
+		border-radius: 50%;
+		background: var(--accent);
+	}
+</style>
+
+<script>
+	const navEl = document.querySelector<HTMLElement>('[data-site-nav]');
+	const list = document.querySelector<HTMLElement>('[data-nav-list]');
+	const pill = document.querySelector<HTMLElement>('[data-nav-pill]');
+
+	if (navEl) {
+		const onScroll = () => navEl.toggleAttribute('data-scrolled', window.scrollY > 24);
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+
+	if (list && pill) {
+		const items = [...list.querySelectorAll<HTMLElement>('[data-nav-item]')];
+		const current = items.find((el) => el.getAttribute('aria-current') === 'page');
+
+		const moveTo = (el: HTMLElement | undefined) => {
+			if (!el) {
+				pill.style.opacity = '0';
+				return;
+			}
+			const offset = el.getBoundingClientRect().left - list.getBoundingClientRect().left;
+			pill.style.width = `${el.offsetWidth}px`;
+			pill.style.transform = `translateX(${offset}px)`;
+			pill.style.opacity = '1';
+		};
+
+		// 首次定位不做过渡，避免从左侧滑入
+		pill.style.transition = 'none';
+		moveTo(current);
+		requestAnimationFrame(() => pill.style.removeProperty('transition'));
+
+		items.forEach((el) => el.addEventListener('mouseenter', () => moveTo(el)));
+		list.addEventListener('mouseleave', () => moveTo(current));
+	}
+</script>

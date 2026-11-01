@@ -8,8 +8,6 @@ const { repo, index } = Astro.props;
 const langColor: Record<string, string> = {
 	TypeScript: '#3178c6',
 	JavaScript: '#f1e05a',
-	HTML: '#e34c26',
-	Markdown: '#9a958c',
 	Astro: '#ff5a03',
 };
 ---
@@ -18,18 +16,18 @@ const langColor: Record<string, string> = {
 	href={repoUrl(repo.name)}
 	target="_blank"
 	rel="noopener noreferrer"
-	class="reveal group relative flex flex-col justify-between gap-8 overflow-hidden rounded-2xl border border-line bg-ink-2/60 p-6 transition duration-500 hover:-translate-y-1 hover:border-line-strong hover:bg-ink-2"
+	class="reveal group relative flex flex-col justify-between gap-8 overflow-hidden rounded-2xl border border-line bg-card/70 p-6 transition duration-500 hover:-translate-y-1 hover:border-line-strong hover:bg-card"
 >
-	<div class="pointer-events-none absolute -top-20 -right-20 size-48 rounded-full bg-cream/0 blur-3xl transition duration-700 group-hover:bg-cream/10"></div>
+	<div class="pointer-events-none absolute -top-20 -right-20 size-48 rounded-full bg-accent/0 blur-3xl transition duration-700 group-hover:bg-accent/10"></div>
 	<div>
 		<div class="mb-5 flex items-center justify-between">
 			<span class="font-mono text-[0.68rem] text-faint">{String(index + 1).padStart(2, '0')}</span>
 			<SiteIcon
 				name="external"
-				class="size-4 text-faint transition duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cream"
+				class="size-4 text-faint transition duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
 			/>
 		</div>
-		<h3 class="font-mono text-[0.95rem] break-all text-paper">{repo.name}</h3>
+		<h3 class="font-mono text-[0.95rem] break-all text-fg">{repo.name}</h3>
 		<p class="mt-3 text-sm leading-relaxed text-mute">{repo.desc}</p>
 	</div>
 	<div class="flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.68rem] text-faint">

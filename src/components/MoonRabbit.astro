@@ -8,20 +8,20 @@ import mascot from '@/assets/brand/usagi-mascot.svg';
 	<div class="moon-disc absolute inset-[18%] rounded-full"></div>
 
 	<svg class="orbit absolute inset-0 size-full" viewBox="0 0 400 400" fill="none">
-		<ellipse cx="200" cy="200" rx="188" ry="188" stroke="rgb(236 232 223 / 0.08)" stroke-dasharray="2 6" />
+		<circle class="ring-soft" cx="200" cy="200" r="188" stroke-dasharray="2 6" />
 		<g class="orbit-spin">
-			<ellipse cx="200" cy="200" rx="160" ry="160" stroke="rgb(236 232 223 / 0.12)" />
-			<circle cx="360" cy="200" r="4" fill="#fdf1c4" />
-			<circle cx="40" cy="200" r="2.5" fill="#8f91f5" />
+			<circle class="ring" cx="200" cy="200" r="160" />
+			<circle class="dot-accent" cx="360" cy="200" r="4" />
+			<circle class="dot-pine" cx="40" cy="200" r="2.5" />
 		</g>
 		<g class="orbit-spin-reverse">
-			<ellipse cx="200" cy="200" rx="128" ry="128" stroke="rgb(248 179 184 / 0.18)" stroke-dasharray="1 10" />
-			<circle cx="200" cy="72" r="3" fill="#f8b3b8" />
+			<circle class="ring-soft" cx="200" cy="200" r="128" stroke-dasharray="1 10" />
+			<circle class="dot-fg" cx="200" cy="72" r="2.5" />
 		</g>
 	</svg>
 
 	<div class="rabbit absolute inset-[27%] grid place-items-center">
-		<Image src={mascot} alt="" class="w-full drop-shadow-[0_24px_40px_rgb(0_0_0/0.45)]" loading="eager" />
+		<Image src={mascot} alt="" class="w-full drop-shadow-[0_18px_30px_var(--rabbit-shadow)]" loading="eager" />
 	</div>
 
 	<span class="coord label absolute top-[8%] left-0">lat 40.84°N</span>
@@ -31,20 +31,40 @@ import mascot from '@/assets/brand/usagi-mascot.svg';
 
 <style>
 	.moon-halo {
-		background: radial-gradient(circle, rgb(253 241 196 / 0.16), transparent 68%);
+		background: radial-gradient(circle, var(--moon-glow), transparent 68%);
 		filter: blur(10px);
 	}
 
 	.moon-disc {
 		background:
-			radial-gradient(circle at 34% 30%, rgb(255 255 255 / 0.16), transparent 42%),
-			radial-gradient(circle at 70% 72%, rgb(91 70 54 / 0.18) 0 6%, transparent 7%),
-			radial-gradient(circle at 26% 66%, rgb(91 70 54 / 0.12) 0 4%, transparent 5%),
-			radial-gradient(circle at 60% 50%, #f6e9bd, #e9d69c 70%, #cdb97f);
+			radial-gradient(circle at 34% 28%, var(--moon-hi), transparent 46%),
+			radial-gradient(circle at 70% 70%, var(--moon-crater) 0 6%, transparent 7%),
+			radial-gradient(circle at 27% 64%, var(--moon-crater) 0 4%, transparent 5%),
+			radial-gradient(circle at 58% 38%, var(--moon-crater) 0 2.5%, transparent 3.5%),
+			radial-gradient(circle at 55% 50%, var(--moon-base), var(--moon-edge));
 		box-shadow:
-			0 0 80px 10px rgb(253 241 196 / 0.12),
-			inset -18px -24px 60px rgb(91 70 54 / 0.35);
-		opacity: 0.92;
+			0 0 90px 6px var(--moon-glow),
+			inset -20px -26px 60px var(--moon-shade);
+	}
+
+	.ring {
+		stroke: var(--orbit);
+	}
+
+	.ring-soft {
+		stroke: var(--orbit-soft);
+	}
+
+	.dot-accent {
+		fill: var(--accent);
+	}
+
+	.dot-pine {
+		fill: var(--pine);
+	}
+
+	.dot-fg {
+		fill: var(--faint);
 	}
 
 	.orbit-spin,
@@ -64,7 +84,7 @@ import mascot from '@/assets/brand/usagi-mascot.svg';
 
 	.coord {
 		font-size: 0.62rem;
-		color: var(--color-faint);
+		color: var(--faint);
 	}
 
 	@keyframes spin {

@@ -11,6 +11,7 @@ pnpm install
 pnpm dev        # http://localhost:4321
 pnpm check      # 类型与模板检查
 pnpm build      # 检查 + 构建到 dist/
+pnpm shots      # 把 src/assets 下的 PNG / JPG 转为 WebP 并删除原图
 ```
 
 需要 Node ≥ 22.22。
@@ -39,7 +40,12 @@ src/assets/projects/usagi-kb/
 - 子目录是分组，不需要分组时直接把图片放在作品目录下。
 - 文件名就是图注，`01-` 前缀只用于排序，展示时会去掉。
 - 第一张图作为封面；没有截图时显示占位框。
-- 构建时自动转为多尺寸 WebP，原图建议 2 倍显示尺寸（宽 2400px 左右）即可。
+- 截图统一用 WebP：放入 PNG / JPG 后执行 `pnpm shots` 转换（最长边 2400px，质量 82）。
+- 构建时再按 640 / 960 / 1440 输出多尺寸 WebP；首页轮播只有第一张优先加载，其余懒加载。
+
+## 部署提示
+
+`dist/` 为纯静态文件。`/_astro/` 下的资源文件名带内容哈希，网关可设置长缓存（如 `Cache-Control: public, max-age=31536000, immutable`）；HTML 不缓存或短缓存。
 
 ## 备案相关约定
 

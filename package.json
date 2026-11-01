@@ -12,6 +12,7 @@
 		"build": "astro check && astro build",
 		"preview": "astro preview",
 		"check": "astro check",
+		"shots": "node scripts/optimize-shots.mjs",
 		"format": "prettier --write ."
 	},
 	"dependencies": {

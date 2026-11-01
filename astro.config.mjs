@@ -10,7 +10,7 @@ export default defineConfig({
 	devToolbar: { enabled: false },
 	integrations: [mdx(), sitemap()],
 	markdown: {
-		shikiConfig: { theme: 'vesper' },
+		shikiConfig: { themes: { light: 'github-light', dark: 'github-dark-dimmed' } },
 	},
 	vite: {
 		plugins: [tailwindcss()],

@@ -21,7 +21,15 @@ const canonical = new URL(Astro.url.pathname, site.url);
 		<title>{fullTitle}</title>
 		<meta name="description" content={description} />
 		<meta name="author" content={site.author} />
-		<meta name="theme-color" content="#0c0b10" />
+		<meta name="theme-color" content="#f7f7f5" />
+		<script is:inline>
+			(() => {
+				const saved = localStorage.getItem('theme');
+				const theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+				document.documentElement.dataset.theme = theme;
+				if (theme === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f0f11');
+			})();
+		</script>
 		<link rel="canonical" href={canonical} />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />

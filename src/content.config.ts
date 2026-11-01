@@ -27,7 +27,10 @@ const posts = defineCollection({
 		title: z.string(),
 		description: z.string(),
 		date: z.coerce.date(),
+		category: z.enum(['AI', '工程', '体验', '随想']),
 		tags: z.array(z.string()).default([]),
+		// 关联作品的 id，文末会展示作品卡片
+		project: z.string().optional(),
 		draft: z.boolean().default(false),
 	}),
 });

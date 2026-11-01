@@ -1,31 +1,38 @@
 ---
 title: 重建小筑：为什么用 Astro 写个人主页
-description: 旧主页是一个 React 单页应用，这次换成 Astro 静态站点，记录一下取舍。
+description: 旧主页是一个依赖已下线后端的 React 单页应用。这次换成静态站点，顺便记录一次和 AI 一起完成的重建。
 date: 2026-11-01
-tags: [Astro, 个人主页, 工程化]
+category: 工程
+tags: [Astro, 静态站点, AI 协作]
 ---
 
-旧版主页是一个 React + Redux + Ant Design 的单页应用，首屏要加载完整的 JS 才能看到内容，还依赖一个早已下线的后端。这次重写，我给自己定了三个目标：
+旧版主页是 React + Redux + Ant Design 的单页应用。打开它要先下载完整的 JS 才能看到内容，而它依赖的后端早已下线，一半的页面都是空的。
 
-1. **内容优先**：文章和作品都是 Markdown，写完即发布，不需要后台。
+重写之前，我给自己列了三条要求：
+
+1. **内容优先**：作品和随笔都是 Markdown，写完即发布，不需要后台。
 2. **足够快**：页面默认是纯静态 HTML，只有真正需要交互的地方才加载脚本。
-3. **好维护**：新增一个作品，只需要写一个 Markdown 文件、丢一个截图文件夹。
+3. **好维护**：新增一个作品，只需要写一个 Markdown 文件、放一个截图文件夹。
 
 ## 为什么是 Astro
 
-Astro 的「群岛架构」默认不向浏览器发送任何框架运行时，这对以阅读为主的个人站点再合适不过。内容集合（Content Collections）配合 Zod 校验 frontmatter，写错字段会在构建期直接报错。
+Astro 默认不向浏览器发送任何框架运行时，这对以阅读为主的个人站点很合适。内容集合（Content Collections）用 Zod 校验 frontmatter，字段写错会在构建时直接报错，而不是上线后才发现某个页面缺了标题。
 
 ```ts
-const projects = defineCollection({
-	loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
-	schema: z.object({ title: z.string(), order: z.number() }),
+const posts = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
+	schema: z.object({ title: z.string(), date: z.coerce.date() }),
 });
 ```
 
-## 截图怎么管理
+## 图片
 
-每个作品对应 `src/assets/projects/<作品>/` 目录，子目录就是分组，文件名就是图注，`01-` 这样的前缀只用来排序。构建时 Astro 会把截图压缩成多种尺寸的 WebP，按屏幕宽度按需加载。
+截图是这个站点里最重的资源。源文件统一转成 WebP，最长边限制在 2400px；构建时再按 640、960、1440 三档宽度输出，浏览器按屏幕挑选合适的一张。首页的轮播只让第一张图立即加载，其余在接近视口时才请求，切换前预取下一张。
 
-## 视觉
+二十多张截图，源文件从 17MB 降到了 2MB 出头。
 
-整体走深色、编辑感的路线：衬线字体做标题，等宽字体做标注，配一只住在月亮上的兔子。它也是我知识库项目的吉祥物。
+## 和 AI 一起做
+
+这次重建几乎全程和 AI 编程助手协作完成：我负责定方向、做取舍、提出「这里不够好」，它负责快速给出实现，我再逐行读、在浏览器里逐页看效果。配色推翻过两次，导航改过三版——AI 让试错变得很便宜，但「哪一版更好」仍然需要自己判断。
+
+这大概是我现在最习惯的工作方式：把想清楚的部分交给自己，把能描述清楚的部分交给 AI。

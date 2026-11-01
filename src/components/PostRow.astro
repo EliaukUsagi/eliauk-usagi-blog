@@ -1,0 +1,54 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import SiteIcon from '@/components/SiteIcon.astro';
+import { formatDate } from '@/lib/formatDate';
+import { readingMinutes } from '@/lib/postMeta';
+
+type Props = { post: CollectionEntry<'posts'> };
+const { post } = Astro.props;
+const { data } = post;
+---
+
+<a
+	href={`/posts/${post.id}`}
+	data-category={data.category}
+	class="post-row group relative grid gap-x-8 gap-y-2 border-b border-line py-8 md:grid-cols-[7rem_1fr_auto] md:items-baseline"
+>
+	<span class="row-wash" aria-hidden="true"></span>
+	<div class="relative flex items-center gap-3 font-mono text-xs text-faint md:block">
+		<time datetime={data.date.toISOString()}>{formatDate(data.date).slice(5)}</time>
+		<span class="text-accent md:mt-2 md:block">{data.category}</span>
+	</div>
+	<div class="relative">
+		<h3 class="display text-2xl leading-snug text-fg transition-colors duration-300 group-hover:text-accent md:text-[1.7rem]">
+			{data.title}
+		</h3>
+		<p class="mt-2.5 max-w-2xl text-[0.95rem] leading-relaxed text-mute">{data.description}</p>
+	</div>
+	<div class="relative hidden items-center gap-4 font-mono text-xs text-faint md:flex">
+		<span>{readingMinutes(post.body)} min</span>
+		<SiteIcon
+			name="arrow"
+			class="size-4 -translate-x-2 opacity-0 transition duration-500 group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100"
+		/>
+	</div>
+</a>
+
+<style>
+	.row-wash {
+		position: absolute;
+		inset: 0 -1.25rem;
+		border-radius: 1rem;
+		background: color-mix(in srgb, var(--fg) 3.5%, transparent);
+		transform: scaleY(0.6);
+		opacity: 0;
+		transition:
+			transform 0.5s var(--ease-out-expo),
+			opacity 0.35s ease;
+	}
+
+	.post-row:hover .row-wash {
+		transform: none;
+		opacity: 1;
+	}
+</style>

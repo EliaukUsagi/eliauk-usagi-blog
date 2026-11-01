@@ -6,6 +6,7 @@ import mascot from '@/assets/brand/usagi-mascot.svg';
 import { site } from '@/site.config';
 
 const skills = [
+	{ area: 'AI 应用', items: ['RAG', 'Agent 工作流', 'Prompt 工程', '向量检索 / 重排', '评测与可观测'] },
 	{ area: '前端', items: ['Vue 3', 'React', 'TypeScript', 'Vite', 'Tailwind CSS', 'Naive UI / Ant Design'] },
 	{ area: '桌面', items: ['Tauri 2', 'Rust', 'Electron', 'Web Audio'] },
 	{ area: '服务端', items: ['Python', 'FastAPI', 'SQLAlchemy', 'PostgreSQL', 'Node.js'] },
@@ -18,41 +19,55 @@ const skills = [
 		<div class="grid gap-16 lg:grid-cols-12">
 			<div class="lg:col-span-7">
 				<p class="rise label mb-6" style="--d:0">
-					<span class="text-cream">04</span> / About
+					<span class="text-accent">04</span> / About
 				</p>
-				<h1 class="rise display text-6xl leading-[1.02] text-paper md:text-7xl" style="--d:1">
-					嗨，我是 <em class="text-cream">{site.author}</em>
+				<h1 class="rise display text-6xl leading-[1.02] text-fg md:text-7xl" style="--d:1">
+					嗨，我是 <em class="text-accent">{site.author}</em>
 				</h1>
+				<p class="rise mt-6 font-mono text-sm text-faint" style="--d:2">
+					Eliauk ⇄ kuailE（快乐）· Usagi 是名字 —— 合起来，就是「快乐的 Usagi」
+				</p>
 				<div class="rise mt-10 space-y-5 text-lg leading-relaxed text-mute" style="--d:2">
-					<p>一名{site.role}。日常工作在浏览器里，业余时间喜欢往外多走一步：写桌面应用、搭服务端、折腾部署。</p>
 					<p>
-						我在意代码之外的东西——清晰的分层、可检查的约束、顺手的工具链，以及界面上每一处细节。能把复杂的东西做简单，是我最喜欢的成就感。
+						{site.role}。最早写网页；后来想让界面跑在桌面上，学了 Electron；为了更小的体积和更完整的原生能力，又开始学
+						Rust 和 Tauri；想弄清楚数据从哪里来，就写起了服务端。这条路不是提前规划的，大多是被一个个具体问题带着走的。
 					</p>
-					<p>这间「{site.name}」是我的个人主页，存放作品与随笔。门口那只兔子叫 Usagi，日语里就是「兔子」的意思。</p>
+					<p>
+						这两年，大模型改变了写代码的方式，也改变了软件能做的事。日常开发里，我和 AI
+						编程助手一起拆解需求、讨论方案、评审代码；业余时间在做一套知识库问答系统，从文档治理、混合检索到带引用的回答，一点点弄清楚
+						RAG 落到真实数据上会遇到哪些问题。
+					</p>
+					<p>
+						我的习惯是先读文档和源码再动手，做完回头复盘，把踩过的坑写成笔记。这里的作品和随笔，就是这些过程的记录，难免有不成熟的地方，欢迎指正。
+					</p>
+					<p>门口那只兔子是 Usagi，也是我所有项目的吉祥物。</p>
 				</div>
 				<a
 					href={site.github}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="rise mt-10 inline-flex items-center gap-2.5 rounded-full bg-paper px-6 py-3 text-sm font-medium text-ink transition hover:bg-cream"
+					class="rise mt-10 inline-flex items-center gap-2.5 rounded-full bg-fg px-6 py-3 text-sm font-medium text-canvas transition hover:bg-accent"
 					style="--d:3"
 				>
 					<SiteIcon name="github" class="size-4" /> 在 GitHub 上找到我
 				</a>
 			</div>
 			<div class="rise relative lg:col-span-5" style="--d:2">
-				<div class="relative mx-auto grid aspect-[4/5] max-w-sm place-items-center overflow-hidden rounded-[2rem] border border-line bg-ink-2">
-					<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgb(253_241_196/0.14),transparent_60%)]"></div>
+				<div class="relative mx-auto grid aspect-[4/5] max-w-sm place-items-center overflow-hidden rounded-[2rem] border border-line bg-card">
+					<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,var(--moon-glow),transparent_60%)]"></div>
 					<Image src={mascot} alt="Usagi 兔子" class="relative w-1/2 -rotate-6" />
 					<p class="label absolute bottom-6">usagi · since {site.since}</p>
 				</div>
 			</div>
 		</div>
 
-		<div class="mt-32 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+		<p class="reveal label mt-32 mb-6">
+			<span class="text-accent">Toolbox</span> / 常用技术 · 持续学习中
+		</p>
+		<div class="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
 			{skills.map((group) => (
-				<div class="reveal bg-ink p-7">
-					<p class="label mb-5 text-cream">{group.area}</p>
+				<div class="reveal bg-card p-7">
+					<p class="label mb-5 text-accent">{group.area}</p>
 					<ul class="space-y-2.5 text-sm text-mute">
 						{group.items.map((item) => (
 							<li>{item}</li>

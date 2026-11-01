@@ -9,13 +9,13 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 <BaseLayout title="作品" description="Eliauk 的个人作品：桌面应用、知识系统与工程实践。">
 	<section class="mx-auto max-w-6xl px-6 pt-40">
 		<p class="rise label mb-6" style="--d:0">
-			<span class="text-cream">01</span> / Selected Works
+			<span class="text-accent">01</span> / Selected Works
 		</p>
-		<h1 class="rise display text-6xl text-paper md:text-8xl" style="--d:1">
-			作品<span class="text-blush">.</span>
+		<h1 class="rise display text-6xl text-fg md:text-8xl" style="--d:1">
+			作品<span class="text-accent">.</span>
 		</h1>
 		<p class="rise mt-6 max-w-xl text-lg text-mute" style="--d:2">
-			从第一个 Electron 播放器到 Rust 重构，再到一整套知识库系统——每个作品都记录了一段技术上的长进。
+			有的是从零开始的尝试，有的是推倒重来的第二版。每个作品都附上了当时的思路、取舍和还没解决的问题。
 		</p>
 		<div class="mt-24 flex flex-col gap-28">
 			{projects.map((project, index) => (

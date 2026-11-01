@@ -28,16 +28,16 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 
 <BaseLayout title={data.title} description={data.summary}>
 	<article class="mx-auto max-w-6xl px-6 pt-40">
-		<a href="/projects" class="rise label mb-10 inline-flex items-center gap-2 hover:text-paper" style="--d:0">
+		<a href="/projects" class="rise label mb-10 inline-flex items-center gap-2 hover:text-fg" style="--d:0">
 			<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 全部作品
 		</a>
 
 		<header class="grid gap-10 lg:grid-cols-12">
 			<div class="lg:col-span-8">
-				<p class="rise font-mono text-xs text-cream" style="--d:1">
+				<p class="rise font-mono text-xs text-accent" style="--d:1">
 					{data.subtitle}
 				</p>
-				<h1 class="rise display mt-4 text-5xl leading-[1.02] text-paper md:text-7xl" style="--d:2">
+				<h1 class="rise display mt-4 text-5xl leading-[1.02] text-fg md:text-7xl" style="--d:2">
 					{data.title}
 				</h1>
 				<p class="rise mt-6 max-w-2xl text-lg leading-relaxed text-mute" style="--d:3">
@@ -47,11 +47,11 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 			<dl class="rise grid grid-cols-2 content-end gap-x-6 gap-y-5 text-sm lg:col-span-4 lg:grid-cols-1" style="--d:4">
 				<div>
 					<dt class="label">年份</dt>
-					<dd class="mt-1.5 text-paper">{data.year}</dd>
+					<dd class="mt-1.5 text-fg">{data.year}</dd>
 				</div>
 				<div>
 					<dt class="label">状态</dt>
-					<dd class="mt-1.5 text-paper">{data.status}</dd>
+					<dd class="mt-1.5 text-fg">{data.status}</dd>
 				</div>
 				{(data.repo || data.release) && (
 					<div class="col-span-2 flex flex-wrap gap-3 lg:col-span-1">
@@ -60,7 +60,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 								href={data.repo}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="flex items-center gap-2 rounded-full bg-paper px-4 py-2 text-ink transition hover:bg-cream"
+								class="flex items-center gap-2 rounded-full bg-fg px-4 py-2 text-canvas transition hover:bg-accent"
 							>
 								<SiteIcon name="github" class="size-4" />
 								源码
@@ -71,7 +71,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 								href={data.release}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="flex items-center gap-2 rounded-full border border-line-strong px-4 py-2 text-paper transition hover:bg-paper/5"
+								class="flex items-center gap-2 rounded-full border border-line-strong px-4 py-2 text-fg transition hover:bg-fg/5"
 							>
 								Releases <SiteIcon name="external" class="size-3.5" />
 							</a>
@@ -91,7 +91,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 					<p class="label mb-5">技术栈</p>
 					<ul class="flex flex-wrap gap-1.5">
 						{data.stack.map((tech) => (
-							<li class="rounded-md border border-line bg-ink-2 px-2 py-1 font-mono text-[0.7rem] text-mute">{tech}</li>
+							<li class="rounded-md border border-line bg-card px-2 py-1 font-mono text-[0.7rem] text-mute">{tech}</li>
 						))}
 					</ul>
 
@@ -101,7 +101,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 							<ol class="space-y-4">
 								{data.highlights.map((item, i) => (
 									<li class="flex gap-3 text-sm leading-relaxed text-mute">
-										<span class="font-mono text-[0.68rem] text-cream">{String(i + 1).padStart(2, '0')}</span>
+										<span class="font-mono text-[0.68rem] text-accent">{String(i + 1).padStart(2, '0')}</span>
 										{item}
 									</li>
 								))}
@@ -120,12 +120,12 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 											<span
 												class:list={[
 													'absolute top-1.5 -left-[1.42rem] size-2 rounded-full',
-													item.id === project.id ? 'bg-cream' : 'bg-faint',
+													item.id === project.id ? 'bg-accent' : 'bg-faint',
 												]}
 											/>
 											<a
 												href={`/projects/${item.id}`}
-												class:list={['text-sm', item.id === project.id ? 'text-paper' : 'text-mute hover:text-paper']}
+												class:list={['text-sm', item.id === project.id ? 'text-fg' : 'text-mute hover:text-fg']}
 											>
 												{item.data.title}
 											</a>
@@ -138,7 +138,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 				</div>
 			</aside>
 
-			<div class="prose prose-invert prose-lg max-w-none lg:col-span-8 prose-headings:font-display prose-headings:font-normal prose-a:text-cream prose-blockquote:border-cream/40 prose-blockquote:text-mute prose-strong:text-paper">
+			<div class="prose prose-lg max-w-none lg:col-span-8 prose-headings:font-display prose-headings:font-normal prose-a:text-accent prose-blockquote:border-accent/40 prose-blockquote:text-mute prose-strong:text-fg">
 				<Content />
 			</div>
 		</div>
@@ -146,11 +146,11 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 		{groups.length > 0 && rest.length > 0 && (
 			<section class="mt-32">
 				<p class="label mb-10">
-					<span class="text-cream">Gallery</span> / 界面一览
+					<span class="text-accent">Gallery</span> / 界面一览
 				</p>
 				{groups.map((group) => (
 					<div class="mb-20">
-						{group.label && <h2 class="display reveal mb-8 text-3xl text-paper">{group.label}</h2>}
+						{group.label && <h2 class="display reveal mb-8 text-3xl text-fg">{group.label}</h2>}
 						<div class="grid items-start gap-8 md:grid-cols-2">
 							{group.shots.map((shot, i) => (
 								<WindowFrame
@@ -172,13 +172,13 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 			>
 				<div>
 					<p class="label mb-4">下一个作品</p>
-					<p class="display text-4xl text-paper transition-colors group-hover:text-cream md:text-6xl">
+					<p class="display text-4xl text-fg transition-colors group-hover:text-accent md:text-6xl">
 						{next.data.title}
 					</p>
 				</div>
 				<SiteIcon
 					name="arrow"
-					class="mb-3 size-8 text-mute transition-transform duration-500 group-hover:translate-x-2 group-hover:text-cream"
+					class="mb-3 size-8 text-mute transition-transform duration-500 group-hover:translate-x-2 group-hover:text-accent"
 				/>
 			</a>
 		)}

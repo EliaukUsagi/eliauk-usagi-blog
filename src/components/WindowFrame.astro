@@ -8,12 +8,9 @@ const { shot, title, eager = false, class: className } = Astro.props;
 ---
 
 <figure
-	class:list={[
-		'overflow-hidden rounded-xl border border-line-strong bg-ink-2 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.8)]',
-		className,
-	]}
+	class:list={['overflow-hidden rounded-xl border border-line-strong bg-card shadow-[var(--shadow-frame)]', className]}
 >
-	<div class="flex items-center gap-2 border-b border-line bg-ink-3/80 px-3.5 py-2.5">
+	<div class="flex items-center gap-2 border-b border-line bg-sunk/80 px-3.5 py-2.5">
 		<span class="size-2.5 rounded-full bg-[#ff5f57]/80"></span>
 		<span class="size-2.5 rounded-full bg-[#febc2e]/80"></span>
 		<span class="size-2.5 rounded-full bg-[#28c840]/80"></span>
@@ -33,7 +30,7 @@ const { shot, title, eager = false, class: className } = Astro.props;
 		/>
 	) : (
 		<div class="relative grid aspect-[16/10] place-items-center overflow-hidden">
-			<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgb(253_241_196/0.08),transparent_60%)]" />
+			<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,var(--moon-glow),transparent_60%)]" />
 			<div class="relative flex flex-col items-center gap-4">
 				<Image src={mascot} alt="" class="size-16 opacity-80" />
 				<span class="label">截图整理中</span>

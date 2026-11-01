@@ -27,7 +27,3 @@ export function getShotGroups(dir: string): ShotGroup[] {
 
 	return [...groups.entries()].map(([label, shots]) => ({ label: stripOrder(label), shots }));
 }
-
-export function getCover(dir: string): Shot | undefined {
-	return getShotGroups(dir)[0]?.shots[0];
-}
