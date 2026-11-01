@@ -66,7 +66,7 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 		</SectionHead>
 		<div class="flex flex-col gap-32">
 			{projects.map((project, index) => (
-				<ProjectFeature project={project} index={index} />
+				<ProjectFeature project={project} index={index} total={projects.length} />
 			))}
 		</div>
 	</section>

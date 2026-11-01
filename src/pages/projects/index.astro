@@ -20,7 +20,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 		</p>
 		<div class="mt-24 flex flex-col gap-32">
 			{projects.map((project, index) => (
-				<ProjectFeature project={project} index={index} />
+				<ProjectFeature project={project} index={index} total={projects.length} />
 			))}
 		</div>
 	</section>

@@ -52,17 +52,9 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 					{data.summary}
 				</p>
 			</div>
-			<dl class="rise grid grid-cols-2 content-end gap-x-6 gap-y-5 text-sm lg:col-span-4 lg:grid-cols-1" style="--d:4">
-				<div>
-					<dt class="label">年份</dt>
-					<dd class="mt-1.5 text-fg">{data.year}</dd>
-				</div>
-				<div>
-					<dt class="label">状态</dt>
-					<dd class="mt-1.5 text-fg">{data.status}</dd>
-				</div>
+			<div class="rise flex items-end text-sm lg:col-span-4 lg:justify-end" style="--d:4">
 				{(data.repo || data.release) && (
-					<div class="col-span-2 flex flex-wrap gap-3 lg:col-span-1">
+					<div class="flex flex-wrap gap-3">
 						{data.repo && (
 							<a href={data.repo} target="_blank" rel="noopener noreferrer" class="btn btn-primary px-4 py-2">
 								<SiteIcon name="github" class="size-4" />
@@ -81,7 +73,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 						)}
 					</div>
 				)}
-			</dl>
+			</div>
 		</header>
 
 		<div class="rise mt-16" style="--d:5">
@@ -138,7 +130,6 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 											>
 												{item.data.title}
 											</a>
-											<p class="font-mono text-[0.65rem] text-faint">{item.data.year}</p>
 										</li>
 									))}
 							</ol>

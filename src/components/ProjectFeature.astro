@@ -5,8 +5,8 @@ import WindowFrame from '@/components/WindowFrame.astro';
 import ShotCarousel from '@/components/ShotCarousel.astro';
 import { getShotGroups } from '@/lib/projectShots';
 
-type Props = { project: CollectionEntry<'projects'>; index: number };
-const { project, index } = Astro.props;
+type Props = { project: CollectionEntry<'projects'>; index: number; total: number };
+const { project, index, total } = Astro.props;
 const { data } = project;
 // 首页轮播最多取 6 张，跨分组按顺序排列
 const shots = getShotGroups(data.shots)
@@ -16,45 +16,52 @@ const flip = index % 2 === 1;
 const href = `/projects/${project.id}`;
 // 与详情页头图同名，跨页跳转时窗口做共享元素过渡
 const transitionName = `project-${project.id}`;
+const pad = (n: number) => String(n).padStart(2, '0');
 const lift = 'transition duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5';
 ---
 
 <article class="group grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
 	<div class:list={['lg:col-span-5', flip && 'lg:order-2']}>
-		<div class="reveal mb-7 flex items-center gap-4">
-			<span class="display text-[2.75rem] leading-none text-faint">{String(index + 1).padStart(2, '0')}</span>
+		<div class="reveal mb-8 flex items-center gap-3 font-mono text-xs tracking-wider">
+			<span class="text-fg">{pad(index + 1)}</span>
+			<span class="text-faint">/ {pad(total)}</span>
 			<span class="h-px flex-1 bg-line"></span>
-			<span class="chip">
-				<span class="mr-1.5 size-1.5 rounded-full bg-accent"></span>
-				{data.status}
-			</span>
 		</div>
 
-		<h3 class="reveal display text-3xl leading-[1.1] text-fg md:text-[2.6rem]" style="--d:1">
+		<h3 class="reveal display text-[2rem] leading-[1.1] text-fg md:text-[2.5rem]" style="--d:1">
 			<a href={href} class="link-underline">
 				{data.title}
 			</a>
 		</h3>
-		<p class="reveal mt-3 text-[0.95rem] text-soft" style="--d:2">
+		<p class="reveal mt-3 text-[0.95rem] font-medium text-soft" style="--d:2">
 			{data.subtitle}
 		</p>
-		<p class="reveal mt-5 leading-[1.8] text-mute" style="--d:3">
+		<p class="reveal mt-5 max-w-[34rem] text-[0.95rem] leading-[1.85] text-mute" style="--d:3">
 			{data.summary}
 		</p>
 
-		<ul class="reveal mt-7 flex flex-wrap gap-1.5" style="--d:4">
-			{data.stack.map((tech) => (
-				<li class="chip">{tech}</li>
+		{/* 技术栈用分隔列表而非整排胶囊，长栈不至于换成三四行抢走标题的视觉重心 */}
+		<ul
+			class="reveal mt-7 flex max-w-[34rem] flex-wrap items-center gap-y-1.5 border-t border-line pt-5 text-[0.8rem] text-soft"
+			style="--d:4"
+		>
+			{data.stack.map((tech, i) => (
+				<li class="inline-flex items-center">
+					{i > 0 && <span class="mx-2.5 size-[3px] rounded-full bg-faint" aria-hidden="true"></span>}
+					{tech}
+				</li>
 			))}
 		</ul>
 
 		<div class="reveal mt-9 flex flex-wrap items-center gap-6 text-sm" style="--d:5">
-			<a href={href} class="group/btn inline-flex items-center gap-2 font-medium text-fg">
+			<a href={href} class="group/btn inline-flex items-center gap-3 font-medium text-fg">
+				<span class="grid size-9 place-items-center rounded-full border border-line-strong transition-colors duration-300 group-hover/btn:border-fg group-hover/btn:bg-fg group-hover/btn:text-canvas">
+					<SiteIcon
+						name="arrow"
+						class="size-3.5 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover/btn:translate-x-0.5"
+					/>
+				</span>
 				<span class="link-underline">查看详情</span>
-				<SiteIcon
-					name="arrow"
-					class="size-4 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover/btn:translate-x-1"
-				/>
 			</a>
 			{data.repo && (
 				<a
@@ -86,3 +93,4 @@ const lift = 'transition duration-[var(--dur-hover)] ease-[var(--ease-out-expo)]
 		)}
 	</div>
 </article>
+

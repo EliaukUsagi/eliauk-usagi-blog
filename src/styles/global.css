@@ -247,9 +247,10 @@ html[data-theme='dark'] {
 		align-items: center;
 		border-radius: 9999px;
 		border: 1px solid var(--line);
-		padding: 0.2rem 0.6rem;
-		font-family: var(--font-mono);
-		font-size: 0.68rem;
+		padding: 0.22rem 0.65rem;
+		/* 中英混排的标签用无衬线，等宽字会把中文与「+」等符号撑出松散的间距 */
+		font-size: 0.72rem;
+		line-height: 1.4;
 		color: var(--mute);
 		background: color-mix(in srgb, var(--card) 70%, transparent);
 	}

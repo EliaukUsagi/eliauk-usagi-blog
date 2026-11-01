@@ -1,0 +1,304 @@
+---
+type Group = { area: string; items: string[] };
+type Props = { groups: Group[] };
+const { groups } = Astro.props;
+
+// 设计坐标系，节点以百分比定位，与 SVG viewBox 一致，保证连线落在节点中心
+const W = 1200;
+const H = 760;
+const cx = W / 2;
+const cy = H / 2;
+// 横向拉伸成椭圆，宽屏下标签更舒展
+const SX = 1.5;
+const HUB_R = 140;
+// 椭圆顶部和底部横向空间最窄，相邻标签在内外两条轨道上交替；两侧纵向空间足，统一走中间轨道
+const OUTER_R = [260, 340];
+const SIDE_R = 310;
+
+const total = groups.reduce((n, g) => n + g.items.length, 0);
+// 每组之间空一格，让分组在圆周上自然断开
+const slots = total + groups.length;
+const step = (Math.PI * 2) / slots;
+const start = -Math.PI / 2 - step * (groups[0].items.length / 2);
+
+const point = (angle: number, r: number) => ({
+	x: cx + Math.cos(angle) * r * SX,
+	y: cy + Math.sin(angle) * r,
+});
+
+let cursor = 0;
+const nodes = groups.map((group, gi) => {
+	const angles = group.items.map((_, i) => start + step * (cursor + i));
+	cursor += group.items.length + 1;
+	const mid = (angles[0] + angles[angles.length - 1]) / 2;
+	const hub = point(mid, HUB_R);
+	const items = group.items.map((label, i) => {
+		const r = Math.abs(Math.sin(angles[i])) > 0.75 ? OUTER_R[(i + gi) % 2] : SIDE_R;
+		const p = point(angles[i], r);
+		// 连线从分组节点出发，控制点向外偏，形成柔和的弧
+		const c = point((angles[i] + mid) / 2, (HUB_R + r) / 2 + 20);
+		return { label, ...p, path: `M${hub.x} ${hub.y} Q${c.x} ${c.y} ${p.x} ${p.y}` };
+	});
+	return { ...group, id: `g${gi}`, hub, items, spoke: `M${cx} ${cy} L${hub.x} ${hub.y}` };
+});
+
+const pct = (x: number, y: number) => `left:${((x / W) * 100).toFixed(3)}%;top:${((y / H) * 100).toFixed(3)}%`;
+let order = 0;
+---
+
+<div class="tech-map reveal relative hidden lg:block" style={`aspect-ratio:${W}/${H}`} data-tech-map>
+	<svg class="absolute inset-0 size-full" viewBox={`0 0 ${W} ${H}`} fill="none" aria-hidden="true">
+		<ellipse class="map-orbit" cx={cx} cy={cy} rx={OUTER_R[1] * SX + 30} ry={OUTER_R[1] + 30} />
+		<ellipse class="map-orbit map-orbit-spin" cx={cx} cy={cy} rx={HUB_R * SX} ry={HUB_R} />
+		{nodes.map((group, gi) => (
+			<g data-group={group.id}>
+				<path class="map-line map-spoke" d={group.spoke} pathLength="1" style={`--i:${gi}`} />
+				{group.items.map((item, i) => (
+					<path class="map-line" d={item.path} pathLength="1" style={`--i:${gi + i * 0.4 + 1}`} />
+				))}
+			</g>
+		))}
+	</svg>
+
+	<div class="map-core absolute grid size-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full" style={pct(cx, cy)}>
+		<span class="text-sm font-semibold text-fg">Stack</span>
+	</div>
+
+	{nodes.map((group, gi) => (
+		<>
+			<button
+				type="button"
+				class="map-hub absolute -translate-x-1/2 -translate-y-1/2"
+				style={`${pct(group.hub.x, group.hub.y)};--i:${gi}`}
+				data-group={group.id}
+			>
+				{group.area}
+				<span class="font-mono text-[0.65rem] text-faint">{group.items.length}</span>
+			</button>
+			{group.items.map((item) => (
+				<span
+					class="map-node absolute"
+					style={`${pct(item.x, item.y)};--i:${order++}`}
+					data-group={group.id}
+				>
+					<span class="map-chip">{item.label}</span>
+				</span>
+			))}
+		</>
+	))}
+</div>
+
+{/* 窄屏放不下环形布局，退化为分组列表 */}
+<div class="space-y-6 lg:hidden">
+	{groups.map((group, i) => (
+		<div class="reveal grid gap-3 sm:grid-cols-[8rem_1fr] sm:gap-8" style={`--d:${i}`}>
+			<p class="flex items-baseline gap-3 text-fg">
+				<span class="font-medium">{group.area}</span>
+				<span class="font-mono text-xs text-faint">{String(group.items.length).padStart(2, '0')}</span>
+			</p>
+			<ul class="flex flex-wrap gap-2">
+				{group.items.map((item) => (
+					<li class="chip">{item}</li>
+				))}
+			</ul>
+		</div>
+	))}
+</div>
+
+<script>
+	function setupTechMap() {
+		document.querySelectorAll<HTMLElement>('[data-tech-map]').forEach((map) => {
+			const parts = map.querySelectorAll<Element>('[data-group]');
+			const focus = (group: string | null) => {
+				map.toggleAttribute('data-focused', group !== null);
+				parts.forEach((el) => el.classList.toggle('is-on', el.getAttribute('data-group') === group));
+			};
+			map.querySelectorAll<HTMLElement>('.map-hub, .map-node').forEach((el) => {
+				const group = el.dataset.group ?? null;
+				el.addEventListener('pointerenter', () => focus(group));
+				el.addEventListener('focus', () => focus(group));
+				el.addEventListener('blur', () => focus(null));
+			});
+			map.addEventListener('pointerleave', () => focus(null));
+		});
+	}
+
+	setupTechMap();
+</script>
+
+<style>
+	.map-orbit {
+		stroke: var(--line);
+		stroke-dasharray: 2 8;
+	}
+
+	.map-orbit-spin {
+		stroke: var(--line-strong);
+		stroke-dasharray: 1 12;
+		animation: orbit-flow 40s linear infinite;
+	}
+
+	.map-line {
+		stroke: var(--line-strong);
+		stroke-width: 1;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 0;
+		transition:
+			stroke 0.4s ease,
+			opacity 0.4s ease;
+	}
+
+	.map-spoke {
+		stroke-dasharray: 0.02 0.02;
+	}
+
+	.map-core {
+		border: 1px solid var(--line-strong);
+		background:
+			radial-gradient(circle at 34% 28%, var(--moon-hi), transparent 55%),
+			radial-gradient(circle at 55% 50%, var(--moon-base), var(--moon-edge));
+		box-shadow:
+			0 0 0 10px color-mix(in srgb, var(--card) 50%, transparent),
+			0 0 60px 8px var(--moon-glow);
+	}
+
+	.map-hub {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.4rem;
+		padding: 0.45rem 0.95rem;
+		border-radius: 9999px;
+		border: 1px solid var(--line-strong);
+		background: var(--card);
+		box-shadow: var(--shadow-frame);
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: var(--fg);
+		white-space: nowrap;
+		cursor: default;
+		transition:
+			opacity 0.4s ease,
+			border-color 0.4s ease,
+			color 0.4s ease;
+	}
+
+	/* 居中用 transform，漂浮动画走独立的 translate 属性，两者互不覆盖 */
+	.map-node {
+		transform: translate(-50%, -50%);
+		animation: node-float 7s ease-in-out infinite;
+		animation-delay: calc(var(--i) * -0.6s);
+		transition: opacity 0.4s ease;
+	}
+
+	.map-chip {
+		display: inline-block;
+		padding: 0.3rem 0.75rem;
+		border-radius: 9999px;
+		border: 1px solid var(--line);
+		background: color-mix(in srgb, var(--card) 85%, transparent);
+		font-size: 0.78rem;
+		color: var(--soft);
+		white-space: nowrap;
+		transition:
+			border-color 0.4s ease,
+			color 0.4s ease,
+			background-color 0.4s ease,
+			transform var(--dur-hover) var(--ease-out-expo);
+	}
+
+	/* 聚焦某一组：其余淡出，本组连线换强调色并沿线流动 */
+	[data-focused] .map-hub:not(.is-on),
+	[data-focused] .map-node:not(.is-on),
+	[data-focused] g:not(.is-on) .map-line {
+		opacity: 0.22;
+	}
+
+	[data-focused] g.is-on .map-line {
+		stroke: var(--accent);
+		stroke-dasharray: 0.03 0.015;
+		animation: line-flow 1.6s linear infinite;
+	}
+
+	.map-hub.is-on {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+
+	.map-node.is-on .map-chip {
+		border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+		color: var(--fg);
+		background: var(--card);
+		transform: scale(1.06);
+	}
+
+	/* 进场：连线依次画出，节点随后浮现 */
+	:global(.motion) .tech-map:not(.is-in) .map-line {
+		stroke-dashoffset: 1;
+	}
+
+	:global(.motion) .tech-map .map-line {
+		transition:
+			stroke-dashoffset 1.2s var(--ease-out-expo) calc(var(--i) * 70ms),
+			stroke 0.4s ease,
+			opacity 0.4s ease;
+	}
+
+	/* 进场用 filter: opacity() 与 scale，和聚焦时的 opacity 淡出分开，进场延迟不会拖慢悬停反馈 */
+	:global(.motion) .tech-map:not(.is-in) :is(.map-hub, .map-chip, .map-core) {
+		filter: opacity(0);
+		scale: 0.85;
+	}
+
+	:global(.motion) .tech-map .map-hub {
+		transition-property: filter, scale, opacity, border-color, color;
+		transition-duration: 0.9s, 0.9s, 0.4s, 0.4s, 0.4s;
+		transition-timing-function: var(--ease-out-expo);
+		transition-delay: calc(var(--i) * 90ms + 200ms), calc(var(--i) * 90ms + 200ms), 0s, 0s, 0s;
+	}
+
+	:global(.motion) .tech-map .map-chip {
+		transition-property: filter, scale, border-color, color, background-color, transform;
+		transition-duration: 0.9s, 0.9s, 0.4s, 0.4s, 0.4s, var(--dur-hover);
+		transition-timing-function: var(--ease-out-expo);
+		transition-delay: calc(var(--i) * 35ms + 500ms), calc(var(--i) * 35ms + 500ms), 0s, 0s, 0s, 0s;
+	}
+
+	:global(.motion) .tech-map .map-core {
+		transition:
+			filter 0.9s var(--ease-out-expo),
+			scale 0.9s var(--ease-out-expo);
+	}
+
+	/* 外层 .reveal 的位移与模糊交给内部动画，避免叠加 */
+	:global(.motion) .tech-map.reveal:not(.is-in) {
+		opacity: 1;
+		transform: none;
+		filter: none;
+	}
+
+	@keyframes node-float {
+		50% {
+			translate: 0 -5px;
+		}
+	}
+
+	@keyframes orbit-flow {
+		to {
+			stroke-dashoffset: -260;
+		}
+	}
+
+	@keyframes line-flow {
+		to {
+			stroke-dashoffset: -0.045;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.map-node,
+		.map-orbit-spin,
+		[data-focused] g.is-on .map-line {
+			animation: none;
+		}
+	}
+</style>

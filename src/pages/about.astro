@@ -1,9 +1,36 @@
 ---
 import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SiteIcon from '@/components/SiteIcon.astro';
+import TechMap from '@/components/TechMap.astro';
 import mascot from '@/assets/brand/usagi-mascot.svg';
-import { site } from '@/site.config';
+import { repos, site } from '@/site.config';
+
+const projectCount = (await getCollection('projects')).length;
+const postCount = (await getCollection('posts', ({ data }) => !data.draft)).length;
+
+const stats = [
+	{ value: site.since, label: 'Usagi 诞生' },
+	{ value: projectCount, label: '完整作品' },
+	{ value: repos.length, label: '开源仓库' },
+	{ value: postCount, label: '随笔笔记' },
+];
+
+// 只记录方向的转变，不标年份：路线是被问题推着走的，并非按时间规划
+const path = [
+	{ title: '网页', desc: '从 HTML / CSS 写起，后来是 Vue 与 React 的组件化。' },
+	{ title: '桌面', desc: '想让界面跑在桌面上，用 Electron 做了第一版播放器。' },
+	{ title: 'Rust · Tauri', desc: '为了更小的体积和完整的原生能力，用 Tauri 2 重写。' },
+	{ title: '服务端', desc: '想弄清数据从哪里来，写起 FastAPI 与 PostgreSQL。' },
+	{ title: 'AI 应用', desc: '和大模型一起写代码，也在做带引用回答的 RAG 系统。' },
+];
+
+const habits = [
+	{ no: 'i', title: '先读再写', desc: '动手之前先读文档和源码，弄清边界与约束，再决定怎么做。' },
+	{ no: 'ii', title: '与 AI 结对', desc: '和编程助手一起拆需求、讨论方案、评审代码，人负责判断与取舍。' },
+	{ no: 'iii', title: '复盘成文', desc: '做完回头复盘，把踩过的坑写成笔记，这里的随笔就是这样来的。' },
+];
 
 const skills = [
 	{ area: 'AI 应用', items: ['RAG', 'Agent 工作流', 'Prompt 工程', '向量检索 / 重排', '评测与可观测'] },
@@ -15,71 +42,138 @@ const skills = [
 ---
 
 <BaseLayout title="关于" description="关于 Eliauk 与这间小筑。">
-	<section class="mx-auto max-w-6xl px-6 pt-40">
-		<div class="grid gap-16 lg:grid-cols-12">
+	<section class="mx-auto max-w-6xl px-6 pt-36 md:pt-40">
+		<div class="grid items-center gap-14 lg:grid-cols-12 lg:gap-16">
 			<div class="lg:col-span-7">
 				<p class="rise label mb-6" style="--d:0">
 					<span class="text-accent">04</span>
 					<span class="mx-2 text-faint">/</span>About
 				</p>
 				<h1 class="rise display text-5xl leading-[1.05] break-words text-fg sm:text-6xl md:text-7xl" style="--d:1">
-					嗨，我是 <em class="text-accent">{site.author}</em>
+					嗨，我是<br />
+					<span class="text-accent">{site.author}</span>
 				</h1>
-				<p class="rise mt-6 font-mono text-sm text-faint" style="--d:2">
-					Eliauk ⇄ kuailE（快乐）· Usagi 是名字 —— 合起来，就是「快乐的 Usagi」
+				<p class="rise mt-7 inline-flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-mute" style="--d:2">
+					<span class="font-mono text-fg">Eliauk</span>
+					<span class="text-faint">⇄</span>
+					<span class="font-mono">kuailE</span>
+					<span class="text-faint">（快乐）</span>
+					<span class="mx-1 h-3 w-px bg-line-strong"></span>
+					合起来，就是「快乐的 Usagi」
 				</p>
-				<div class="rise mt-10 space-y-5 text-lg leading-[1.85] text-mute" style="--d:3">
+				<div class="rise mt-8 max-w-xl space-y-4 text-[1.05rem] leading-[1.9] text-soft" style="--d:3">
 					<p>
-						{site.role}。最早写网页；后来想让界面跑在桌面上，学了 Electron；为了更小的体积和更完整的原生能力，又开始学
-						Rust 和 Tauri；想弄清楚数据从哪里来，就写起了服务端。这条路不是提前规划的，大多是被一个个具体问题带着走的。
+						{site.role}。这条路不是提前规划的，大多是被一个个具体问题带着走的：想让界面跑在桌面上、想要更小的体积、想弄清数据从哪里来。
 					</p>
-					<p>
-						这两年，大模型改变了写代码的方式，也改变了软件能做的事。日常开发里，我和 AI
-						编程助手一起拆解需求、讨论方案、评审代码；业余时间在做一套知识库问答系统，从文档治理、混合检索到带引用的回答，一点点弄清楚
-						RAG 落到真实数据上会遇到哪些问题。
+					<p class="text-mute">
+						这里的作品和随笔，是这些过程的记录，难免有不成熟的地方，欢迎指正。
 					</p>
-					<p>
-						我的习惯是先读文档和源码再动手，做完回头复盘，把踩过的坑写成笔记。这里的作品和随笔，就是这些过程的记录，难免有不成熟的地方，欢迎指正。
-					</p>
-					<p>门口那只兔子是 Usagi，也是我所有项目的吉祥物。</p>
 				</div>
-				<a
-					href={site.github}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="rise btn btn-primary mt-10"
-					style="--d:4"
-				>
-					<SiteIcon name="github" class="size-4" /> 在 GitHub 上找到我
-				</a>
+				<div class="rise mt-10 flex flex-wrap items-center gap-3" style="--d:4">
+					<a href={site.github} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+						<SiteIcon name="github" class="size-4" /> 在 GitHub 上找到我
+					</a>
+					<a href="/projects" class="btn btn-ghost">看看作品</a>
+				</div>
 			</div>
+
 			<div class="rise relative lg:col-span-5" style="--d:2">
-				<div class="relative mx-auto max-w-sm">
+				<div class="relative mx-auto max-w-[22rem]">
 					{/* 磨砂卡片后面压一轮月亮，玻璃质感才有内容可透 */}
 					<div class="about-moon absolute -top-10 -right-8 size-56 rounded-full" aria-hidden="true"></div>
-					<div class="glass relative grid aspect-[4/5] place-items-center overflow-hidden rounded-[2rem]">
-						<Image src={mascot} alt="Usagi 兔子" class="about-rabbit relative w-1/2 -rotate-6" />
-						<p class="label absolute bottom-6">usagi · since {site.since}</p>
+					<div class="glass about-card relative aspect-[4/5] overflow-hidden rounded-[2rem]">
+						<div class="flex items-center justify-between px-6 pt-5 font-mono text-[0.68rem] tracking-wider text-faint">
+							<span>USAGI.SVG</span>
+							<span>{site.nameEn}</span>
+						</div>
+						<div class="absolute inset-0 grid place-items-center">
+							<Image src={mascot} alt="Usagi 兔子" class="about-rabbit w-1/2 -rotate-6" />
+						</div>
+						<div class="absolute inset-x-5 bottom-5 flex items-center justify-between rounded-2xl border border-line bg-card/70 px-4 py-3">
+							<div>
+								<p class="text-sm font-medium text-fg">Usagi</p>
+								<p class="mt-0.5 text-xs text-mute">所有项目的吉祥物</p>
+							</div>
+							<span class="font-mono text-xs text-faint">since {site.since}</span>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<p class="reveal label mt-32 mb-6">
-			<span class="text-accent">Toolbox</span>
-			<span class="mx-2 text-faint">/</span>常用技术 · 持续学习中
-		</p>
-		<div class="reveal grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
-			{skills.map((group) => (
-				<div class="bg-card p-7">
-					<p class="label mb-5 text-fg">{group.area}</p>
-					<ul class="space-y-2.5 text-sm text-mute">
-						{group.items.map((item) => (
-							<li>{item}</li>
-						))}
-					</ul>
+		<dl class="reveal mt-24 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-4">
+			{stats.map((stat) => (
+				<div class="flex flex-col-reverse gap-2 bg-card px-6 py-7 md:px-8">
+					<dt class="text-xs text-mute">{stat.label}</dt>
+					<dd class="display text-4xl leading-none text-fg tabular-nums md:text-5xl">{stat.value}</dd>
 				</div>
 			))}
+		</dl>
+	</section>
+
+	<section class="mx-auto max-w-6xl px-6 pt-32">
+		<div class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
+			<div>
+				<p class="reveal label mb-4"><span class="text-accent">Path</span><span class="mx-2 text-faint">/</span>一路走来</p>
+				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">被问题带着走的一条路</h2>
+			</div>
+		</div>
+		<ol class="path relative grid gap-10 md:grid-cols-5 md:gap-6">
+			{path.map((step, i) => (
+				<li class="reveal relative pl-8 md:pt-10 md:pl-0" style={`--d:${i}`}>
+					<span class="path-node" aria-hidden="true" data-last={i === path.length - 1 ? '' : undefined}></span>
+					<p class="font-mono text-xs text-faint">{String(i + 1).padStart(2, '0')}</p>
+					<h3 class="mt-2 text-lg font-semibold text-fg">{step.title}</h3>
+					<p class="mt-2 text-sm leading-[1.8] text-mute">{step.desc}</p>
+				</li>
+			))}
+		</ol>
+	</section>
+
+	<section class="mx-auto max-w-6xl px-6 pt-32">
+		<div class="mb-12 border-b border-line pb-6">
+			<p class="reveal label mb-4"><span class="text-accent">Habits</span><span class="mx-2 text-faint">/</span>做事的方式</p>
+			<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">慢一点，但每一步都弄清楚</h2>
+		</div>
+		<div class="grid gap-4 md:grid-cols-3">
+			{habits.map((habit, i) => (
+				<div class="reveal" style={`--d:${i}`}>
+					<article class="habit-card h-full rounded-2xl border border-line bg-card p-7">
+						<span class="font-mono text-sm text-accent">{habit.no}.</span>
+						<h3 class="mt-8 text-xl font-semibold text-fg">{habit.title}</h3>
+						<p class="mt-3 text-sm leading-[1.85] text-mute">{habit.desc}</p>
+					</article>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<section class="mx-auto max-w-6xl px-6 pt-32">
+		<div class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
+			<div>
+				<p class="reveal label mb-4"><span class="text-accent">Toolbox</span><span class="mx-2 text-faint">/</span>常用技术</p>
+				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">技术栈地图</h2>
+			</div>
+			<p class="reveal hidden text-sm text-mute lg:block" style="--d:2">悬停分组，查看对应技术</p>
+		</div>
+		<TechMap groups={skills} />
+	</section>
+
+	<section class="mx-auto max-w-6xl px-6 pt-32">
+		<div class="reveal-media">
+			<div class="glass relative overflow-hidden rounded-[2rem] px-8 py-14 text-center md:py-20">
+				<div class="about-moon about-moon-sm absolute -top-16 left-1/2 size-40 -translate-x-1/2 rounded-full" aria-hidden="true"></div>
+				<p class="label relative">Say hi</p>
+				<p class="display relative mx-auto mt-5 max-w-xl text-2xl leading-snug text-fg md:text-3xl">
+					有想法、问题或建议，<br class="hidden sm:block" />欢迎在 GitHub 上找到我。
+				</p>
+				<div class="relative mt-9 flex flex-wrap justify-center gap-3">
+					<a href={site.github} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+						<SiteIcon name="github" class="size-4" /> @{site.githubUser}
+					</a>
+					<a href="/posts" class="btn btn-ghost">读读随笔</a>
+				</div>
+			</div>
 		</div>
 	</section>
 </BaseLayout>
@@ -93,13 +187,88 @@ const skills = [
 		animation: drift 14s ease-in-out infinite;
 	}
 
+	/* Tailwind v4 的 -translate-x-1/2 走独立的 translate 属性，不会被漂移动画的 transform 覆盖 */
+	.about-moon-sm {
+		opacity: 0.7;
+	}
+
 	.about-rabbit {
 		filter: drop-shadow(0 18px 30px var(--rabbit-shadow));
+		transition: transform var(--dur-hover) var(--ease-out-expo);
+	}
+
+	@media (hover: hover) {
+		.about-card:hover .about-rabbit {
+			transform: rotate(-2deg) translateY(-6px);
+		}
+
+		.habit-card {
+			transition:
+				transform var(--dur-hover) var(--ease-out-expo),
+				box-shadow var(--dur-hover) var(--ease-out-expo),
+				border-color 0.3s ease;
+		}
+
+		.habit-card:hover {
+			transform: translateY(-4px);
+			border-color: var(--line-strong);
+			box-shadow: var(--shadow-frame);
+		}
+	}
+
+	/* 路线：移动端为左侧竖线，md 以上为顶部横线，节点落在线上 */
+	.path::before {
+		content: '';
+		position: absolute;
+		top: 0.5rem;
+		bottom: 0.5rem;
+		left: 0.3125rem;
+		width: 1px;
+		background: linear-gradient(to bottom, var(--line-strong), var(--line) 85%, transparent);
+	}
+
+	.path-node {
+		position: absolute;
+		top: 0.25rem;
+		left: 0;
+		width: 0.625rem;
+		height: 0.625rem;
+		border-radius: 9999px;
+		border: 1.5px solid var(--line-strong);
+		background: var(--canvas);
+	}
+
+	.path-node[data-last] {
+		border-color: var(--accent);
+		background: var(--accent);
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+	}
+
+	@media (min-width: 768px) {
+		.path::before {
+			top: 0.3125rem;
+			bottom: auto;
+			left: 0;
+			right: 0;
+			width: auto;
+			height: 1px;
+			background: linear-gradient(to right, var(--line-strong), var(--line-strong) 80%, var(--accent));
+		}
+
+		.path-node {
+			top: 0;
+		}
 	}
 
 	@keyframes drift {
 		50% {
 			transform: translate(-12px, 10px);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.about-moon {
+			animation: none;
 		}
 	}
 </style>
