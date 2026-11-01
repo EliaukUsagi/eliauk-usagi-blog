@@ -1,7 +1,4 @@
 ---
-import '@fontsource-variable/fraunces/full.css';
-import '@fontsource-variable/fraunces/full-italic.css';
-import '@fontsource-variable/jetbrains-mono';
 import '@/styles/global.css';
 import SiteHeader from '@/components/SiteHeader.astro';
 import SiteFooter from '@/components/SiteFooter.astro';
@@ -17,17 +14,20 @@ const canonical = new URL(Astro.url.pathname, site.url);
 <html lang="zh-CN">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<title>{fullTitle}</title>
 		<meta name="description" content={description} />
 		<meta name="author" content={site.author} />
-		<meta name="theme-color" content="#f7f7f5" />
+		<meta name="theme-color" content="#f5f3ef" />
 		<script is:inline>
 			(() => {
 				const saved = localStorage.getItem('theme');
 				const theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-				document.documentElement.dataset.theme = theme;
-				if (theme === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f0f11');
+				const root = document.documentElement;
+				root.dataset.theme = theme;
+				if (theme === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#121110');
+				// 进入动画只在有 JS 且未要求减弱动态时启用，避免内容因脚本失败而不可见
+				if (!matchMedia('(prefers-reduced-motion: reduce)').matches) root.classList.add('motion');
 			})();
 		</script>
 		<link rel="canonical" href={canonical} />
@@ -38,12 +38,26 @@ const canonical = new URL(Astro.url.pathname, site.url);
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
 	</head>
-	<body class="grain">
+	<body>
 		<div class="backdrop" aria-hidden="true"></div>
 		<SiteHeader />
 		<main>
 			<slot />
 		</main>
 		<SiteFooter />
+		<script>
+			const targets = document.querySelectorAll('.reveal, .reveal-media');
+			const io = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (!entry.isIntersecting) continue;
+						entry.target.classList.add('is-in');
+						io.unobserve(entry.target);
+					}
+				},
+				{ rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
+			);
+			targets.forEach((el) => io.observe(el));
+		</script>
 	</body>
 </html>

@@ -19,15 +19,16 @@ const skills = [
 		<div class="grid gap-16 lg:grid-cols-12">
 			<div class="lg:col-span-7">
 				<p class="rise label mb-6" style="--d:0">
-					<span class="text-accent">04</span> / About
+					<span class="text-accent">04</span>
+					<span class="mx-2 text-faint">/</span>About
 				</p>
-				<h1 class="rise display text-6xl leading-[1.02] text-fg md:text-7xl" style="--d:1">
+				<h1 class="rise display text-5xl leading-[1.05] break-words text-fg sm:text-6xl md:text-7xl" style="--d:1">
 					嗨，我是 <em class="text-accent">{site.author}</em>
 				</h1>
 				<p class="rise mt-6 font-mono text-sm text-faint" style="--d:2">
 					Eliauk ⇄ kuailE（快乐）· Usagi 是名字 —— 合起来，就是「快乐的 Usagi」
 				</p>
-				<div class="rise mt-10 space-y-5 text-lg leading-relaxed text-mute" style="--d:2">
+				<div class="rise mt-10 space-y-5 text-lg leading-[1.85] text-mute" style="--d:3">
 					<p>
 						{site.role}。最早写网页；后来想让界面跑在桌面上，学了 Electron；为了更小的体积和更完整的原生能力，又开始学
 						Rust 和 Tauri；想弄清楚数据从哪里来，就写起了服务端。这条路不是提前规划的，大多是被一个个具体问题带着走的。
@@ -46,28 +47,32 @@ const skills = [
 					href={site.github}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="rise mt-10 inline-flex items-center gap-2.5 rounded-full bg-fg px-6 py-3 text-sm font-medium text-canvas transition hover:bg-accent"
-					style="--d:3"
+					class="rise btn btn-primary mt-10"
+					style="--d:4"
 				>
 					<SiteIcon name="github" class="size-4" /> 在 GitHub 上找到我
 				</a>
 			</div>
 			<div class="rise relative lg:col-span-5" style="--d:2">
-				<div class="relative mx-auto grid aspect-[4/5] max-w-sm place-items-center overflow-hidden rounded-[2rem] border border-line bg-card">
-					<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,var(--moon-glow),transparent_60%)]"></div>
-					<Image src={mascot} alt="Usagi 兔子" class="relative w-1/2 -rotate-6" />
-					<p class="label absolute bottom-6">usagi · since {site.since}</p>
+				<div class="relative mx-auto max-w-sm">
+					{/* 磨砂卡片后面压一轮月亮，玻璃质感才有内容可透 */}
+					<div class="about-moon absolute -top-10 -right-8 size-56 rounded-full" aria-hidden="true"></div>
+					<div class="glass relative grid aspect-[4/5] place-items-center overflow-hidden rounded-[2rem]">
+						<Image src={mascot} alt="Usagi 兔子" class="about-rabbit relative w-1/2 -rotate-6" />
+						<p class="label absolute bottom-6">usagi · since {site.since}</p>
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<p class="reveal label mt-32 mb-6">
-			<span class="text-accent">Toolbox</span> / 常用技术 · 持续学习中
+			<span class="text-accent">Toolbox</span>
+			<span class="mx-2 text-faint">/</span>常用技术 · 持续学习中
 		</p>
-		<div class="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+		<div class="reveal grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
 			{skills.map((group) => (
-				<div class="reveal bg-card p-7">
-					<p class="label mb-5 text-accent">{group.area}</p>
+				<div class="bg-card p-7">
+					<p class="label mb-5 text-fg">{group.area}</p>
 					<ul class="space-y-2.5 text-sm text-mute">
 						{group.items.map((item) => (
 							<li>{item}</li>
@@ -78,3 +83,23 @@ const skills = [
 		</div>
 	</section>
 </BaseLayout>
+
+<style>
+	.about-moon {
+		background:
+			radial-gradient(circle at 34% 28%, var(--moon-hi), transparent 50%),
+			radial-gradient(circle at 55% 50%, var(--moon-base), var(--moon-edge));
+		box-shadow: 0 0 80px 10px var(--moon-glow);
+		animation: drift 14s ease-in-out infinite;
+	}
+
+	.about-rabbit {
+		filter: drop-shadow(0 18px 30px var(--rabbit-shadow));
+	}
+
+	@keyframes drift {
+		50% {
+			transform: translate(-12px, 10px);
+		}
+	}
+</style>

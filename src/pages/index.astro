@@ -24,30 +24,25 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 				<span class="rise block" style="--d:2">
 					写成<em class="text-accent not-italic"> 能跑的</em>
 				</span>
-				<span class="rise block italic" style="--d:3">
+				<span class="rise block" style="--d:3">
 					software<span class="text-accent">.</span>
 				</span>
 			</h1>
 
-			<p class="rise mt-8 max-w-xl text-lg leading-relaxed text-mute" style="--d:4">
+			<p class="rise mt-8 max-w-xl text-lg leading-[1.85] text-mute" style="--d:4">
 				你好，我是 <span class="text-fg">{site.author}</span>，一名{site.role}
 				。从前端起步，后来做过桌面应用、写过服务端，最近的大部分时间花在大模型应用上——检索、问答，以及怎样让它们稳定地跑在真实数据上。这里记录做过的项目和一路的笔记。
 			</p>
 
 			<div class="rise mt-10 flex flex-wrap items-center gap-4" style="--d:5">
-				<a
-					href="/projects"
-					class="group flex items-center gap-3 rounded-full bg-accent px-6 py-3 text-sm font-medium text-canvas transition hover:bg-fg"
-				>
+				<a href="/projects" class="btn btn-primary group">
 					浏览作品
-					<SiteIcon name="arrow" class="size-4 transition-transform duration-500 group-hover:translate-x-1" />
+					<SiteIcon
+						name="arrow"
+						class="size-4 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:translate-x-1"
+					/>
 				</a>
-				<a
-					href={site.github}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="flex items-center gap-2.5 rounded-full border border-line-strong px-6 py-3 text-sm text-fg transition hover:border-fg/40 hover:bg-fg/5"
-				>
+				<a href={site.github} target="_blank" rel="noopener noreferrer" class="btn btn-ghost font-normal">
 					<SiteIcon name="github" class="size-4" />
 					github.com/{site.githubUser}
 				</a>
@@ -61,11 +56,15 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 
 	<section class="mx-auto max-w-6xl px-6 pt-16">
 		<SectionHead id="works" no="01" en="Selected Works" title="作品">
-			<a href="/projects" class="label flex items-center gap-2 hover:text-fg">
-				全部 <SiteIcon name="arrow" class="size-3.5" />
+			<a href="/projects" class="label group flex items-center gap-2 transition-colors hover:text-fg">
+				全部{' '}
+				<SiteIcon
+					name="arrow"
+					class="size-3.5 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:translate-x-1"
+				/>
 			</a>
 		</SectionHead>
-		<div class="flex flex-col gap-28">
+		<div class="flex flex-col gap-32">
 			{projects.map((project, index) => (
 				<ProjectFeature project={project} index={index} />
 			))}
@@ -78,7 +77,7 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 				href={`${site.github}?tab=repositories`}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="label flex items-center gap-2 hover:text-fg"
+				class="label flex items-center gap-2 transition-colors hover:text-fg"
 			>
 				GitHub <SiteIcon name="external" class="size-3.5" />
 			</a>
@@ -92,13 +91,17 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 
 	<section class="mx-auto max-w-6xl px-6 pt-36">
 		<SectionHead no="03" en="Writing" title="随笔">
-			<a href="/posts" class="label flex items-center gap-2 hover:text-fg">
-				全部 <SiteIcon name="arrow" class="size-3.5" />
+			<a href="/posts" class="label group flex items-center gap-2 transition-colors hover:text-fg">
+				全部{' '}
+				<SiteIcon
+					name="arrow"
+					class="size-3.5 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:translate-x-1"
+				/>
 			</a>
 		</SectionHead>
-		<div class="border-t border-line">
-			{posts.map((post) => (
-				<div class="reveal">
+		<div>
+			{posts.map((post, i) => (
+				<div class="reveal" style={`--d:${i}`}>
 					<PostRow post={post} />
 				</div>
 			))}

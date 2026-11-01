@@ -28,19 +28,27 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 
 <BaseLayout title={data.title} description={data.summary}>
 	<article class="mx-auto max-w-6xl px-6 pt-40">
-		<a href="/projects" class="rise label mb-10 inline-flex items-center gap-2 hover:text-fg" style="--d:0">
-			<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 全部作品
+		<a
+			href="/projects"
+			class="rise label group mb-10 inline-flex items-center gap-2 transition-colors hover:text-fg"
+			style="--d:0"
+		>
+			<SiteIcon
+				name="arrow"
+				class="size-3.5 rotate-180 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:-translate-x-1"
+			/>
+			全部作品
 		</a>
 
 		<header class="grid gap-10 lg:grid-cols-12">
 			<div class="lg:col-span-8">
-				<p class="rise font-mono text-xs text-accent" style="--d:1">
+				<p class="rise font-mono text-xs tracking-wide text-accent" style="--d:1">
 					{data.subtitle}
 				</p>
 				<h1 class="rise display mt-4 text-5xl leading-[1.02] text-fg md:text-7xl" style="--d:2">
 					{data.title}
 				</h1>
-				<p class="rise mt-6 max-w-2xl text-lg leading-relaxed text-mute" style="--d:3">
+				<p class="rise mt-6 max-w-2xl text-lg leading-[1.8] text-mute" style="--d:3">
 					{data.summary}
 				</p>
 			</div>
@@ -56,12 +64,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 				{(data.repo || data.release) && (
 					<div class="col-span-2 flex flex-wrap gap-3 lg:col-span-1">
 						{data.repo && (
-							<a
-								href={data.repo}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="flex items-center gap-2 rounded-full bg-fg px-4 py-2 text-canvas transition hover:bg-accent"
-							>
+							<a href={data.repo} target="_blank" rel="noopener noreferrer" class="btn btn-primary px-4 py-2">
 								<SiteIcon name="github" class="size-4" />
 								源码
 							</a>
@@ -71,7 +74,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 								href={data.release}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="flex items-center gap-2 rounded-full border border-line-strong px-4 py-2 text-fg transition hover:bg-fg/5"
+								class="btn btn-ghost px-4 py-2 font-normal"
 							>
 								Releases <SiteIcon name="external" class="size-3.5" />
 							</a>
@@ -82,7 +85,13 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 		</header>
 
 		<div class="rise mt-16" style="--d:5">
-			<WindowFrame shot={hero} title={data.title} eager />
+			<WindowFrame
+				shot={hero}
+				title={data.title}
+				eager
+				sizes="(min-width: 1152px) 72rem, 100vw"
+				transitionName={`project-${project.id}`}
+			/>
 		</div>
 
 		<div class="mt-24 grid gap-16 lg:grid-cols-12">
@@ -91,7 +100,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 					<p class="label mb-5">技术栈</p>
 					<ul class="flex flex-wrap gap-1.5">
 						{data.stack.map((tech) => (
-							<li class="rounded-md border border-line bg-card px-2 py-1 font-mono text-[0.7rem] text-mute">{tech}</li>
+							<li class="chip">{tech}</li>
 						))}
 					</ul>
 
@@ -138,27 +147,33 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 				</div>
 			</aside>
 
-			<div class="prose prose-lg max-w-none lg:col-span-8 prose-headings:font-display prose-headings:font-normal prose-a:text-accent prose-blockquote:border-accent/40 prose-blockquote:text-mute prose-strong:text-fg">
+			<div class="prose max-w-none md:prose-lg leading-[1.9] lg:col-span-8 prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-accent prose-a:underline-offset-4 prose-blockquote:border-accent/40 prose-blockquote:text-mute prose-strong:text-fg">
 				<Content />
 			</div>
 		</div>
 
 		{groups.length > 0 && rest.length > 0 && (
 			<section class="mt-32">
-				<p class="label mb-10">
-					<span class="text-accent">Gallery</span> / 界面一览
+				<p class="reveal label mb-10">
+					<span class="text-accent">Gallery</span>
+					<span class="mx-2 text-faint">/</span>界面一览
 				</p>
 				{groups.map((group) => (
 					<div class="mb-20">
 						{group.label && <h2 class="display reveal mb-8 text-3xl text-fg">{group.label}</h2>}
 						<div class="grid items-start gap-8 md:grid-cols-2">
-							{group.shots.map((shot, i) => (
-								<WindowFrame
-									shot={shot}
-									title={data.title}
-									class:list={['reveal', group.shots.length % 2 === 1 && i === 0 && 'md:col-span-2']}
-								/>
-							))}
+							{group.shots.map((shot, i) => {
+								const wide = group.shots.length % 2 === 1 && i === 0;
+								return (
+									<div class:list={['reveal-media', wide && 'md:col-span-2']} style={`--d:${wide ? 0 : i % 2}`}>
+										<WindowFrame
+											shot={shot}
+											title={data.title}
+											sizes={wide ? '(min-width: 1152px) 72rem, 100vw' : undefined}
+										/>
+									</div>
+								);
+							})}
 						</div>
 					</div>
 				))}
@@ -168,18 +183,20 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 		{next.id !== project.id && (
 			<a
 				href={`/projects/${next.id}`}
-				class="group mt-32 flex items-end justify-between gap-6 border-t border-line pt-10"
+				class="reveal group mt-32 flex items-end justify-between gap-6 border-t border-line pt-10"
 			>
 				<div>
 					<p class="label mb-4">下一个作品</p>
-					<p class="display text-4xl text-fg transition-colors group-hover:text-accent md:text-6xl">
-						{next.data.title}
+					<p class="display text-4xl text-fg md:text-6xl">
+						<span class="link-underline">{next.data.title}</span>
 					</p>
 				</div>
-				<SiteIcon
-					name="arrow"
-					class="mb-3 size-8 text-mute transition-transform duration-500 group-hover:translate-x-2 group-hover:text-accent"
-				/>
+				<span class="mb-2 grid size-14 shrink-0 place-items-center rounded-full border border-line-strong text-mute transition-colors duration-300 group-hover:border-fg group-hover:bg-fg group-hover:text-canvas">
+					<SiteIcon
+						name="arrow"
+						class="size-5 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:translate-x-1"
+					/>
+				</span>
 			</a>
 		)}
 	</article>

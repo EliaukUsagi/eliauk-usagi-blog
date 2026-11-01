@@ -2,34 +2,49 @@
 import { Image } from 'astro:assets';
 import type { Shot } from '@/lib/projectShots';
 
-type Props = { shots: Shot[]; title: string; href?: string; interval?: number; class?: string };
-const { shots, title, href, interval = 4800, class: className } = Astro.props;
+type Props = {
+	shots: Shot[];
+	title: string;
+	href?: string;
+	interval?: number;
+	class?: string;
+	transitionName?: string;
+};
+const { shots, title, href, interval = 5200, class: className, transitionName } = Astro.props;
 const Viewport = href ? 'a' : 'div';
+
+// 视口比例取截图比例的中位数：同尺寸截图完整铺满，比例差异较大的截图（如迷你窗）
+// 完整居中显示，四周用自身的模糊放大版填充，避免裁切
+const ratio = (shot: Shot) => shot.src.width / shot.src.height;
+const frame = shots.map(ratio).toSorted((a, b) => a - b)[Math.floor(shots.length / 2)];
+const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 ---
 
 <figure
 	data-carousel
-	style={`--interval:${interval}ms`}
-	class:list={[
-		'carousel overflow-hidden rounded-xl border border-line-strong bg-card shadow-[var(--shadow-frame)]',
-		className,
-	]}
+	style={`--interval:${interval}ms;${transitionName ? `view-transition-name:${transitionName}` : ''}`}
+	class:list={['window carousel', className]}
 >
-	<div class="flex items-center gap-2 border-b border-line bg-sunk/80 px-3.5 py-2.5">
-		<span class="size-2.5 shrink-0 rounded-full bg-[#ff5f57]/80"></span>
-		<span class="size-2.5 shrink-0 rounded-full bg-[#febc2e]/80"></span>
-		<span class="size-2.5 shrink-0 rounded-full bg-[#28c840]/80"></span>
-		<span class="ml-3 min-w-0 flex-1 truncate font-mono text-[0.68rem] text-faint">
-			{title} — <span data-caption>{shots[0].caption}</span>
+	<div class="window-bar">
+		<div class="window-dots" aria-hidden="true">
+			<span></span>
+			<span></span>
+			<span></span>
+		</div>
+		<span class="window-title">
+			{title}
+			<span class="mx-1.5 opacity-50">/</span>
+			<span data-caption class="caption">
+				{shots[0].caption}
+			</span>
 		</span>
-		<div class="flex shrink-0 items-center gap-1.5" role="tablist" aria-label="切换截图">
+		<div class="flex shrink-0 items-center gap-1" role="group" aria-label="切换截图">
 			{shots.map((shot, i) => (
 				<button
 					type="button"
-					role="tab"
 					data-bar
 					aria-label={shot.caption}
-					aria-selected={i === 0 ? 'true' : 'false'}
+					aria-pressed={i === 0 ? 'true' : 'false'}
 					class:list={['bar', i === 0 && 'is-active']}
 				>
 					<span class="bar-fill" />
@@ -40,22 +55,38 @@ const Viewport = href ? 'a' : 'div';
 
 	<Viewport
 		href={href}
-		class="relative block aspect-[16/10] overflow-hidden bg-sunk"
+		class="relative block overflow-hidden bg-sunk"
+		style={`aspect-ratio:${frame}`}
 		aria-label={href ? `查看 ${title}` : undefined}
 	>
 		{shots.map((shot, i) => (
-			<Image
-				src={shot.src}
-				alt={`${title}：${shot.caption}`}
-				data-slide
-				data-caption={shot.caption}
-				widths={[640, 960, 1440]}
-				sizes="(min-width: 1024px) 44rem, 100vw"
-				quality={80}
-				loading={i === 0 ? 'eager' : 'lazy'}
-				decoding="async"
-				class:list={['slide absolute inset-0 size-full object-cover object-top', i === 0 && 'is-active']}
-			/>
+			<div data-slide data-caption={shot.caption} class:list={['slide absolute inset-0', i === 0 && 'is-active']}>
+				{!fits(shot) && (
+					<Image
+						src={shot.src}
+						alt=""
+						widths={[480]}
+						sizes="480px"
+						quality={50}
+						loading="lazy"
+						decoding="async"
+						class="absolute inset-0 size-full scale-110 object-cover opacity-70 blur-2xl saturate-150"
+					/>
+				)}
+				<Image
+					src={shot.src}
+					alt={`${title}：${shot.caption}`}
+					widths={[640, 960, 1440]}
+					sizes="(min-width: 1024px) 44rem, 100vw"
+					quality={80}
+					loading={i === 0 ? 'eager' : 'lazy'}
+					decoding="async"
+					class:list={[
+						'relative size-full',
+						fits(shot) ? 'object-cover object-top' : 'object-contain p-[4%] drop-shadow-[0_20px_30px_rgb(0_0_0/0.25)]',
+					]}
+				/>
+			</div>
 		))}
 	</Viewport>
 </figure>
@@ -63,33 +94,51 @@ const Viewport = href ? 'a' : 'div';
 <style>
 	.slide {
 		opacity: 0;
-		transform: scale(1.045);
-		filter: blur(8px) saturate(0.9);
+		transform: scale(1.025);
 		transition:
-			opacity 0.9s var(--ease-out-expo),
-			transform 1.8s var(--ease-out-expo),
-			filter 1s var(--ease-out-expo);
-		will-change: opacity, transform;
+			opacity 1s var(--ease-out-expo),
+			transform 2.4s var(--ease-out-expo);
 	}
 
 	.slide.is-active {
 		opacity: 1;
 		transform: none;
-		filter: none;
 	}
 
 	.slide.is-leaving {
 		opacity: 0;
-		transform: scale(0.985);
-		filter: blur(4px);
-		transition-duration: 0.7s, 1s, 0.7s;
+		transition-duration: 0.8s, 0.8s;
+	}
+
+	.caption {
+		display: inline-block;
+		transition:
+			opacity 0.3s ease,
+			transform 0.5s var(--ease-out-expo);
+	}
+
+	.caption.is-swapping {
+		opacity: 0;
+		transform: translateY(-4px);
 	}
 
 	.bar {
 		position: relative;
-		width: 1.15rem;
-		height: 0.875rem;
+		width: 1rem;
+		height: 1.25rem;
 		cursor: pointer;
+		transition: width var(--dur-hover) var(--ease-out-expo);
+	}
+
+	.bar.is-active {
+		width: 1.75rem;
+	}
+
+	/* 触屏加高点按区域，视觉上仍是 2px 细线 */
+	@media (pointer: coarse) {
+		.bar {
+			height: 2rem;
+		}
 	}
 
 	.bar::before,
@@ -113,7 +162,7 @@ const Viewport = href ? 'a' : 'div';
 	}
 
 	.bar-fill {
-		background: var(--accent);
+		background: var(--fg);
 		transform: scaleX(0);
 		transform-origin: left;
 	}
@@ -145,7 +194,7 @@ const Viewport = href ? 'a' : 'div';
 	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 	document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
-		const slides = [...root.querySelectorAll<HTMLImageElement>('[data-slide]')];
+		const slides = [...root.querySelectorAll<HTMLElement>('[data-slide]')];
 		const bars = [...root.querySelectorAll<HTMLButtonElement>('[data-bar]')];
 		const caption = root.querySelector<HTMLElement>('[data-caption]');
 		let current = 0;
@@ -155,20 +204,28 @@ const Viewport = href ? 'a' : 'div';
 			const prev = slides[current];
 			prev.classList.remove('is-active');
 			prev.classList.add('is-leaving');
-			setTimeout(() => prev.classList.remove('is-leaving'), 1000);
+			setTimeout(() => prev.classList.remove('is-leaving'), 900);
 
 			bars[current].classList.remove('is-active');
-			bars[current].setAttribute('aria-selected', 'false');
+			bars[current].setAttribute('aria-pressed', 'false');
 			current = next;
 			slides[current].classList.add('is-active');
 			// 重新挂上 is-active 才能让进度动画从头开始
 			void bars[current].offsetWidth;
 			bars[current].classList.add('is-active');
-			bars[current].setAttribute('aria-selected', 'true');
-			if (caption) caption.textContent = slides[current].dataset.caption ?? '';
+			bars[current].setAttribute('aria-pressed', 'true');
+
+			if (caption) {
+				caption.classList.add('is-swapping');
+				setTimeout(() => {
+					caption.textContent = slides[current].dataset.caption ?? '';
+					caption.classList.remove('is-swapping');
+				}, 200);
+			}
 			// 预取下一张，切换时不出现空白
-			const upcoming = slides[(current + 1) % slides.length];
-			if (upcoming.loading === 'lazy') upcoming.loading = 'eager';
+			slides[(current + 1) % slides.length]
+				.querySelectorAll<HTMLImageElement>('img')
+				.forEach((img) => (img.loading = 'eager'));
 		};
 
 		bars.forEach((bar, i) => {
@@ -177,11 +234,10 @@ const Viewport = href ? 'a' : 'div';
 		});
 
 		const paused = new Set<string>();
-		const sync = () => root.toggleAttribute('data-paused', paused.size > 0);
 		const hold = (reason: string, on: boolean) => {
 			if (on) paused.add(reason);
 			else paused.delete(reason);
-			sync();
+			root.toggleAttribute('data-paused', paused.size > 0);
 		};
 
 		if (reduceMotion) hold('motion', true);

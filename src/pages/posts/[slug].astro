@@ -2,7 +2,6 @@
 import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SiteIcon from '@/components/SiteIcon.astro';
-import { formatDate } from '@/lib/formatDate';
 import { readingMinutes, sortByDate } from '@/lib/postMeta';
 
 export async function getStaticPaths() {
@@ -29,33 +28,40 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 	<div class="read-progress" aria-hidden="true"></div>
 
 	<article class="mx-auto max-w-6xl px-6 pt-40">
-		<a href="/posts" class="rise label mb-12 inline-flex items-center gap-2 hover:text-fg" style="--d:0">
-			<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 全部随笔
+		<a
+			href="/posts"
+			class="rise label group mb-12 inline-flex items-center gap-2 transition-colors hover:text-fg"
+			style="--d:0"
+		>
+			<SiteIcon
+				name="arrow"
+				class="size-3.5 rotate-180 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:-translate-x-1"
+			/>
+			全部随笔
 		</a>
 
 		<header class="max-w-3xl">
 			<div class="rise flex flex-wrap items-center gap-3 font-mono text-xs text-faint" style="--d:1">
-				<span class="rounded-full border border-accent/30 bg-accent/8 px-2.5 py-1 text-accent">{data.category}</span>
-				<time datetime={data.date.toISOString()}>{formatDate(data.date)}</time>
-				<span>· 约 {readingMinutes(post.body)} 分钟</span>
+				<span class="chip border-accent/25 text-accent">{data.category}</span>
+				<span>约 {readingMinutes(post.body)} 分钟读完</span>
 			</div>
-			<h1 class="rise display mt-6 text-4xl leading-[1.12] text-fg md:text-6xl" style="--d:2">
+			<h1 class="rise display mt-6 text-4xl leading-[1.12] text-balance text-fg md:text-6xl" style="--d:2">
 				{data.title}
 			</h1>
-			<p class="rise mt-6 text-lg leading-relaxed text-mute md:text-xl" style="--d:3">
+			<p class="rise mt-6 text-lg leading-[1.8] text-mute md:text-xl" style="--d:3">
 				{data.description}
 			</p>
 			{data.tags.length > 0 && (
-				<ul class="rise mt-8 flex flex-wrap gap-2" style="--d:4">
+				<ul class="rise mt-8 flex flex-wrap gap-1.5" style="--d:4">
 					{data.tags.map((tag) => (
-						<li class="font-mono text-[0.7rem] text-faint">#{tag}</li>
+						<li class="chip">#{tag}</li>
 					))}
 				</ul>
 			)}
 		</header>
 
 		<div class="mt-16 grid gap-16 border-t border-line pt-14 xl:grid-cols-[minmax(0,48rem)_1fr]">
-			<div class="rise article-body prose prose-lg max-w-none" style="--d:5">
+			<div class="rise article-body prose max-w-none md:prose-lg" style="--d:5">
 				<Content />
 			</div>
 
@@ -80,37 +86,51 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		{project && (
 			<a
 				href={`/projects/${project.id}`}
-				class="group mt-20 flex max-w-3xl items-center justify-between gap-6 rounded-2xl border border-line bg-card px-7 py-6 transition duration-500 hover:border-line-strong"
+				class="related reveal group mt-20 flex max-w-3xl items-center justify-between gap-6 rounded-2xl border border-line bg-card px-7 py-6"
 			>
 				<div>
 					<p class="label mb-2">相关作品</p>
-					<p class="display text-2xl text-fg transition-colors group-hover:text-accent">{project.data.title}</p>
+					<p class="display text-2xl text-fg">
+						<span class="link-underline">{project.data.title}</span>
+					</p>
 					<p class="mt-1 text-sm text-mute">{project.data.subtitle}</p>
 				</div>
-				<SiteIcon
-					name="arrow"
-					class="size-5 shrink-0 text-faint transition duration-500 group-hover:translate-x-1 group-hover:text-accent"
-				/>
+				<span class="grid size-10 shrink-0 place-items-center rounded-full border border-line text-faint transition-colors duration-300 group-hover:border-fg group-hover:bg-fg group-hover:text-canvas">
+					<SiteIcon
+						name="arrow"
+						class="size-4 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:translate-x-0.5"
+					/>
+				</span>
 			</a>
 		)}
 
-		<nav class="mt-24 grid gap-4 border-t border-line pt-10 md:grid-cols-2" aria-label="更多随笔">
+		<nav class="reveal mt-24 grid gap-4 border-t border-line pt-10 md:grid-cols-2" aria-label="更多随笔">
 			{older ? (
-				<a href={`/posts/${older.id}`} class="group rounded-2xl p-5 transition hover:bg-fg/[0.035] md:-ml-5">
+				<a
+					href={`/posts/${older.id}`}
+					class="group rounded-2xl p-5 transition-colors duration-300 hover:bg-fg/[0.03] md:-ml-5"
+				>
 					<p class="label mb-3 flex items-center gap-2">
 						<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 上一篇
 					</p>
-					<p class="display text-2xl text-fg transition-colors group-hover:text-accent">{older.data.title}</p>
+					<p class="display text-2xl leading-snug text-fg">
+						<span class="link-underline">{older.data.title}</span>
+					</p>
 				</a>
 			) : (
 				<span />
 			)}
 			{newer && (
-				<a href={`/posts/${newer.id}`} class="group rounded-2xl p-5 text-right transition hover:bg-fg/[0.035] md:-mr-5">
+				<a
+					href={`/posts/${newer.id}`}
+					class="group rounded-2xl p-5 text-right transition-colors duration-300 hover:bg-fg/[0.03] md:-mr-5"
+				>
 					<p class="label mb-3 flex items-center justify-end gap-2">
 						下一篇 <SiteIcon name="arrow" class="size-3.5" />
 					</p>
-					<p class="display text-2xl text-fg transition-colors group-hover:text-accent">{newer.data.title}</p>
+					<p class="display text-2xl leading-snug text-fg">
+						<span class="link-underline">{newer.data.title}</span>
+					</p>
 				</a>
 			)}
 		</nav>
@@ -118,6 +138,22 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 </BaseLayout>
 
 <style>
+	.related {
+		transition:
+			border-color 0.3s ease,
+			box-shadow var(--dur-hover) var(--ease-out-expo),
+			opacity var(--dur-reveal) var(--ease-out-expo),
+			transform var(--dur-reveal) var(--ease-out-expo),
+			filter var(--dur-reveal) var(--ease-out-expo);
+	}
+
+	@media (hover: hover) {
+		.related:hover {
+			border-color: var(--line-strong);
+			box-shadow: var(--shadow-frame);
+		}
+	}
+
 	/* 阅读进度：用滚动驱动动画，不支持的浏览器不显示 */
 	.read-progress {
 		display: none;
@@ -130,7 +166,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			inset: 0 0 auto;
 			z-index: 70;
 			height: 2px;
-			background: var(--accent);
+			background: linear-gradient(to right, transparent, var(--accent));
 			transform-origin: left;
 			animation: read linear both;
 			animation-timeline: scroll(root);
@@ -169,8 +205,8 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 	}
 
 	.article-body :global(h2) {
-		font-family: var(--font-display);
-		font-weight: 400;
+		font-weight: 600;
+		letter-spacing: -0.015em;
 		scroll-margin-top: 7rem;
 	}
 
@@ -213,6 +249,23 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		border: 1px solid var(--line);
 		border-radius: 0.9rem;
 		font-size: 0.85rem;
+		line-height: 1.7;
+	}
+
+	.article-body :global(p),
+	.article-body :global(li) {
+		line-height: 1.9;
+	}
+
+	.article-body :global(a) {
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.25em;
+		text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+		transition: text-decoration-color 0.3s ease;
+	}
+
+	.article-body :global(a:hover) {
+		text-decoration-color: var(--accent);
 	}
 
 	.article-body :global(hr) {

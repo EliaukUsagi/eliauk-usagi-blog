@@ -60,14 +60,35 @@
 		root.dataset.theme = theme;
 		document
 			.querySelector('meta[name="theme-color"]')
-			?.setAttribute('content', theme === 'dark' ? '#0f0f11' : '#f7f7f5');
+			?.setAttribute('content', theme === 'dark' ? '#121110' : '#f5f3ef');
 	};
 
-	document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+	// 新主题从按钮处以柔边圆形「月蚀」式铺开；不支持 View Transitions 时退回颜色渐变
+	const switchTo = (theme: string, origin: HTMLElement) => {
+		if (!document.startViewTransition || reduceMotion.matches) {
+			apply(theme);
+			return;
+		}
+		const rect = origin.getBoundingClientRect();
+		const x = rect.left + rect.width / 2;
+		const y = rect.top + rect.height / 2;
+		const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+		root.style.setProperty('--vt-x', `${x}px`);
+		root.style.setProperty('--vt-y', `${y}px`);
+		root.style.setProperty('--vt-r', `${radius + 120}px`);
+		root.toggleAttribute('data-theme-switching', true);
+
+		const vt = document.startViewTransition(() => apply(theme));
+		vt.finished.finally(() => root.toggleAttribute('data-theme-switching', false));
+	};
+
+	document.querySelectorAll<HTMLElement>('[data-theme-toggle]').forEach((button) => {
 		button.addEventListener('click', () => {
 			const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
 			localStorage.setItem('theme', next);
-			apply(next);
+			switchTo(next, button);
 		});
 	});
 

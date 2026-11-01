@@ -13,41 +13,55 @@ const shots = getShotGroups(data.shots)
 	.flatMap((group) => group.shots)
 	.slice(0, 6);
 const flip = index % 2 === 1;
+const href = `/projects/${project.id}`;
+// 与详情页头图同名，跨页跳转时窗口做共享元素过渡
+const transitionName = `project-${project.id}`;
+const lift = 'transition duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5';
 ---
 
-<article class="reveal group grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+<article class="group grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
 	<div class:list={['lg:col-span-5', flip && 'lg:order-2']}>
-		<div class="mb-6 flex items-center gap-4 font-mono text-[0.7rem] text-faint">
-			<span class="display text-5xl text-accent italic">{String(index + 1).padStart(2, '0')}</span>
+		<div class="reveal mb-7 flex items-center gap-4">
+			<span class="display text-[2.75rem] leading-none text-faint">{String(index + 1).padStart(2, '0')}</span>
 			<span class="h-px flex-1 bg-line"></span>
-			<span class="rounded-full border border-line px-2 py-0.5 text-mute">{data.status}</span>
+			<span class="chip">
+				<span class="mr-1.5 size-1.5 rounded-full bg-accent"></span>
+				{data.status}
+			</span>
 		</div>
 
-		<h3 class="display text-3xl leading-tight text-fg md:text-[2.6rem]">
-			<a href={`/projects/${project.id}`} class="link-underline">
+		<h3 class="reveal display text-3xl leading-[1.1] text-fg md:text-[2.6rem]" style="--d:1">
+			<a href={href} class="link-underline">
 				{data.title}
 			</a>
 		</h3>
-		<p class="mt-3 text-[0.95rem] text-pine">{data.subtitle}</p>
-		<p class="mt-5 leading-relaxed text-mute">{data.summary}</p>
+		<p class="reveal mt-3 text-[0.95rem] text-soft" style="--d:2">
+			{data.subtitle}
+		</p>
+		<p class="reveal mt-5 leading-[1.8] text-mute" style="--d:3">
+			{data.summary}
+		</p>
 
-		<ul class="mt-6 flex flex-wrap gap-1.5">
+		<ul class="reveal mt-7 flex flex-wrap gap-1.5" style="--d:4">
 			{data.stack.map((tech) => (
-				<li class="rounded-md border border-line bg-card px-2 py-1 font-mono text-[0.68rem] text-mute">{tech}</li>
+				<li class="chip">{tech}</li>
 			))}
 		</ul>
 
-		<div class="mt-8 flex flex-wrap items-center gap-5 text-sm">
-			<a href={`/projects/${project.id}`} class="group/btn flex items-center gap-2 text-fg">
-				查看详情
-				<SiteIcon name="arrow" class="size-4 transition-transform duration-500 group-hover/btn:translate-x-1" />
+		<div class="reveal mt-9 flex flex-wrap items-center gap-6 text-sm" style="--d:5">
+			<a href={href} class="group/btn inline-flex items-center gap-2 font-medium text-fg">
+				<span class="link-underline">查看详情</span>
+				<SiteIcon
+					name="arrow"
+					class="size-4 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover/btn:translate-x-1"
+				/>
 			</a>
 			{data.repo && (
 				<a
 					href={data.repo}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="flex items-center gap-1.5 text-mute hover:text-fg"
+					class="inline-flex items-center gap-1.5 text-mute transition-colors hover:text-fg"
 				>
 					<SiteIcon name="github" class="size-3.5" />
 					源码
@@ -56,20 +70,17 @@ const flip = index % 2 === 1;
 		</div>
 	</div>
 
-	<div class:list={['lg:col-span-7', flip && 'lg:order-1']}>
+	<div class:list={['reveal-media lg:col-span-7', flip && 'lg:order-1']} style="--d:1">
 		{shots.length > 1 ? (
-			<ShotCarousel
-				shots={shots}
-				title={data.title}
-				href={`/projects/${project.id}`}
-				class="transition duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5 group-hover:rotate-[-0.4deg]"
-			/>
+			<ShotCarousel shots={shots} title={data.title} href={href} transitionName={transitionName} class={lift} />
 		) : (
-			<a href={`/projects/${project.id}`} class="block" aria-label={`查看 ${data.title}`}>
+			<a href={href} class="block" aria-label={`查看 ${data.title}`}>
 				<WindowFrame
 					shot={shots[0]}
 					title={data.title}
-					class="transition duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5 group-hover:rotate-[-0.4deg]"
+					sizes="(min-width: 1024px) 44rem, 100vw"
+					transitionName={transitionName}
+					class={lift}
 				/>
 			</a>
 		)}
