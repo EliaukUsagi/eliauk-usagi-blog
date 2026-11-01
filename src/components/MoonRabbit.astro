@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import mascot from '@/assets/brand/usagi-mascot.svg';
+---
+
+<div class="moon-stage relative mx-auto aspect-square w-full max-w-[30rem]" aria-hidden="true">
+	<div class="moon-halo absolute inset-[6%] rounded-full"></div>
+	<div class="moon-disc absolute inset-[18%] rounded-full"></div>
+
+	<svg class="orbit absolute inset-0 size-full" viewBox="0 0 400 400" fill="none">
+		<ellipse cx="200" cy="200" rx="188" ry="188" stroke="rgb(236 232 223 / 0.08)" stroke-dasharray="2 6" />
+		<g class="orbit-spin">
+			<ellipse cx="200" cy="200" rx="160" ry="160" stroke="rgb(236 232 223 / 0.12)" />
+			<circle cx="360" cy="200" r="4" fill="#fdf1c4" />
+			<circle cx="40" cy="200" r="2.5" fill="#8f91f5" />
+		</g>
+		<g class="orbit-spin-reverse">
+			<ellipse cx="200" cy="200" rx="128" ry="128" stroke="rgb(248 179 184 / 0.18)" stroke-dasharray="1 10" />
+			<circle cx="200" cy="72" r="3" fill="#f8b3b8" />
+		</g>
+	</svg>
+
+	<div class="rabbit absolute inset-[27%] grid place-items-center">
+		<Image src={mascot} alt="" class="w-full drop-shadow-[0_24px_40px_rgb(0_0_0/0.45)]" loading="eager" />
+	</div>
+
+	<span class="coord label absolute top-[8%] left-0">lat 40.84°N</span>
+	<span class="coord label absolute right-0 bottom-[10%]">phase · full moon</span>
+	<span class="coord label absolute top-1/2 right-[-2%] hidden rotate-90 lg:block">usagi.svg</span>
+</div>
+
+<style>
+	.moon-halo {
+		background: radial-gradient(circle, rgb(253 241 196 / 0.16), transparent 68%);
+		filter: blur(10px);
+	}
+
+	.moon-disc {
+		background:
+			radial-gradient(circle at 34% 30%, rgb(255 255 255 / 0.16), transparent 42%),
+			radial-gradient(circle at 70% 72%, rgb(91 70 54 / 0.18) 0 6%, transparent 7%),
+			radial-gradient(circle at 26% 66%, rgb(91 70 54 / 0.12) 0 4%, transparent 5%),
+			radial-gradient(circle at 60% 50%, #f6e9bd, #e9d69c 70%, #cdb97f);
+		box-shadow:
+			0 0 80px 10px rgb(253 241 196 / 0.12),
+			inset -18px -24px 60px rgb(91 70 54 / 0.35);
+		opacity: 0.92;
+	}
+
+	.orbit-spin,
+	.orbit-spin-reverse {
+		transform-origin: 200px 200px;
+		animation: spin 48s linear infinite;
+	}
+
+	.orbit-spin-reverse {
+		animation-duration: 72s;
+		animation-direction: reverse;
+	}
+
+	.rabbit {
+		animation: bob 6s ease-in-out infinite;
+	}
+
+	.coord {
+		font-size: 0.62rem;
+		color: var(--color-faint);
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes bob {
+		50% {
+			transform: translateY(-8px) rotate(-2deg);
+		}
+	}
+</style>

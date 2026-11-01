@@ -1,0 +1,20 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import mascot from '@/assets/brand/usagi-mascot.svg';
+---
+
+<BaseLayout title="页面走丢了">
+	<section class="mx-auto flex min-h-[80dvh] max-w-3xl flex-col items-center justify-center px-6 pt-32 text-center">
+		<Image src={mascot} alt="" class="rise size-24 -rotate-12" style="--d:0" />
+		<p class="rise display mt-8 text-8xl text-paper italic" style="--d:1">
+			404
+		</p>
+		<p class="rise mt-4 text-mute" style="--d:2">
+			兔子把这一页藏起来了。
+		</p>
+		<a href="/" class="rise mt-10 rounded-full bg-cream px-6 py-3 text-sm font-medium text-ink" style="--d:3">
+			回到首页
+		</a>
+	</section>
+</BaseLayout>

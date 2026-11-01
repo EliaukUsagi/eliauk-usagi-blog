@@ -1,0 +1,148 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@theme {
+	--color-ink: #0c0b10;
+	--color-ink-2: #131219;
+	--color-ink-3: #1b1a23;
+	--color-line: rgb(236 232 223 / 0.09);
+	--color-line-strong: rgb(236 232 223 / 0.18);
+	--color-paper: #ece8df;
+	--color-mute: #9a958c;
+	--color-faint: #615d57;
+	--color-cream: #fdf1c4;
+	--color-blush: #f8b3b8;
+	--color-iris: #8f91f5;
+	--color-ember: #f3a86b;
+
+	--font-display: 'Fraunces Variable', 'Songti SC', 'STSong', 'Noto Serif SC', serif;
+	--font-sans: -apple-system, 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+	--font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+	html {
+		background: var(--color-ink);
+		color: var(--color-paper);
+		color-scheme: dark;
+		scroll-behavior: smooth;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
+
+	body {
+		font-family: var(--font-sans);
+		min-height: 100dvh;
+		overflow-x: hidden;
+	}
+
+	::selection {
+		background: var(--color-cream);
+		color: var(--color-ink);
+	}
+
+	:focus-visible {
+		outline: 1.5px solid var(--color-cream);
+		outline-offset: 3px;
+		border-radius: 4px;
+	}
+}
+
+/* 颗粒噪点，压在所有内容之上提供胶片质感 */
+.grain::after {
+	content: '';
+	position: fixed;
+	inset: -50%;
+	z-index: 60;
+	pointer-events: none;
+	opacity: 0.07;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* 页面背景：月光晕 + 细网格 */
+.backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background:
+		radial-gradient(60rem 40rem at 82% -8%, rgb(253 241 196 / 0.09), transparent 60%),
+		radial-gradient(50rem 36rem at -10% 30%, rgb(143 145 245 / 0.07), transparent 60%), var(--color-ink);
+}
+
+.backdrop::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(to right, rgb(236 232 223 / 0.035) 1px, transparent 1px),
+		linear-gradient(to bottom, rgb(236 232 223 / 0.035) 1px, transparent 1px);
+	background-size: 72px 72px;
+	mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+
+.label {
+	font-family: var(--font-mono);
+	font-size: 0.72rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--color-mute);
+}
+
+.display {
+	font-family: var(--font-display);
+	font-variation-settings:
+		'SOFT' 50,
+		'WONK' 1;
+	letter-spacing: -0.02em;
+}
+
+/* 首屏依次浮现 */
+.rise {
+	opacity: 0;
+	transform: translateY(18px);
+	animation: rise 1s var(--ease-out-expo) forwards;
+	animation-delay: calc(var(--d, 0) * 90ms + 120ms);
+}
+
+@keyframes rise {
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* 滚动进入视口时浮现，不支持 scroll-driven 的浏览器直接显示 */
+@supports (animation-timeline: view()) {
+	.reveal {
+		animation: rise linear both;
+		animation-timeline: view();
+		animation-range: entry 0% entry 40%;
+	}
+}
+
+.link-underline {
+	background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+	transition: background-size 0.5s var(--ease-out-expo);
+}
+
+.link-underline:hover {
+	background-size: 100% 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-delay: 0ms !important;
+		transition-duration: 0.01ms !important;
+	}
+
+	.rise {
+		opacity: 1;
+		transform: none;
+	}
+}

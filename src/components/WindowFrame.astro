@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets';
+import type { Shot } from '@/lib/projectShots';
+import mascot from '@/assets/brand/usagi-mascot.svg';
+
+type Props = { shot?: Shot; title: string; eager?: boolean; class?: string };
+const { shot, title, eager = false, class: className } = Astro.props;
+---
+
+<figure
+	class:list={[
+		'overflow-hidden rounded-xl border border-line-strong bg-ink-2 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.8)]',
+		className,
+	]}
+>
+	<div class="flex items-center gap-2 border-b border-line bg-ink-3/80 px-3.5 py-2.5">
+		<span class="size-2.5 rounded-full bg-[#ff5f57]/80"></span>
+		<span class="size-2.5 rounded-full bg-[#febc2e]/80"></span>
+		<span class="size-2.5 rounded-full bg-[#28c840]/80"></span>
+		<span class="ml-3 truncate font-mono text-[0.68rem] text-faint">
+			{title}
+			{shot ? ` — ${shot.caption}` : ''}
+		</span>
+	</div>
+	{shot ? (
+		<Image
+			src={shot.src}
+			alt={`${title}：${shot.caption}`}
+			widths={[640, 960, 1440]}
+			sizes="(min-width: 1024px) 56rem, 100vw"
+			loading={eager ? 'eager' : 'lazy'}
+			class="block h-auto w-full"
+		/>
+	) : (
+		<div class="relative grid aspect-[16/10] place-items-center overflow-hidden">
+			<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgb(253_241_196/0.08),transparent_60%)]" />
+			<div class="relative flex flex-col items-center gap-4">
+				<Image src={mascot} alt="" class="size-16 opacity-80" />
+				<span class="label">截图整理中</span>
+			</div>
+		</div>
+	)}
+</figure>

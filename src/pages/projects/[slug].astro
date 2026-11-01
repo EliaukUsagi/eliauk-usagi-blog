@@ -1,0 +1,186 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SiteIcon from '@/components/SiteIcon.astro';
+import WindowFrame from '@/components/WindowFrame.astro';
+import { getShotGroups } from '@/lib/projectShots';
+
+export async function getStaticPaths() {
+	const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+	return projects.map((project, i) => ({
+		params: { slug: project.id },
+		props: { project, next: projects[(i + 1) % projects.length], siblings: projects },
+	}));
+}
+
+type Props = {
+	project: CollectionEntry<'projects'>;
+	next: CollectionEntry<'projects'>;
+	siblings: CollectionEntry<'projects'>[];
+};
+const { project, next, siblings } = Astro.props;
+const { data } = project;
+const { Content } = await render(project);
+const groups = getShotGroups(data.shots);
+const [hero, ...rest] = groups.flatMap((g) => g.shots);
+const series = data.series ? siblings.filter((p) => p.data.series === data.series) : [];
+---
+
+<BaseLayout title={data.title} description={data.summary}>
+	<article class="mx-auto max-w-6xl px-6 pt-40">
+		<a href="/projects" class="rise label mb-10 inline-flex items-center gap-2 hover:text-paper" style="--d:0">
+			<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 全部作品
+		</a>
+
+		<header class="grid gap-10 lg:grid-cols-12">
+			<div class="lg:col-span-8">
+				<p class="rise font-mono text-xs text-cream" style="--d:1">
+					{data.subtitle}
+				</p>
+				<h1 class="rise display mt-4 text-5xl leading-[1.02] text-paper md:text-7xl" style="--d:2">
+					{data.title}
+				</h1>
+				<p class="rise mt-6 max-w-2xl text-lg leading-relaxed text-mute" style="--d:3">
+					{data.summary}
+				</p>
+			</div>
+			<dl class="rise grid grid-cols-2 content-end gap-x-6 gap-y-5 text-sm lg:col-span-4 lg:grid-cols-1" style="--d:4">
+				<div>
+					<dt class="label">年份</dt>
+					<dd class="mt-1.5 text-paper">{data.year}</dd>
+				</div>
+				<div>
+					<dt class="label">状态</dt>
+					<dd class="mt-1.5 text-paper">{data.status}</dd>
+				</div>
+				{(data.repo || data.release) && (
+					<div class="col-span-2 flex flex-wrap gap-3 lg:col-span-1">
+						{data.repo && (
+							<a
+								href={data.repo}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="flex items-center gap-2 rounded-full bg-paper px-4 py-2 text-ink transition hover:bg-cream"
+							>
+								<SiteIcon name="github" class="size-4" />
+								源码
+							</a>
+						)}
+						{data.release && (
+							<a
+								href={data.release}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="flex items-center gap-2 rounded-full border border-line-strong px-4 py-2 text-paper transition hover:bg-paper/5"
+							>
+								Releases <SiteIcon name="external" class="size-3.5" />
+							</a>
+						)}
+					</div>
+				)}
+			</dl>
+		</header>
+
+		<div class="rise mt-16" style="--d:5">
+			<WindowFrame shot={hero} title={data.title} eager />
+		</div>
+
+		<div class="mt-24 grid gap-16 lg:grid-cols-12">
+			<aside class="lg:col-span-4">
+				<div class="lg:sticky lg:top-28">
+					<p class="label mb-5">技术栈</p>
+					<ul class="flex flex-wrap gap-1.5">
+						{data.stack.map((tech) => (
+							<li class="rounded-md border border-line bg-ink-2 px-2 py-1 font-mono text-[0.7rem] text-mute">{tech}</li>
+						))}
+					</ul>
+
+					{data.highlights.length > 0 && (
+						<>
+							<p class="label mt-12 mb-5">亮点</p>
+							<ol class="space-y-4">
+								{data.highlights.map((item, i) => (
+									<li class="flex gap-3 text-sm leading-relaxed text-mute">
+										<span class="font-mono text-[0.68rem] text-cream">{String(i + 1).padStart(2, '0')}</span>
+										{item}
+									</li>
+								))}
+							</ol>
+						</>
+					)}
+
+					{series.length > 1 && (
+						<>
+							<p class="label mt-12 mb-5">版本演进</p>
+							<ol class="relative space-y-4 border-l border-line pl-5">
+								{series
+									.toSorted((a, b) => Number(a.data.year) - Number(b.data.year))
+									.map((item) => (
+										<li class="relative">
+											<span
+												class:list={[
+													'absolute top-1.5 -left-[1.42rem] size-2 rounded-full',
+													item.id === project.id ? 'bg-cream' : 'bg-faint',
+												]}
+											/>
+											<a
+												href={`/projects/${item.id}`}
+												class:list={['text-sm', item.id === project.id ? 'text-paper' : 'text-mute hover:text-paper']}
+											>
+												{item.data.title}
+											</a>
+											<p class="font-mono text-[0.65rem] text-faint">{item.data.year}</p>
+										</li>
+									))}
+							</ol>
+						</>
+					)}
+				</div>
+			</aside>
+
+			<div class="prose prose-invert prose-lg max-w-none lg:col-span-8 prose-headings:font-display prose-headings:font-normal prose-a:text-cream prose-blockquote:border-cream/40 prose-blockquote:text-mute prose-strong:text-paper">
+				<Content />
+			</div>
+		</div>
+
+		{groups.length > 0 && rest.length > 0 && (
+			<section class="mt-32">
+				<p class="label mb-10">
+					<span class="text-cream">Gallery</span> / 界面一览
+				</p>
+				{groups.map((group) => (
+					<div class="mb-20">
+						{group.label && <h2 class="display reveal mb-8 text-3xl text-paper">{group.label}</h2>}
+						<div class="grid items-start gap-8 md:grid-cols-2">
+							{group.shots.map((shot, i) => (
+								<WindowFrame
+									shot={shot}
+									title={data.title}
+									class:list={['reveal', group.shots.length % 2 === 1 && i === 0 && 'md:col-span-2']}
+								/>
+							))}
+						</div>
+					</div>
+				))}
+			</section>
+		)}
+
+		{next.id !== project.id && (
+			<a
+				href={`/projects/${next.id}`}
+				class="group mt-32 flex items-end justify-between gap-6 border-t border-line pt-10"
+			>
+				<div>
+					<p class="label mb-4">下一个作品</p>
+					<p class="display text-4xl text-paper transition-colors group-hover:text-cream md:text-6xl">
+						{next.data.title}
+					</p>
+				</div>
+				<SiteIcon
+					name="arrow"
+					class="mb-3 size-8 text-mute transition-transform duration-500 group-hover:translate-x-2 group-hover:text-cream"
+				/>
+			</a>
+		)}
+	</article>
+</BaseLayout>

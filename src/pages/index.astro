@@ -1,0 +1,146 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import MoonRabbit from '@/components/MoonRabbit.astro';
+import ProjectFeature from '@/components/ProjectFeature.astro';
+import RepoCard from '@/components/RepoCard.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import SiteIcon from '@/components/SiteIcon.astro';
+import { formatDate } from '@/lib/formatDate';
+import { repos, site } from '@/site.config';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	.slice(0, 4);
+
+const stats = [
+	{ value: projects.length, label: '作品' },
+	{ value: repos.length, label: '开源仓库' },
+	{ value: new Date().getFullYear() - site.since, label: '年写代码' },
+];
+---
+
+<BaseLayout>
+	<section class="relative mx-auto grid min-h-[100dvh] max-w-6xl items-center gap-10 px-6 pt-32 pb-16 lg:grid-cols-12">
+		<div class="lg:col-span-7">
+			<p class="rise label mb-8 flex items-center gap-3" style="--d:0">
+				<span class="relative flex size-2">
+					<span class="absolute inline-flex size-full animate-ping rounded-full bg-cream/60"></span>
+					<span class="relative inline-flex size-2 rounded-full bg-cream"></span>
+				</span>
+				~/{site.githubUser.toLowerCase()} · {site.role}
+			</p>
+
+			<h1 class="display text-[3.4rem] leading-[0.98] text-paper sm:text-7xl lg:text-[5.6rem]">
+				<span class="rise block" style="--d:1">
+					把想法
+				</span>
+				<span class="rise block" style="--d:2">
+					写成<em class="text-cream not-italic"> 能跑的</em>
+				</span>
+				<span class="rise block italic" style="--d:3">
+					software<span class="text-blush">.</span>
+				</span>
+			</h1>
+
+			<p class="rise mt-8 max-w-xl text-lg leading-relaxed text-mute" style="--d:4">
+				你好，我是 <span class="text-paper">{site.author}</span>。
+				在前端与全栈之间来回切换，喜欢把桌面应用、知识系统和工程化这些「硬骨头」打磨得顺手又好看。这里是我的作品集与随笔。
+			</p>
+
+			<div class="rise mt-10 flex flex-wrap items-center gap-4" style="--d:5">
+				<a
+					href="/projects"
+					class="group flex items-center gap-3 rounded-full bg-cream px-6 py-3 text-sm font-medium text-ink transition hover:bg-paper"
+				>
+					浏览作品
+					<SiteIcon name="arrow" class="size-4 transition-transform duration-500 group-hover:translate-x-1" />
+				</a>
+				<a
+					href={site.github}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="flex items-center gap-2.5 rounded-full border border-line-strong px-6 py-3 text-sm text-paper transition hover:border-paper/40 hover:bg-paper/5"
+				>
+					<SiteIcon name="github" class="size-4" />
+					github.com/{site.githubUser}
+				</a>
+			</div>
+
+			<dl class="rise mt-16 grid max-w-md grid-cols-3 border-t border-line pt-6" style="--d:6">
+				{stats.map((item) => (
+					<div>
+						<dt class="label">{item.label}</dt>
+						<dd class="display mt-2 text-3xl text-paper">{String(item.value).padStart(2, '0')}</dd>
+					</div>
+				))}
+			</dl>
+		</div>
+
+		<div class="rise lg:col-span-5" style="--d:3">
+			<MoonRabbit />
+		</div>
+
+		<a
+			href="#works"
+			class="label absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
+			aria-label="向下浏览"
+		>
+			scroll
+			<span class="h-10 w-px animate-pulse bg-gradient-to-b from-cream/70 to-transparent"></span>
+		</a>
+	</section>
+
+	<section class="mx-auto max-w-6xl px-6 pt-16">
+		<SectionHead id="works" no="01" en="Selected Works" title="作品">
+			<a href="/projects" class="label flex items-center gap-2 hover:text-paper">
+				全部 <SiteIcon name="arrow" class="size-3.5" />
+			</a>
+		</SectionHead>
+		<div class="flex flex-col gap-28">
+			{projects.map((project, index) => (
+				<ProjectFeature project={project} index={index} />
+			))}
+		</div>
+	</section>
+
+	<section class="mx-auto max-w-6xl px-6 pt-36">
+		<SectionHead id="open-source" no="02" en="Open Source" title="开源">
+			<a
+				href={`${site.github}?tab=repositories`}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="label flex items-center gap-2 hover:text-paper"
+			>
+				GitHub <SiteIcon name="external" class="size-3.5" />
+			</a>
+		</SectionHead>
+		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			{repos.map((repo, index) => (
+				<RepoCard repo={repo} index={index} />
+			))}
+		</div>
+	</section>
+
+	<section class="mx-auto max-w-6xl px-6 pt-36">
+		<SectionHead no="03" en="Writing" title="随笔">
+			<a href="/posts" class="label flex items-center gap-2 hover:text-paper">
+				全部 <SiteIcon name="arrow" class="size-3.5" />
+			</a>
+		</SectionHead>
+		<ul class="divide-y divide-line border-b border-line">
+			{posts.map((post) => (
+				<li class="reveal">
+					<a href={`/posts/${post.id}`} class="group grid gap-2 py-7 md:grid-cols-12 md:items-baseline">
+						<time class="font-mono text-xs text-faint md:col-span-2">{formatDate(post.data.date)}</time>
+						<h3 class="display text-2xl text-paper transition-colors group-hover:text-cream md:col-span-6">
+							{post.data.title}
+						</h3>
+						<p class="text-sm text-mute md:col-span-4">{post.data.description}</p>
+					</a>
+				</li>
+			))}
+		</ul>
+	</section>
+</BaseLayout>

@@ -1,0 +1,68 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import SiteIcon from '@/components/SiteIcon.astro';
+import WindowFrame from '@/components/WindowFrame.astro';
+import { getCover } from '@/lib/projectShots';
+
+type Props = { project: CollectionEntry<'projects'>; index: number };
+const { project, index } = Astro.props;
+const { data } = project;
+const cover = getCover(data.shots);
+const flip = index % 2 === 1;
+---
+
+<article class="reveal group grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+	<div class:list={['lg:col-span-5', flip && 'lg:order-2']}>
+		<div class="mb-6 flex items-center gap-4 font-mono text-[0.7rem] text-faint">
+			<span class="display text-5xl text-cream/90 italic">{String(index + 1).padStart(2, '0')}</span>
+			<span class="h-px flex-1 bg-line"></span>
+			<span>{data.year}</span>
+			<span class="rounded-full border border-line px-2 py-0.5 text-mute">{data.status}</span>
+		</div>
+
+		<h3 class="display text-3xl leading-tight text-paper md:text-[2.6rem]">
+			<a href={`/projects/${project.id}`} class="link-underline">
+				{data.title}
+			</a>
+		</h3>
+		<p class="mt-3 text-[0.95rem] text-cream/80">{data.subtitle}</p>
+		<p class="mt-5 leading-relaxed text-mute">{data.summary}</p>
+
+		<ul class="mt-6 flex flex-wrap gap-1.5">
+			{data.stack.map((tech) => (
+				<li class="rounded-md border border-line bg-ink-2 px-2 py-1 font-mono text-[0.68rem] text-mute">{tech}</li>
+			))}
+		</ul>
+
+		<div class="mt-8 flex flex-wrap items-center gap-5 text-sm">
+			<a href={`/projects/${project.id}`} class="group/btn flex items-center gap-2 text-paper">
+				查看详情
+				<SiteIcon name="arrow" class="size-4 transition-transform duration-500 group-hover/btn:translate-x-1" />
+			</a>
+			{data.repo && (
+				<a
+					href={data.repo}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="flex items-center gap-1.5 text-mute hover:text-paper"
+				>
+					<SiteIcon name="github" class="size-3.5" />
+					源码
+				</a>
+			)}
+		</div>
+	</div>
+
+	<a
+		href={`/projects/${project.id}`}
+		class:list={['block lg:col-span-7', flip && 'lg:order-1']}
+		aria-label={`查看 ${data.title}`}
+		tabindex="-1"
+	>
+		<WindowFrame
+			shot={cover}
+			title={data.title}
+			class="transition duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5 group-hover:rotate-[-0.4deg]"
+		/>
+	</a>
+</article>

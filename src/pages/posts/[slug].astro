@@ -1,0 +1,62 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SiteIcon from '@/components/SiteIcon.astro';
+import { formatDate } from '@/lib/formatDate';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('posts', ({ data }) => !data.draft);
+	return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+type Props = { post: CollectionEntry<'posts'> };
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const minutes = Math.max(1, Math.round((post.body?.length ?? 0) / 400));
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+	<article class="mx-auto max-w-3xl px-6 pt-40">
+		<a href="/posts" class="rise label mb-10 inline-flex items-center gap-2 hover:text-paper" style="--d:0">
+			<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 全部随笔
+		</a>
+		<div class="rise flex flex-wrap items-center gap-4 font-mono text-xs text-faint" style="--d:1">
+			<time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+			<span>约 {minutes} 分钟</span>
+			{post.data.tags.map((tag) => (
+				<span class="text-cream/70">#{tag}</span>
+			))}
+		</div>
+		<h1 class="rise display mt-5 text-4xl leading-tight text-paper md:text-6xl" style="--d:2">
+			{post.data.title}
+		</h1>
+		<p class="rise mt-6 text-lg text-mute" style="--d:3">
+			{post.data.description}
+		</p>
+
+		{headings.filter((h) => h.depth === 2).length > 1 && (
+			<nav class="rise mt-12 rounded-xl border border-line bg-ink-2/60 p-5" style="--d:4" aria-label="目录">
+				<p class="label mb-3">目录</p>
+				<ol class="space-y-1.5 text-sm">
+					{headings
+						.filter((h) => h.depth === 2)
+						.map((h, i) => (
+							<li>
+								<a href={`#${h.slug}`} class="text-mute hover:text-paper">
+									<span class="mr-2 font-mono text-[0.65rem] text-faint">{String(i + 1).padStart(2, '0')}</span>
+									{h.text}
+								</a>
+							</li>
+						))}
+				</ol>
+			</nav>
+		)}
+
+		<div
+			class="rise prose prose-invert prose-lg mt-14 max-w-none prose-headings:scroll-mt-28 prose-headings:font-display prose-headings:font-normal prose-a:text-cream prose-code:font-mono prose-code:before:content-none prose-code:after:content-none prose-pre:border prose-pre:border-line prose-strong:text-paper"
+			style="--d:5"
+		>
+			<Content />
+		</div>
+	</article>
+</BaseLayout>

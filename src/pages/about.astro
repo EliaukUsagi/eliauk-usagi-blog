@@ -1,0 +1,65 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SiteIcon from '@/components/SiteIcon.astro';
+import mascot from '@/assets/brand/usagi-mascot.svg';
+import { site } from '@/site.config';
+
+const skills = [
+	{ area: '前端', items: ['Vue 3', 'React', 'TypeScript', 'Vite', 'Tailwind CSS', 'Naive UI / Ant Design'] },
+	{ area: '桌面', items: ['Tauri 2', 'Rust', 'Electron', 'Web Audio'] },
+	{ area: '服务端', items: ['Python', 'FastAPI', 'SQLAlchemy', 'PostgreSQL', 'Node.js'] },
+	{ area: '工程化', items: ['pnpm workspace', 'Turborepo', 'ESLint / Prettier', 'Vitest / Pytest', 'Docker / Nginx'] },
+];
+---
+
+<BaseLayout title="关于" description="关于 Eliauk 与这间小筑。">
+	<section class="mx-auto max-w-6xl px-6 pt-40">
+		<div class="grid gap-16 lg:grid-cols-12">
+			<div class="lg:col-span-7">
+				<p class="rise label mb-6" style="--d:0">
+					<span class="text-cream">04</span> / About
+				</p>
+				<h1 class="rise display text-6xl leading-[1.02] text-paper md:text-7xl" style="--d:1">
+					嗨，我是 <em class="text-cream">{site.author}</em>
+				</h1>
+				<div class="rise mt-10 space-y-5 text-lg leading-relaxed text-mute" style="--d:2">
+					<p>一名{site.role}。日常工作在浏览器里，业余时间喜欢往外多走一步：写桌面应用、搭服务端、折腾部署。</p>
+					<p>
+						我在意代码之外的东西——清晰的分层、可检查的约束、顺手的工具链，以及界面上每一处细节。能把复杂的东西做简单，是我最喜欢的成就感。
+					</p>
+					<p>这间「{site.name}」是我的个人主页，存放作品与随笔。门口那只兔子叫 Usagi，日语里就是「兔子」的意思。</p>
+				</div>
+				<a
+					href={site.github}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="rise mt-10 inline-flex items-center gap-2.5 rounded-full bg-paper px-6 py-3 text-sm font-medium text-ink transition hover:bg-cream"
+					style="--d:3"
+				>
+					<SiteIcon name="github" class="size-4" /> 在 GitHub 上找到我
+				</a>
+			</div>
+			<div class="rise relative lg:col-span-5" style="--d:2">
+				<div class="relative mx-auto grid aspect-[4/5] max-w-sm place-items-center overflow-hidden rounded-[2rem] border border-line bg-ink-2">
+					<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgb(253_241_196/0.14),transparent_60%)]"></div>
+					<Image src={mascot} alt="Usagi 兔子" class="relative w-1/2 -rotate-6" />
+					<p class="label absolute bottom-6">usagi · since {site.since}</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-32 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+			{skills.map((group) => (
+				<div class="reveal bg-ink p-7">
+					<p class="label mb-5 text-cream">{group.area}</p>
+					<ul class="space-y-2.5 text-sm text-mute">
+						{group.items.map((item) => (
+							<li>{item}</li>
+						))}
+					</ul>
+				</div>
+			))}
+		</div>
+	</section>
+</BaseLayout>
