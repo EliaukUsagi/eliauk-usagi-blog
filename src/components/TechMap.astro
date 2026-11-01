@@ -61,7 +61,7 @@ let order = 0;
 	</svg>
 
 	<div class="map-core absolute grid size-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full" style={pct(cx, cy)}>
-		<span class="text-sm font-semibold text-fg">Stack</span>
+		<span class="font-mono text-xs tracking-[0.18em] text-canvas uppercase">Stack</span>
 	</div>
 
 	{nodes.map((group, gi) => (
@@ -127,19 +127,25 @@ let order = 0;
 </script>
 
 <style>
+	/* 地图只用前景色的不同透明度，不引入额外色相，与全站收敛的配色一致 */
+	.tech-map {
+		--map-line: color-mix(in srgb, var(--fg) 13%, transparent);
+		--map-line-on: color-mix(in srgb, var(--fg) 55%, transparent);
+	}
+
 	.map-orbit {
 		stroke: var(--line);
 		stroke-dasharray: 2 8;
 	}
 
 	.map-orbit-spin {
-		stroke: var(--line-strong);
+		stroke: var(--map-line);
 		stroke-dasharray: 1 12;
 		animation: orbit-flow 40s linear infinite;
 	}
 
 	.map-line {
-		stroke: var(--line-strong);
+		stroke: var(--map-line);
 		stroke-width: 1;
 		stroke-dasharray: 1;
 		stroke-dashoffset: 0;
@@ -153,13 +159,11 @@ let order = 0;
 	}
 
 	.map-core {
-		border: 1px solid var(--line-strong);
-		background:
-			radial-gradient(circle at 34% 28%, var(--moon-hi), transparent 55%),
-			radial-gradient(circle at 55% 50%, var(--moon-base), var(--moon-edge));
+		background: var(--fg);
 		box-shadow:
-			0 0 0 10px color-mix(in srgb, var(--card) 50%, transparent),
-			0 0 60px 8px var(--moon-glow);
+			0 0 0 10px color-mix(in srgb, var(--fg) 5%, transparent),
+			0 0 0 22px color-mix(in srgb, var(--fg) 3%, transparent),
+			0 18px 40px -12px color-mix(in srgb, var(--fg) 35%, transparent);
 	}
 
 	.map-hub {
@@ -168,9 +172,8 @@ let order = 0;
 		gap: 0.4rem;
 		padding: 0.45rem 0.95rem;
 		border-radius: 9999px;
-		border: 1px solid var(--line-strong);
-		background: var(--card);
-		box-shadow: var(--shadow-frame);
+		border: 1px solid var(--map-line);
+		background: var(--canvas);
 		font-size: 0.85rem;
 		font-weight: 600;
 		color: var(--fg);
@@ -179,6 +182,7 @@ let order = 0;
 		transition:
 			opacity 0.4s ease,
 			border-color 0.4s ease,
+			background-color 0.4s ease,
 			color 0.4s ease;
 	}
 
@@ -195,7 +199,8 @@ let order = 0;
 		padding: 0.3rem 0.75rem;
 		border-radius: 9999px;
 		border: 1px solid var(--line);
-		background: color-mix(in srgb, var(--card) 85%, transparent);
+		/* 与页面同底色，连线在标签边缘干净地收住 */
+		background: var(--canvas);
 		font-size: 0.78rem;
 		color: var(--soft);
 		white-space: nowrap;
@@ -206,28 +211,32 @@ let order = 0;
 			transform var(--dur-hover) var(--ease-out-expo);
 	}
 
-	/* 聚焦某一组：其余淡出，本组连线换强调色并沿线流动 */
+	/* 聚焦某一组：其余淡出，本组加深并沿线流动 */
 	[data-focused] .map-hub:not(.is-on),
 	[data-focused] .map-node:not(.is-on),
 	[data-focused] g:not(.is-on) .map-line {
-		opacity: 0.22;
+		opacity: 0.18;
 	}
 
 	[data-focused] g.is-on .map-line {
-		stroke: var(--accent);
+		stroke: var(--map-line-on);
 		stroke-dasharray: 0.03 0.015;
 		animation: line-flow 1.6s linear infinite;
 	}
 
 	.map-hub.is-on {
-		border-color: var(--accent);
-		color: var(--accent);
+		border-color: var(--fg);
+		background: var(--fg);
+		color: var(--canvas);
+	}
+
+	.map-hub.is-on span {
+		color: color-mix(in srgb, var(--canvas) 60%, transparent);
 	}
 
 	.map-node.is-on .map-chip {
-		border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+		border-color: var(--map-line-on);
 		color: var(--fg);
-		background: var(--card);
 		transform: scale(1.06);
 	}
 
@@ -250,10 +259,10 @@ let order = 0;
 	}
 
 	:global(.motion) .tech-map .map-hub {
-		transition-property: filter, scale, opacity, border-color, color;
-		transition-duration: 0.9s, 0.9s, 0.4s, 0.4s, 0.4s;
+		transition-property: filter, scale, opacity, border-color, background-color, color;
+		transition-duration: 0.9s, 0.9s, 0.4s, 0.4s, 0.4s, 0.4s;
 		transition-timing-function: var(--ease-out-expo);
-		transition-delay: calc(var(--i) * 90ms + 200ms), calc(var(--i) * 90ms + 200ms), 0s, 0s, 0s;
+		transition-delay: calc(var(--i) * 90ms + 200ms), calc(var(--i) * 90ms + 200ms), 0s, 0s, 0s, 0s;
 	}
 
 	:global(.motion) .tech-map .map-chip {

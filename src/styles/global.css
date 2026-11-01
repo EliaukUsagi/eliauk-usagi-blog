@@ -372,16 +372,10 @@ html[data-theme='dark'] {
 }
 
 /*
- * 主题切换：新主题快照以羽化圆形从切换按钮处扩散。
+ * 主题切换：新主题快照以圆形从切换按钮处扩散，动画由 ThemeToggle 用 WAAPI 驱动。
  * 切换期间关闭元素自身的颜色过渡（否则新快照会截到过渡起点），
  * 并取消具名元素，让整页作为一张快照统一揭示
  */
-@property --vt-reveal {
-	syntax: '<length>';
-	inherits: true;
-	initial-value: 0px;
-}
-
 html[data-theme-switching],
 html[data-theme-switching] *,
 html[data-theme-switching] *::before,
@@ -390,31 +384,10 @@ html[data-theme-switching] *::after {
 	view-transition-name: none !important;
 }
 
-html[data-theme-switching]::view-transition-old(root) {
-	animation: none;
-}
-
+html[data-theme-switching]::view-transition-old(root),
 html[data-theme-switching]::view-transition-new(root) {
-	-webkit-mask-image: radial-gradient(
-		circle at var(--vt-x) var(--vt-y),
-		#000 calc(var(--vt-reveal) - 120px),
-		transparent var(--vt-reveal)
-	);
-	mask-image: radial-gradient(
-		circle at var(--vt-x) var(--vt-y),
-		#000 calc(var(--vt-reveal) - 120px),
-		transparent var(--vt-reveal)
-	);
-	animation: theme-reveal 0.95s cubic-bezier(0.65, 0, 0.35, 1) both;
-}
-
-@keyframes theme-reveal {
-	from {
-		--vt-reveal: 0px;
-	}
-	to {
-		--vt-reveal: var(--vt-r);
-	}
+	animation: none;
+	mix-blend-mode: normal;
 }
 
 @keyframes vt-out {
