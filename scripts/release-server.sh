@@ -30,9 +30,9 @@ ssh "$USAGI_SERVER" "mkdir -p '$dir/site'"
 rsync -az --delete --delay-updates dist/ "$USAGI_SERVER:$dir/site/"
 ssh "$USAGI_SERVER" "cat > '$dir/RELEASE'" <"$release"
 
-echo "▶ 检查预览入口（未登录应返回 401）"
+echo "▶ 检查 IP 入口（公开访问，应返回 200）"
 code="$(ssh "$USAGI_SERVER" "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8082/")"
-[ "$code" = 401 ] || {
+[ "$code" = 200 ] || {
   echo "8082 返回 ${code}，网关可能还没有加载个人主页入口：先发布知识库网关（eliauk-usagi-kb 的 deploy/release-server.sh）" >&2
   exit 1
 }
