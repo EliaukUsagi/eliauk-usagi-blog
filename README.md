@@ -43,9 +43,20 @@ src/assets/projects/usagi-kb/
 - 截图统一用 WebP：放入 PNG / JPG 后执行 `pnpm shots` 转换（最长边 2400px，质量 82）。
 - 构建时再按 640 / 960 / 1440 输出多尺寸 WebP；首页轮播只有第一张优先加载，其余懒加载。
 
-## 部署提示
+## 部署
 
-`dist/` 为纯静态文件。`/_astro/` 下的资源文件名带内容哈希，网关可设置长缓存（如 `Cache-Control: public, max-age=31536000, immutable`）；HTML 不缓存或短缓存。
+站点由知识库项目（`eliauk-usagi-kb`）的网关托管，与问答服务共用一台服务器：
+
+```bash
+USAGI_SERVER=root@8.160.112.6 scripts/release-server.sh
+```
+
+脚本要求工作区干净，本机执行 `pnpm build` 后把 `dist/` 同步到服务器的 `/opt/usagi-kb/deploy/blog/site/`，网关只读挂载，无需重启。路由与缓存策略（`/_astro/` 长期缓存、页面不缓存）在知识库仓库的 `deploy/gateway/blog-routes.conf`。
+
+| 入口 | 地址                      | 说明                                                                                                                       |
+| ---- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 预览 | `http://8.160.112.6:8082` | ICP 备案前使用，需要管理后台账号登录                                                                                       |
+| 正式 | `https://aiusagi.com`     | 备案通过后在知识库的 `deploy/gateway/.env.production` 设置 `USAGI_DOMAIN=aiusagi.com` 并发布网关即启用；`www` 跳转到根域名 |
 
 ## 备案相关约定
 
