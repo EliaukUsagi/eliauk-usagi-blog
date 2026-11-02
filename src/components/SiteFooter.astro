@@ -19,9 +19,9 @@ const { icp, police, policeCode } = site.record;
 						src={mascot}
 						draggable="false"
 						alt=""
-						class="size-16 transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-1 group-hover:-rotate-6"
+						class="size-12 transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-1 group-hover:-rotate-6"
 					/>
-					<span class="display text-5xl leading-none text-fg md:text-7xl">{site.name}</span>
+					<span class="display text-4xl leading-none text-fg md:text-5xl">{site.name}</span>
 				</a>
 			</div>
 
@@ -68,21 +68,14 @@ const { icp, police, policeCode } = site.record;
 			</div>
 		</div>
 
-		<div class="mt-16 border-t border-line pt-6 text-xs text-mute">
-			<div class="flex flex-col gap-1.5">
-				<p>
-					© {site.since}–{year} {site.author} · {site.nameEn}
-				</p>
-				{/* 首页月面贴图的来源署名，NASA 要求注明 */}
-				<p>
-					月面贴图：
-					<a href="https://svs.gsfc.nasa.gov/4720" target="_blank" rel="noopener noreferrer" class="hover:text-fg">
-						NASA's Scientific Visualization Studio
-					</a>
-				</p>
-			</div>
+		<div
+			class="mt-16 flex flex-col items-center gap-2.5 border-t border-line pt-6 text-center text-xs text-mute md:grid md:grid-cols-[1fr_auto_1fr] md:gap-6"
+		>
+			<p class="md:justify-self-start md:text-left">
+				© {site.since}–{year} {site.author} · {site.nameEn}
+			</p>
 			{/* 备案要求：备案号放在页面底部中间位置，并链接到工信部备案系统 */}
-			<div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 empty:hidden">
+			<div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
 				{icp && (
 					<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="hover:text-fg">
 						{icp}
@@ -101,6 +94,13 @@ const { icp, police, policeCode } = site.record;
 					</a>
 				)}
 			</div>
+			{/* 首页月面贴图的来源署名，NASA 要求注明 */}
+			<p class="md:justify-self-end md:text-right">
+				月面贴图：
+				<a href="https://svs.gsfc.nasa.gov/4720" target="_blank" rel="noopener noreferrer" class="hover:text-fg">
+					NASA's Scientific Visualization Studio
+				</a>
+			</p>
 		</div>
 	</div>
 </footer>
