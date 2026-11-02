@@ -456,6 +456,15 @@ html[data-theme-collapsing]::view-transition-old(root) {
 	z-index: 1;
 }
 
+/* 切换期间暂时保持旧主题的 color-scheme（决定原生滚动条配色），放开时机由 ThemeToggle 按动画进度计算 */
+html[data-scheme-hold='light'] {
+	color-scheme: light;
+}
+
+html[data-scheme-hold='dark'] {
+	color-scheme: dark;
+}
+
 @keyframes vt-out {
 	to {
 		opacity: 0;
