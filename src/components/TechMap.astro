@@ -90,7 +90,7 @@ let order = 0;
 {/* 窄屏放不下环形布局，退化为分组列表 */}
 <div class="space-y-6 lg:hidden">
 	{groups.map((group, i) => (
-		<div class="reveal grid gap-3 sm:grid-cols-[8rem_1fr] sm:gap-8" style={`--d:${i}`}>
+		<div class="reveal grid grid-cols-1 gap-3 sm:grid-cols-[8rem_1fr] sm:gap-8" style={`--d:${i}`}>
 			<p class="flex items-baseline gap-3 text-fg">
 				<span class="font-medium">{group.area}</span>
 				<span class="font-mono text-xs text-mute">{group.items.length}</span>

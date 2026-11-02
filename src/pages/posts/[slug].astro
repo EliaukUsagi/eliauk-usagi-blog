@@ -73,7 +73,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			)}
 		</header>
 
-		<div class="mt-16 grid gap-16 border-t border-line pt-14 xl:grid-cols-[minmax(0,40rem)_1fr] xl:gap-24">
+		<div class="mt-16 grid grid-cols-1 gap-16 border-t border-line pt-14 xl:grid-cols-[minmax(0,40rem)_1fr] xl:gap-24">
 			<div class="rise article-body prose max-w-none md:prose-lg" style="--d:5">
 				<Content />
 			</div>
@@ -117,7 +117,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			</a>
 		)}
 
-		<nav class="reveal mt-20 grid gap-4 border-t border-line pt-10 md:grid-cols-2" aria-label="更多随笔">
+		<nav class="reveal mt-20 grid grid-cols-1 gap-4 border-t border-line pt-10 md:grid-cols-2" aria-label="更多随笔">
 			{older ? (
 				<a
 					href={`/posts/${older.id}`}

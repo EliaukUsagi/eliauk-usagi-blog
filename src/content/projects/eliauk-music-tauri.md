@@ -7,8 +7,8 @@ order: 2
 year: '2026'
 status: v1.0.0
 stack: [Tauri 2, Rust, Vue 3, TypeScript, Vite, Pinia, Naive UI, Tailwind CSS v4]
-repo: https://github.com/EliaukRender/eliauk-music-tauri-rust
-release: https://github.com/EliaukRender/eliauk-music-tauri-rust/releases
+repo: https://github.com/EliaukUsagi/eliauk-music-tauri-rust
+release: https://github.com/EliaukUsagi/eliauk-music-tauri-rust/releases
 series: eliauk-music
 highlights:
   - 播放队列拖拽排序、三种播放模式、播放历史，冷启动恢复队列与进度

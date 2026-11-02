@@ -7,8 +7,8 @@ export const site = {
 	description: 'EliaukUsagi 的个人主页：做过的项目、开源仓库，以及学习路上的笔记。',
 	url: 'https://aiusagi.com',
 	since: 2022,
-	github: 'https://github.com/EliaukRender',
-	githubUser: 'EliaukRender',
+	github: 'https://github.com/EliaukUsagi',
+	githubUser: 'EliaukUsagi',
 	// 联系邮箱，留空则关于页与页脚不显示邮件入口
 	email: 'chang_sowing@163.com' as string,
 	// 备案号拿到后填写，留空则不显示

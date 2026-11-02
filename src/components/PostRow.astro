@@ -13,7 +13,7 @@ const minutes = readingMinutes(post.body);
 <a
 	href={`/posts/${post.id}`}
 	data-category={data.category}
-	class="post-row group relative grid gap-x-10 gap-y-3 border-b border-line py-8 md:grid-cols-[6rem_1fr_auto] md:items-baseline"
+	class="post-row group relative grid grid-cols-1 gap-x-10 gap-y-3 border-b border-line py-8 md:grid-cols-[6rem_1fr_auto] md:items-baseline"
 >
 	<span class="row-wash" aria-hidden="true"></span>
 	{/* 移动端元信息合成一行；md 以上日期与分类叠放在左列，时长挪到右侧 */}

@@ -41,7 +41,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 			全部作品
 		</a>
 
-		<header class="grid gap-10 lg:grid-cols-12">
+		<header class="grid grid-cols-1 gap-10 lg:grid-cols-12">
 			<div class="lg:col-span-8">
 				<div class="rise flex flex-wrap items-center gap-x-4 gap-y-2 text-xs" style="--d:1">
 					<span class:list={['status', data.status === '已归档' && 'is-archived']}>{data.status}</span>
@@ -93,7 +93,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 			/>
 		</div>
 
-		<div class="mt-20 grid gap-16 lg:grid-cols-12">
+		<div class="mt-20 grid grid-cols-1 gap-16 lg:grid-cols-12">
 			<aside class="lg:col-span-4">
 				<div class="lg:sticky lg:top-28">
 					<p class="label-cn mb-5">技术栈</p>
@@ -159,7 +159,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 				{groups.map((group) => (
 					<div class="mb-16">
 						{group.label && <h2 class="display reveal mb-8 text-3xl text-fg">{group.label}</h2>}
-						<div class="grid items-start gap-8 md:grid-cols-2">
+						<div class="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
 							{group.shots.map((shot, i) => {
 								const wide = group.shots.length % 2 === 1 && i === 0;
 								return (

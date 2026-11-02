@@ -35,7 +35,7 @@ const skills = [
 
 <BaseLayout title="关于" description="关于 Eliauk 与这间小筑。">
 	<section class="mx-auto max-w-6xl px-6 pt-36 md:pt-40">
-		<div class="grid items-center gap-14 lg:grid-cols-12 lg:gap-16">
+		<div class="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-16">
 			<div class="lg:col-span-7">
 				<p class="rise label mb-6 flex items-center gap-2.5" style="--d:0">
 					<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
@@ -71,7 +71,7 @@ const skills = [
 			<div class="rise relative lg:col-span-5" style="--d:2">
 				<div class="relative mx-auto max-w-[22rem]">
 					{/* 磨砂卡片后面压一轮月亮，玻璃质感才有内容可透 */}
-					<div class="about-moon absolute -top-10 -right-8 size-56 rounded-full" aria-hidden="true"></div>
+					<div class="about-moon absolute -top-10 -right-2 sm:-right-8 size-56 rounded-full" aria-hidden="true"></div>
 					<div class="glass about-card relative select-none aspect-[4/5] overflow-hidden rounded-[2rem]">
 						<div class="flex items-center justify-between px-6 pt-5 font-mono text-[0.68rem] tracking-wider text-mute">
 							<span>USAGI.SVG</span>
@@ -105,7 +105,7 @@ const skills = [
 				</h2>
 			</div>
 		</div>
-		<ol class="path relative grid gap-10 md:grid-cols-5 md:gap-6">
+		<ol class="path relative grid grid-cols-1 gap-10 md:grid-cols-5 md:gap-6">
 			{path.map((step, i) => (
 				<li class="reveal relative pl-8 md:pt-10 md:pl-0" style={`--d:${i}`}>
 					<span class="path-node" aria-hidden="true" data-last={i === path.length - 1 ? '' : undefined}></span>
@@ -127,7 +127,7 @@ const skills = [
 			</h2>
 		</div>
 		{/* 不加卡片外框与分栏线，区块标题下的分隔线已经完成分组，栏间靠留白区分 */}
-		<ul class="grid gap-10 md:grid-cols-3 md:gap-12">
+		<ul class="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12">
 			{habits.map((habit, i) => (
 				<li class="reveal" style={`--d:${i}`}>
 					<h3 class="text-xl font-semibold text-fg">{habit.title}</h3>
@@ -160,7 +160,7 @@ const skills = [
 					class="cta-moon pointer-events-none absolute -top-24 -right-16 size-72 rounded-full"
 					aria-hidden="true"
 				></div>
-				<div class="relative grid gap-10 md:grid-cols-[1fr_auto] md:items-end">
+				<div class="relative grid grid-cols-1 gap-10 md:grid-cols-[1fr_auto] md:items-end">
 					<div>
 						<p class="label flex items-center gap-2.5">
 							<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>

@@ -7,7 +7,7 @@ order: 3
 year: '2024'
 status: 已归档
 stack: [Electron, React, TypeScript, Redux, Sass, Webpack]
-repo: https://github.com/EliaukRender/music-electron-react
+repo: https://github.com/EliaukUsagi/music-electron-react
 series: eliauk-music
 highlights:
   - 播放、暂停、切歌、快进快退、循环模式、音量调节、双击切歌
