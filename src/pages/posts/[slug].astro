@@ -2,6 +2,7 @@
 import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SiteIcon from '@/components/SiteIcon.astro';
+import { formatDate } from '@/lib/formatDate';
 import { readingMinutes, sortByDate } from '@/lib/postMeta';
 
 export async function getStaticPaths() {
@@ -24,13 +25,19 @@ const toc = headings.filter((h) => h.depth === 2);
 const project = data.project ? await getEntry('projects', data.project) : undefined;
 ---
 
-<BaseLayout title={data.title} description={data.description}>
+<BaseLayout
+	title={data.title}
+	description={data.description}
+	type="article"
+	og={`/og/posts/${post.id}.png`}
+	published={data.date}
+>
 	<div class="read-progress" aria-hidden="true"></div>
 
 	<article class="mx-auto max-w-6xl px-6 pt-40">
 		<a
 			href="/posts"
-			class="rise label group mb-12 inline-flex items-center gap-2 transition-colors hover:text-fg"
+			class="rise label-cn group mb-12 inline-flex items-center gap-2 transition-colors hover:text-fg"
 			style="--d:0"
 		>
 			<SiteIcon
@@ -41,8 +48,14 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		</a>
 
 		<header class="max-w-3xl">
-			<div class="rise flex flex-wrap items-center gap-3 font-mono text-xs text-faint" style="--d:1">
+			<div class="rise flex flex-wrap items-center gap-3 text-xs text-mute" style="--d:1">
 				<span class="chip border-accent/25 text-accent">{data.category}</span>
+				<time class="font-mono" datetime={data.date.toISOString()}>
+					{formatDate(data.date)}
+				</time>
+				<span class="text-faint" aria-hidden="true">
+					·
+				</span>
 				<span>约 {readingMinutes(post.body)} 分钟读完</span>
 			</div>
 			<h1 class="rise display mt-6 text-4xl leading-[1.12] text-balance text-fg md:text-6xl" style="--d:2">
@@ -52,15 +65,15 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 				{data.description}
 			</p>
 			{data.tags.length > 0 && (
-				<ul class="rise mt-8 flex flex-wrap gap-1.5" style="--d:4">
+				<ul class="rise mt-6 flex flex-wrap gap-x-4 gap-y-1 text-sm text-mute" style="--d:4" aria-label="标签">
 					{data.tags.map((tag) => (
-						<li class="chip">#{tag}</li>
+						<li>#{tag}</li>
 					))}
 				</ul>
 			)}
 		</header>
 
-		<div class="mt-16 grid gap-16 border-t border-line pt-14 xl:grid-cols-[minmax(0,48rem)_1fr]">
+		<div class="mt-16 grid gap-16 border-t border-line pt-14 xl:grid-cols-[minmax(0,40rem)_1fr] xl:gap-24">
 			<div class="rise article-body prose max-w-none md:prose-lg" style="--d:5">
 				<Content />
 			</div>
@@ -68,7 +81,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			{toc.length > 1 && (
 				<aside class="hidden xl:block">
 					<nav class="sticky top-32" aria-label="目录">
-						<p class="label mb-5">目录</p>
+						<p class="label-cn mb-5">目录</p>
 						<ol class="space-y-1 border-l border-line">
 							{toc.map((h) => (
 								<li>
@@ -86,10 +99,10 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		{project && (
 			<a
 				href={`/projects/${project.id}`}
-				class="related reveal group mt-20 flex max-w-3xl items-center justify-between gap-6 rounded-2xl border border-line bg-card px-7 py-6"
+				class="related reveal group mt-20 flex max-w-[40rem] items-center justify-between gap-6 rounded-2xl border border-line bg-card px-7 py-6"
 			>
 				<div>
-					<p class="label mb-2">相关作品</p>
+					<p class="label-cn mb-2">相关作品</p>
 					<p class="display text-2xl text-fg">
 						<span class="link-underline">{project.data.title}</span>
 					</p>
@@ -104,13 +117,13 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			</a>
 		)}
 
-		<nav class="reveal mt-24 grid gap-4 border-t border-line pt-10 md:grid-cols-2" aria-label="更多随笔">
+		<nav class="reveal mt-20 grid gap-4 border-t border-line pt-10 md:grid-cols-2" aria-label="更多随笔">
 			{older ? (
 				<a
 					href={`/posts/${older.id}`}
 					class="group rounded-2xl p-5 transition-colors duration-300 hover:bg-fg/[0.03] md:-ml-5"
 				>
-					<p class="label mb-3 flex items-center gap-2">
+					<p class="label-cn mb-3 flex items-center gap-2">
 						<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 上一篇
 					</p>
 					<p class="display text-2xl leading-snug text-fg">
@@ -125,7 +138,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 					href={`/posts/${newer.id}`}
 					class="group rounded-2xl p-5 text-right transition-colors duration-300 hover:bg-fg/[0.03] md:-mr-5"
 				>
-					<p class="label mb-3 flex items-center justify-end gap-2">
+					<p class="label-cn mb-3 flex items-center justify-end gap-2">
 						下一篇 <SiteIcon name="arrow" class="size-3.5" />
 					</p>
 					<p class="display text-2xl leading-snug text-fg">
@@ -143,8 +156,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			border-color 0.3s ease,
 			box-shadow var(--dur-hover) var(--ease-out-expo),
 			opacity var(--dur-reveal) var(--ease-out-expo),
-			transform var(--dur-reveal) var(--ease-out-expo),
-			filter var(--dur-reveal) var(--ease-out-expo);
+			transform var(--dur-reveal) var(--ease-out-expo);
 	}
 
 	@media (hover: hover) {
@@ -189,7 +201,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		border-left: 1px solid transparent;
 		font-size: 0.85rem;
 		line-height: 1.5;
-		color: var(--faint);
+		color: var(--mute);
 		transition:
 			color 0.3s ease,
 			border-color 0.3s ease;
@@ -268,6 +280,68 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		text-decoration-color: var(--accent);
 	}
 
+	/* 以下元素由脚本在运行时插入，必须用 :global 才能命中 */
+	.article-body :global(.code-block) {
+		position: relative;
+		margin: 1.75em 0;
+	}
+
+	.article-body :global(.code-block > pre) {
+		margin: 0;
+	}
+
+	.article-body :global(.code-copy) {
+		position: absolute;
+		top: 0.6rem;
+		right: 0.6rem;
+		padding: 0.2rem 0.6rem;
+		border: 1px solid var(--line-strong);
+		border-radius: 0.5rem;
+		background: var(--card);
+		font-size: 0.72rem;
+		color: var(--mute);
+		opacity: 0;
+		transition:
+			opacity 0.2s ease,
+			color 0.2s ease;
+	}
+
+	.article-body :global(.code-block:hover .code-copy),
+	.article-body :global(.code-copy:focus-visible) {
+		opacity: 1;
+	}
+
+	.article-body :global(.code-copy:hover) {
+		color: var(--fg);
+	}
+
+	/* 触屏没有悬停，复制按钮常驻 */
+	@media (hover: none) {
+		.article-body :global(.code-copy) {
+			opacity: 1;
+		}
+	}
+
+	.article-body :global(.heading-anchor) {
+		margin-left: 0.4em;
+		font-weight: 400;
+		color: var(--faint);
+		text-decoration: none;
+		opacity: 0;
+		transition:
+			opacity 0.2s ease,
+			color 0.2s ease;
+	}
+
+	.article-body :global(:is(h2, h3):hover .heading-anchor),
+	.article-body :global(.heading-anchor:focus-visible) {
+		opacity: 1;
+	}
+
+	.article-body :global(.heading-anchor:hover) {
+		color: var(--accent);
+	}
+
 	.article-body :global(hr) {
 		margin: 3rem auto;
 		width: 3rem;
@@ -276,6 +350,43 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 </style>
 
 <script>
+	const body = document.querySelector<HTMLElement>('.article-body');
+
+	// 代码块复制
+	body?.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
+		const wrap = document.createElement('div');
+		wrap.className = 'code-block';
+		pre.before(wrap);
+		wrap.append(pre);
+
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'code-copy';
+		button.textContent = '复制';
+		let timer = 0;
+		button.addEventListener('click', async () => {
+			try {
+				await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? pre.innerText);
+				button.textContent = '已复制';
+			} catch {
+				button.textContent = '复制失败';
+			}
+			clearTimeout(timer);
+			timer = window.setTimeout(() => (button.textContent = '复制'), 1600);
+		});
+		wrap.append(button);
+	});
+
+	// 标题锚点：便于直接分享某一节
+	body?.querySelectorAll<HTMLHeadingElement>('h2[id], h3[id]').forEach((heading) => {
+		const anchor = document.createElement('a');
+		anchor.href = `#${heading.id}`;
+		anchor.className = 'heading-anchor';
+		anchor.textContent = '#';
+		anchor.setAttribute('aria-label', `链接到「${heading.textContent}」`);
+		heading.append(anchor);
+	});
+
 	const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
 	if (links.length) {
 		const targets = links

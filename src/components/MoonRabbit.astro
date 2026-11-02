@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import mascot from '@/assets/brand/usagi-mascot.svg';
+// 月面贴图：NASA SVS CGI Moon Kit（https://svs.gsfc.nasa.gov/4720），由 2K 版缩至 1280×640
+import moonTexture from '@/assets/moon/lroc-color.webp';
 
 // 星点位置固定，避免每次构建产生无意义的 diff
 const stars = [
@@ -13,11 +15,34 @@ const stars = [
 	[64, 6, 1.5, 2],
 	[4, 34, 1.5, 3.4],
 ];
+
+// 轨道与 .orbit-plane 一致：舞台内缩 4%、压扁到 0.32、旋转 -18°。坐标以舞台宽度的百分比表示
+const ORBIT = { a: 46, b: 46 * 0.32, tilt: (-18 * Math.PI) / 180 };
+// 出场位置在月球右前方：一出现就在前面打招呼，随后慢慢走完整个前半圈。也是无 JS 或减弱动态时的位置
+const START = (70 * Math.PI) / 180;
+const orbitPoint = (theta: number) => {
+	const x = ORBIT.a * Math.cos(theta);
+	const y = ORBIT.b * Math.sin(theta);
+	return {
+		x: 50 + x * Math.cos(ORBIT.tilt) - y * Math.sin(ORBIT.tilt),
+		y: 50 + x * Math.sin(ORBIT.tilt) + y * Math.cos(ORBIT.tilt),
+		depth: Math.sin(theta),
+	};
+};
+const start = orbitPoint(START);
 ---
 
-<div class="moon-stage relative mx-auto aspect-square w-full max-w-[30rem]" aria-hidden="true" data-moon-stage>
+<div
+	class="moon-stage relative mx-auto select-none aspect-square w-full max-w-[30rem]"
+	aria-hidden="true"
+	data-moon-stage
+	data-orbit={JSON.stringify({ ...ORBIT, start: START })}
+>
 	{stars.map(([x, y, s, d]) => (
-		<span class="star absolute rounded-full" style={`left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation-delay:${d}s`}></span>
+		<span
+			class="star absolute rounded-full"
+			style={`left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation-delay:${d}s`}
+		/>
 	))}
 
 	<div class="layer" style="--depth:6px;z-index:0">
@@ -32,11 +57,15 @@ const stars = [
 	</div>
 
 	<div class="layer" style="--depth:10px;z-index:2">
-		<div class="moon-disc absolute inset-[16%] rounded-full">
-			<span class="crater" style="left:58%;top:30%;width:14%"></span>
-			<span class="crater" style="left:24%;top:56%;width:10%"></span>
-			<span class="crater" style="left:66%;top:66%;width:8%"></span>
-			<span class="crater" style="left:40%;top:20%;width:5%"></span>
+		{/*
+		 * 月面 CSS 版（WebGL 不可用时的兜底，也是着色器就绪前的首屏）：贴图横向平移模拟自转，叠加临边昏暗、受光高光与晨昏线。
+		 * 贴图宽是圆盘的 2 倍（展开图 360° 对应可见半球 180°），条带内铺两份贴图，平移一份宽度即无缝循环
+		 */}
+		<div class="moon-disc absolute inset-[16%] overflow-hidden rounded-full" data-moon-disc>
+			<div class="moon-surface" style={`background-image:url(${moonTexture.src})`}></div>
+			<div class="moon-shade"></div>
+			{/* WebGL 版：贴图逐像素投影到球面并计算光照，首帧画好后淡入覆盖上面的 CSS 版（实现见 src/lib/moonGl.ts） */}
+			<canvas class="moon-canvas" data-moon-canvas data-texture={moonTexture.src}></canvas>
 		</div>
 	</div>
 
@@ -47,33 +76,32 @@ const stars = [
 		</div>
 	</div>
 
-	{/* 卫星单独一层，z-index 随公转在月亮前后切换 */}
-	<div class="layer satellite-layer" style="--depth:4px">
-		<div class="orbit-plane">
-			<div class="satellite-spin">
-				<span class="satellite"></span>
+	{/* 兔子沿轨道公转：前半圈在月亮前（z-index 4），后半圈躲到月亮背后（z-index 1） */}
+	<div class="layer orbit-layer" style={`--depth:14px;z-index:${start.depth > 0 ? 4 : 1}`} data-orbit-layer>
+		<div
+			class="rabbit-anchor"
+			data-rabbit
+			data-front={start.depth > 0 ? '' : undefined}
+			style={`--ox:${start.x.toFixed(2)};--oy:${start.y.toFixed(2)};--os:${(0.84 + 0.16 * start.depth).toFixed(3)}`}
+		>
+			<div class="rabbit">
+				<Image src={mascot} draggable="false" alt="" class="w-full" loading="eager" />
 			</div>
-		</div>
-	</div>
-
-	<div class="layer" style="--depth:18px;z-index:5">
-		<div class="rabbit absolute bottom-[6%] left-[4%] w-[40%]">
-			<Image src={mascot} alt="" class="w-full" loading="eager" />
-		</div>
-		<div class="bubble glass absolute bottom-[40%] left-[36%] rounded-2xl rounded-bl-md px-3.5 py-2 text-xs text-soft">
-			嗨，我是 <span class="font-medium text-fg">Usagi</span>
+			<div class="bubble glass absolute rounded-2xl rounded-bl-md px-3.5 py-2 text-xs text-soft">
+				嗨，我是 <span class="font-medium text-fg">Usagi</span>
+			</div>
 		</div>
 	</div>
 </div>
 
 <script>
-	// 指针视差：只在可悬停且未要求减弱动态时启用，各层按 --depth 位移
-	const stage = document.querySelector<HTMLElement>('[data-moon-stage]');
-	const allow =
-		window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
-		!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	import { createMoonRenderer, moonTones } from '@/lib/moonGl';
 
-	if (stage && allow) {
+	const stage = document.querySelector<HTMLElement>('[data-moon-stage]');
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	// 指针视差：只在可悬停且未要求减弱动态时启用，各层按 --depth 位移
+	if (stage && !reduceMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
 		const host = stage.closest('section') ?? document.body;
 		let frame = 0;
 		host.addEventListener('pointermove', (event) => {
@@ -91,6 +119,121 @@ const stars = [
 			stage.style.setProperty('--py', '0');
 		});
 	}
+
+	// 公转：逐帧按椭圆参数方程计算位置；月球不可见（离开视口或切到后台）时停下并回到出场位置
+	const layer = stage?.querySelector<HTMLElement>('[data-orbit-layer]');
+	const rabbit = stage?.querySelector<HTMLElement>('[data-rabbit]');
+
+	if (stage && layer && rabbit && !reduceMotion) {
+		const { a, b, tilt, start } = JSON.parse(stage.dataset.orbit ?? '{}') as Record<string, number>;
+		const PERIOD = 26000;
+		// 变速：角速度 ω = ω₀(1 − k·sinθ)，正前方最慢、正后方最快且连续过渡；
+		// ω₀ 由 ∫dθ/ω = PERIOD 反推，保证一圈总时长不变
+		const SLOW = 0.45;
+		const omega0 = (Math.PI * 2) / (PERIOD * Math.sqrt(1 - SLOW * SLOW));
+		let theta = start;
+		let last = 0;
+		let frame = 0;
+		let front: boolean | undefined;
+
+		const place = () => {
+			const x = a * Math.cos(theta);
+			const y = b * Math.sin(theta);
+			const depth = Math.sin(theta);
+			rabbit.style.setProperty('--ox', (50 + x * Math.cos(tilt) - y * Math.sin(tilt)).toFixed(2));
+			rabbit.style.setProperty('--oy', (50 + x * Math.sin(tilt) + y * Math.cos(tilt)).toFixed(2));
+			rabbit.style.setProperty('--os', (0.84 + 0.16 * depth).toFixed(3));
+			// 前后层只在左右两端切换，此时兔子不与月面重叠，不会出现穿模
+			const isFront = depth > 0;
+			if (isFront !== front) {
+				front = isFront;
+				layer.style.zIndex = isFront ? '4' : '1';
+				rabbit.toggleAttribute('data-front', isFront);
+			}
+		};
+
+		const tick = (now: number) => {
+			// 单帧步长设上限，避免从后台切回时一次跳过一大段
+			theta += Math.min(now - (last || now), 50) * omega0 * (1 - SLOW * Math.sin(theta));
+			last = now;
+			place();
+			frame = requestAnimationFrame(tick);
+		};
+
+		let visible = false;
+		const sync = () => {
+			cancelAnimationFrame(frame);
+			last = 0;
+			if (visible && !document.hidden) {
+				frame = requestAnimationFrame(tick);
+			} else {
+				theta = start;
+				place();
+			}
+		};
+		new IntersectionObserver(([entry]) => {
+			visible = entry.isIntersecting;
+			sync();
+		}).observe(stage);
+		document.addEventListener('visibilitychange', sync);
+	}
+
+	// 月面着色器：初始化失败时什么都不做，CSS 版继续工作
+	const disc = stage?.querySelector<HTMLElement>('[data-moon-disc]');
+	const canvas = stage?.querySelector<HTMLCanvasElement>('[data-moon-canvas]');
+
+	if (disc && canvas?.dataset.texture) {
+		const root = document.documentElement;
+		const toneOf = () => moonTones[root.dataset.theme === 'dark' ? 'dark' : 'light'];
+		// 以正面为中心左右摆动（接近真实的天平动）：月海始终在画面里，亮度也稳定
+		const SWAY = (35 * Math.PI) / 180;
+		const SWAY_PERIOD = 40000;
+
+		createMoonRenderer(canvas, canvas.dataset.texture, toneOf()).then((moon) => {
+			if (!moon) return;
+			let phase = 0;
+			let last = 0;
+			let frame = 0;
+			let visible = false;
+
+			const render = () => moon.draw(SWAY * Math.sin(phase));
+			const tick = (now: number) => {
+				phase += (Math.min(now - (last || now), 50) / SWAY_PERIOD) * Math.PI * 2;
+				last = now;
+				render();
+				frame = requestAnimationFrame(tick);
+			};
+			// 只在可见时摆动；减弱动态效果时停在正面，只画一帧
+			const sync = () => {
+				cancelAnimationFrame(frame);
+				last = 0;
+				if (visible && !document.hidden && !reduceMotion) frame = requestAnimationFrame(tick);
+			};
+
+			render();
+			disc.toggleAttribute('data-gl', true);
+
+			new IntersectionObserver(([entry]) => {
+				visible = entry.isIntersecting;
+				sync();
+			}).observe(disc);
+			document.addEventListener('visibilitychange', sync);
+			new ResizeObserver(() => {
+				moon.resize();
+				render();
+			}).observe(canvas);
+			// 切换主题时同步色调
+			new MutationObserver(() => {
+				moon.setTone(toneOf());
+				render();
+			}).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+			// 渲染上下文被系统回收时退回 CSS 版
+			canvas.addEventListener('webglcontextlost', () => {
+				cancelAnimationFrame(frame);
+				disc.toggleAttribute('data-gl', false);
+			});
+		});
+	}
 </script>
 
 <style>
@@ -98,6 +241,8 @@ const stars = [
 		--px: 0;
 		--py: 0;
 		--moon-warm: color-mix(in srgb, var(--moon-base) 82%, #e9c89b);
+		/* 兔子位置用舞台宽度的百分比（cqw）表示；舞台为正方形，纵向同样按宽度换算 */
+		container-type: inline-size;
 	}
 
 	.layer {
@@ -115,31 +260,55 @@ const stars = [
 	}
 
 	.moon-disc {
-		overflow: hidden;
-		background:
-			radial-gradient(circle at 32% 26%, var(--moon-hi), transparent 42%),
-			radial-gradient(circle at 50% 50%, var(--moon-warm) 40%, var(--moon-edge));
-		box-shadow:
-			inset 0 0 0 1px color-mix(in srgb, var(--moon-hi) 60%, transparent),
-			inset -28px -34px 70px var(--moon-shade),
-			0 30px 80px -20px var(--rabbit-shadow);
+		box-shadow: 0 30px 80px -20px var(--rabbit-shadow);
 	}
 
-	/* 晨昏线：右下方一道柔和的暗弧，让球体有体积 */
-	.moon-disc::after {
-		content: '';
+	.moon-surface {
+		position: absolute;
+		inset: 0 auto 0 0;
+		width: 400%;
+		background-repeat: repeat-x;
+		/* 纵向放大并居中：展开图越靠近两极横向拉伸越严重，把两极裁到圆外 */
+		background-position: 0 50%;
+		background-size: 50% 125%;
+		/* 去色后加一点暖调，和宣纸底色协调 */
+		filter: var(--moon-tone);
+		/* 条带内一份贴图宽 200%（圆盘宽），左移 12.5% 时正面居中；±4.86% 对应经度 ±35° 的摆动 */
+		transform: translateX(-12.5%);
+		animation: moon-sway 20s ease-in-out infinite alternate;
+		will-change: transform;
+	}
+
+	.moon-canvas {
 		position: absolute;
 		inset: 0;
-		border-radius: inherit;
-		background: radial-gradient(circle at 18% 14%, transparent 58%, var(--moon-shade) 100%);
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		transition: opacity 0.8s ease;
 	}
 
-	.crater {
+	/* WebGL 首帧就绪：画布淡入，淡入结束后隐藏下层 CSS 版并暂停其动画 */
+	[data-gl] > .moon-canvas {
+		opacity: 1;
+	}
+
+	[data-gl] > .moon-surface,
+	[data-gl] > .moon-shade {
+		visibility: hidden;
+		animation-play-state: paused;
+		transition: visibility 0s 0.8s;
+	}
+
+	.moon-shade {
 		position: absolute;
-		aspect-ratio: 1;
+		inset: 0;
 		border-radius: 9999px;
-		background: radial-gradient(circle at 60% 60%, var(--moon-crater), transparent 70%);
-		box-shadow: inset 1px 1px 2px var(--moon-shade);
+		background:
+			radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--moon-hi) 45%, transparent), transparent 42%),
+			radial-gradient(circle at 34% 30%, transparent 52%, var(--moon-terminator) 100%),
+			radial-gradient(circle, transparent 62%, color-mix(in srgb, var(--moon-terminator) 70%, transparent) 100%);
+		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--moon-hi) 40%, transparent);
 	}
 
 	.orbit-plane {
@@ -163,39 +332,40 @@ const stars = [
 		border-color: color-mix(in srgb, var(--fg) 22%, transparent);
 	}
 
-	.satellite-layer {
-		animation: satellite-depth 16s linear infinite;
-	}
-
-	.satellite-spin {
+	/* 锚点为兔子底部中心，正好落在轨道线上 */
+	.rabbit-anchor {
 		position: absolute;
-		inset: 0;
-		animation: spin 16s linear infinite;
-	}
-
-	/* 平面被 scaleY 压扁，卫星反向拉伸回圆形 */
-	.satellite {
-		position: absolute;
-		top: 50%;
-		right: -5px;
-		width: 10px;
-		height: 10px;
-		margin-top: -5px;
-		border-radius: 9999px;
-		background: var(--accent);
-		transform: scaleY(3.125);
-		box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+		top: 0;
+		left: 0;
+		width: 19%;
+		translate: calc(var(--ox) * 1cqw - 50%) calc(var(--oy) * 1cqw - 88%);
+		scale: var(--os);
+		transform-origin: 50% 88%;
+		will-change: translate, scale;
 	}
 
 	.rabbit {
-		filter: drop-shadow(0 18px 24px var(--rabbit-shadow));
-		animation: bob 6s ease-in-out infinite;
+		filter: drop-shadow(0 10px 14px var(--rabbit-shadow));
+		animation: bob 3.2s ease-in-out infinite;
 		transform-origin: 50% 90%;
 	}
 
 	.bubble {
+		bottom: 82%;
+		left: 62%;
 		white-space: nowrap;
-		animation: bubble-in 0.9s var(--ease-out-expo) 1.2s both;
+		opacity: 0;
+		transform: translateY(6px) scale(0.92);
+		transform-origin: 0 100%;
+		transition:
+			opacity 0.4s ease,
+			transform 0.6s var(--ease-out-expo);
+	}
+
+	/* 气泡只在兔子绕到前半圈时出现 */
+	[data-front] > .bubble {
+		opacity: 1;
+		transform: none;
 	}
 
 	.star {
@@ -203,27 +373,19 @@ const stars = [
 		animation: twinkle 4.5s ease-in-out infinite;
 	}
 
-	@keyframes spin {
+	/* 一蹦一跳地走：上下起伏配合轻微摆头 */
+	@keyframes moon-sway {
+		from {
+			transform: translateX(-7.64%);
+		}
 		to {
-			transform: rotate(360deg);
-		}
-	}
-
-	/* 顺时针公转：前半程经过下方（靠近观者），后半程经过上方（月亮背后） */
-	@keyframes satellite-depth {
-		0%,
-		49.9% {
-			z-index: 4;
-		}
-		50%,
-		100% {
-			z-index: 1;
+			transform: translateX(-17.36%);
 		}
 	}
 
 	@keyframes bob {
 		50% {
-			transform: translateY(-8px) rotate(-3deg);
+			transform: translateY(-6px) rotate(-4deg);
 		}
 	}
 
@@ -243,19 +405,10 @@ const stars = [
 		}
 	}
 
-	@keyframes bubble-in {
-		from {
-			opacity: 0;
-			transform: translateY(8px) scale(0.9);
-		}
-	}
-
 	@media (prefers-reduced-motion: reduce) {
 		.moon-glow,
-		.satellite-layer,
-		.satellite-spin,
+		.moon-surface,
 		.rabbit,
-		.bubble,
 		.star {
 			animation: none;
 		}

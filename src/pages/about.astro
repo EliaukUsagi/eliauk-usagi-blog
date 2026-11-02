@@ -6,7 +6,7 @@ import TechMap from '@/components/TechMap.astro';
 import mascot from '@/assets/brand/usagi-mascot.svg';
 import { site } from '@/site.config';
 
-// 只记录方向的转变，不标年份：路线是被问题推着走的，并非按时间规划
+// 只记录方向的转变，不标年份：每一步都由当时想弄明白的问题引出，并非按时间规划
 const path = [
 	{ title: '网页', desc: '从 HTML / CSS 写起，后来是 Vue 与 React 的组件化。' },
 	{ title: '桌面', desc: '想让界面跑在桌面上，用 Electron 做了第一版播放器。' },
@@ -15,10 +15,13 @@ const path = [
 	{ title: 'AI 应用', desc: '和大模型一起写代码，也在做带引用回答的 RAG 系统。' },
 ];
 
+// 文案整体放进表达式：模板里的中文长句会被格式化工具折行，换行会渲染成多余空格
+const intro = `${site.role}。这条路没有提前规划，每一步都源于一个想弄明白的问题：怎样让界面跑在桌面上、怎样把体积做得更小、数据从哪里来。`;
+
 const habits = [
-	{ no: 'i', title: '先读再写', desc: '动手之前先读文档和源码，弄清边界与约束，再决定怎么做。' },
-	{ no: 'ii', title: '与 AI 结对', desc: '和编程助手一起拆需求、讨论方案、评审代码，人负责判断与取舍。' },
-	{ no: 'iii', title: '复盘成文', desc: '做完回头复盘，把踩过的坑写成笔记，这里的随笔就是这样来的。' },
+	{ title: '先读再写', desc: '动手之前先读文档和源码，弄清边界与约束，再决定怎么做。' },
+	{ title: '与 AI 结对', desc: '和编程助手一起拆需求、讨论方案、评审代码，人负责判断与取舍。' },
+	{ title: '复盘成文', desc: '做完回头复盘，把踩过的坑写成笔记，这里的随笔就是这样来的。' },
 ];
 
 const skills = [
@@ -34,35 +37,34 @@ const skills = [
 	<section class="mx-auto max-w-6xl px-6 pt-36 md:pt-40">
 		<div class="grid items-center gap-14 lg:grid-cols-12 lg:gap-16">
 			<div class="lg:col-span-7">
-				<p class="rise label mb-6" style="--d:0">
-					<span class="text-accent">04</span>
-					<span class="mx-2 text-faint">/</span>About
+				<p class="rise label mb-6 flex items-center gap-2.5" style="--d:0">
+					<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+					About
 				</p>
 				<h1 class="rise display text-5xl leading-[1.05] break-words text-fg sm:text-6xl md:text-7xl" style="--d:1">
-					嗨，我是<br />
+					嗨，我是
+					<br />
 					<span class="text-accent">{site.author}</span>
 				</h1>
 				<p class="rise mt-7 inline-flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-mute" style="--d:2">
 					<span class="font-mono text-fg">Eliauk</span>
 					<span class="text-faint">⇄</span>
 					<span class="font-mono">kuailE</span>
-					<span class="text-faint">（快乐）</span>
+					<span>（快乐）</span>
 					<span class="mx-1 h-3 w-px bg-line-strong"></span>
 					合起来，就是「快乐的 Usagi」
 				</p>
 				<div class="rise mt-8 max-w-xl space-y-4 text-[1.05rem] leading-[1.9] text-soft" style="--d:3">
-					<p>
-						{site.role}。这条路不是提前规划的，大多是被一个个具体问题带着走的：想让界面跑在桌面上、想要更小的体积、想弄清数据从哪里来。
-					</p>
-					<p class="text-mute">
-						这里的作品和随笔，是这些过程的记录，难免有不成熟的地方，欢迎指正。
-					</p>
+					<p>{intro}</p>
+					<p class="text-mute">这里的作品和随笔，是这些过程的记录，难免有不成熟的地方，欢迎指正。</p>
 				</div>
 				<div class="rise mt-10 flex flex-wrap items-center gap-3" style="--d:4">
 					<a href={site.github} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
 						<SiteIcon name="github" class="size-4" /> 在 GitHub 上找到我
 					</a>
-					<a href="/projects" class="btn btn-ghost">看看作品</a>
+					<a href="/projects" class="btn btn-ghost">
+						看看作品
+					</a>
 				</div>
 			</div>
 
@@ -70,20 +72,20 @@ const skills = [
 				<div class="relative mx-auto max-w-[22rem]">
 					{/* 磨砂卡片后面压一轮月亮，玻璃质感才有内容可透 */}
 					<div class="about-moon absolute -top-10 -right-8 size-56 rounded-full" aria-hidden="true"></div>
-					<div class="glass about-card relative aspect-[4/5] overflow-hidden rounded-[2rem]">
-						<div class="flex items-center justify-between px-6 pt-5 font-mono text-[0.68rem] tracking-wider text-faint">
+					<div class="glass about-card relative select-none aspect-[4/5] overflow-hidden rounded-[2rem]">
+						<div class="flex items-center justify-between px-6 pt-5 font-mono text-[0.68rem] tracking-wider text-mute">
 							<span>USAGI.SVG</span>
 							<span>{site.nameEn}</span>
 						</div>
 						<div class="absolute inset-0 grid place-items-center">
-							<Image src={mascot} alt="Usagi 兔子" class="about-rabbit w-1/2 -rotate-6" />
+							<Image src={mascot} draggable="false" alt="Usagi 兔子" class="about-rabbit w-1/2 -rotate-6" />
 						</div>
 						<div class="absolute inset-x-5 bottom-5 flex items-center justify-between rounded-2xl border border-line bg-card/70 px-4 py-3">
 							<div>
 								<p class="text-sm font-medium text-fg">Usagi</p>
 								<p class="mt-0.5 text-xs text-mute">所有项目的吉祥物</p>
 							</div>
-							<span class="font-mono text-xs text-faint">since {site.since}</span>
+							<span class="font-mono text-xs text-mute">since {site.since}</span>
 						</div>
 					</div>
 				</div>
@@ -91,77 +93,121 @@ const skills = [
 		</div>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-32">
+	<section class="mx-auto max-w-6xl px-6 pt-24">
 		<div class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
 			<div>
-				<p class="reveal label mb-4"><span class="text-accent">Path</span><span class="mx-2 text-faint">/</span>一路走来</p>
-				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">被问题带着走的一条路</h2>
+				<p class="reveal label mb-4">
+					<span class="text-accent">Path</span>
+					<span class="mx-2 text-faint">/</span>一路走来
+				</p>
+				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">
+					顺着好奇心，一路往下走
+				</h2>
 			</div>
 		</div>
 		<ol class="path relative grid gap-10 md:grid-cols-5 md:gap-6">
 			{path.map((step, i) => (
 				<li class="reveal relative pl-8 md:pt-10 md:pl-0" style={`--d:${i}`}>
 					<span class="path-node" aria-hidden="true" data-last={i === path.length - 1 ? '' : undefined}></span>
-					<p class="font-mono text-xs text-faint">{String(i + 1).padStart(2, '0')}</p>
-					<h3 class="mt-2 text-lg font-semibold text-fg">{step.title}</h3>
+					<h3 class="text-lg font-semibold text-fg">{step.title}</h3>
 					<p class="mt-2 text-sm leading-[1.8] text-mute">{step.desc}</p>
 				</li>
 			))}
 		</ol>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-32">
+	<section class="mx-auto max-w-6xl px-6 pt-24">
 		<div class="mb-12 border-b border-line pb-6">
-			<p class="reveal label mb-4"><span class="text-accent">Habits</span><span class="mx-2 text-faint">/</span>做事的方式</p>
-			<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">慢一点，但每一步都弄清楚</h2>
+			<p class="reveal label mb-4">
+				<span class="text-accent">Habits</span>
+				<span class="mx-2 text-faint">/</span>做事的方式
+			</p>
+			<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">
+				慢一点，但每一步都弄清楚
+			</h2>
 		</div>
-		<div class="grid gap-4 md:grid-cols-3">
+		{/* 不加卡片外框与分栏线，区块标题下的分隔线已经完成分组，栏间靠留白区分 */}
+		<ul class="grid gap-10 md:grid-cols-3 md:gap-12">
 			{habits.map((habit, i) => (
-				<div class="reveal" style={`--d:${i}`}>
-					<article class="habit-card h-full rounded-2xl border border-line bg-card p-7">
-						<span class="font-mono text-sm text-accent">{habit.no}.</span>
-						<h3 class="mt-8 text-xl font-semibold text-fg">{habit.title}</h3>
-						<p class="mt-3 text-sm leading-[1.85] text-mute">{habit.desc}</p>
-					</article>
-				</div>
+				<li class="reveal" style={`--d:${i}`}>
+					<h3 class="text-xl font-semibold text-fg">{habit.title}</h3>
+					<p class="mt-4 text-[0.95rem] leading-[1.85] text-mute">{habit.desc}</p>
+				</li>
 			))}
-		</div>
+		</ul>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-32">
+	<section class="mx-auto max-w-6xl px-6 pt-24">
 		<div class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
 			<div>
-				<p class="reveal label mb-4"><span class="text-accent">Toolbox</span><span class="mx-2 text-faint">/</span>常用技术</p>
-				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">技术栈地图</h2>
+				<p class="reveal label mb-4">
+					<span class="text-accent">Toolbox</span>
+					<span class="mx-2 text-faint">/</span>常用技术
+				</p>
+				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">
+					技术栈地图
+				</h2>
 			</div>
-			<p class="reveal hidden text-sm text-mute lg:block" style="--d:2">悬停分组，查看对应技术</p>
 		</div>
 		<TechMap groups={skills} />
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-32">
-		<div class="reveal-media">
-			<div class="cta relative overflow-hidden rounded-[2rem] px-8 py-12 md:px-14 md:py-16">
-				{/* 右上角一组同心细环，延续月亮的意象但不喧宾夺主 */}
-				<svg class="cta-rings pointer-events-none absolute -top-40 -right-40 size-[28rem]" viewBox="0 0 400 400" fill="none" aria-hidden="true">
-					<circle cx="200" cy="200" r="70" />
-					<circle cx="200" cy="200" r="120" />
-					<circle cx="200" cy="200" r="170" />
-					<circle class="cta-ring-dash" cx="200" cy="200" r="198" />
-				</svg>
+	<section class="mx-auto max-w-6xl px-6 pt-24">
+		<div class="reveal">
+			<div class="cta relative overflow-hidden rounded-[2rem] border border-line px-8 py-12 md:px-14 md:py-14">
+				{/* 右上角压一轮淡月，延续首页与关于页的月亮意象 */}
+				<div
+					class="cta-moon pointer-events-none absolute -top-24 -right-16 size-72 rounded-full"
+					aria-hidden="true"
+				></div>
 				<div class="relative grid gap-10 md:grid-cols-[1fr_auto] md:items-end">
 					<div>
-						<p class="cta-label font-mono text-xs tracking-[0.16em] uppercase">Say hi</p>
-						<p class="display mt-5 text-[1.75rem] leading-[1.3] md:text-[2.4rem]">
-							有想法、问题或建议，<br />欢迎在 GitHub 上找到我。
+						<p class="label flex items-center gap-2.5">
+							<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+							Say hi
 						</p>
+						<h2 class="display mt-5 text-[1.75rem] leading-[1.3] text-fg md:text-[2.4rem]">
+							有想法、问题或建议，
+							<br />
+							欢迎找我聊聊。
+						</h2>
+						{/* 主行动就是联系方式本身：点击即复制邮箱 */}
+						{site.email ? (
+							<button
+								type="button"
+								data-copy={site.email}
+								class="group mt-8 inline-flex items-center gap-2.5 font-mono text-lg text-fg md:text-xl"
+								aria-label={`复制邮箱 ${site.email}`}
+							>
+								<SiteIcon name="mail" class="size-5 text-accent" />
+								<span class="link-underline">{site.email}</span>
+								<span data-copy-tip class="copy-tip font-sans text-xs" aria-live="polite">
+									点击复制
+								</span>
+							</button>
+						) : (
+							<a
+								href={site.github}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="mt-8 inline-flex items-center gap-2.5 font-mono text-lg text-fg md:text-xl"
+							>
+								<SiteIcon name="github" class="size-5" />
+								<span class="link-underline">@{site.githubUser}</span>
+							</a>
+						)}
 					</div>
-					<div class="flex flex-wrap gap-3">
-						<a href={site.github} target="_blank" rel="noopener noreferrer" class="btn cta-btn-solid">
-							<SiteIcon name="github" class="size-4" /> @{site.githubUser}
+					{site.email && (
+						<a
+							href={site.github}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center gap-2 text-sm text-mute transition-colors hover:text-fg"
+						>
+							<SiteIcon name="github" class="size-4" />
+							<span class="link-underline">GitHub @{site.githubUser}</span>
 						</a>
-						<a href="/posts" class="btn cta-btn-line">读读随笔</a>
-					</div>
+					)}
 				</div>
 			</div>
 		</div>
@@ -177,52 +223,39 @@ const skills = [
 		animation: drift 14s ease-in-out infinite;
 	}
 
-	/* 收尾卡片反相：前景色作底，按钮随之反相 */
+	/* 左下角一层淡赭红暖光，过渡到右上的卡片底色；全部取主题变量，亮暗主题自动适配 */
 	.cta {
-		background: var(--fg);
-		color: var(--canvas);
-		box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--fg) 55%, transparent);
+		background:
+			radial-gradient(40rem 22rem at 0% 100%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+			linear-gradient(135deg, color-mix(in srgb, var(--accent) 6%, var(--card)), var(--card) 45%, var(--sunk));
 	}
 
-	.cta-label {
-		color: color-mix(in srgb, var(--canvas) 55%, transparent);
+	.copy-tip {
+		color: var(--mute);
+		opacity: 0;
+		transform: translateX(-4px);
+		transition:
+			opacity 0.25s ease,
+			transform 0.4s var(--ease-out-expo);
 	}
 
-	.cta-rings circle {
-		stroke: color-mix(in srgb, var(--canvas) 10%, transparent);
+	.copy-tip[data-done] {
+		color: var(--accent);
 	}
 
-	.cta-ring-dash {
-		stroke-dasharray: 2 8;
-		transform-origin: 200px 200px;
-		animation: cta-spin 60s linear infinite;
+	button:hover > .copy-tip,
+	button:focus-visible > .copy-tip,
+	.copy-tip[data-done] {
+		opacity: 1;
+		transform: none;
 	}
 
-	.cta-btn-solid {
-		background: var(--canvas);
-		color: var(--fg);
-	}
-
-	.cta-btn-line {
-		border: 1px solid color-mix(in srgb, var(--canvas) 25%, transparent);
-		color: var(--canvas);
-	}
-
-	@media (hover: hover) {
-		.cta-btn-solid:hover {
-			transform: translateY(-1px);
-		}
-
-		.cta-btn-line:hover {
-			border-color: color-mix(in srgb, var(--canvas) 50%, transparent);
-			background: color-mix(in srgb, var(--canvas) 8%, transparent);
-		}
-	}
-
-	@keyframes cta-spin {
-		to {
-			transform: rotate(360deg);
-		}
+	.cta-moon {
+		background:
+			radial-gradient(circle at 34% 28%, var(--moon-hi), transparent 50%),
+			radial-gradient(circle at 55% 50%, var(--moon-base), var(--moon-edge));
+		opacity: 0.55;
+		box-shadow: 0 0 80px 10px var(--moon-glow);
 	}
 
 	.about-rabbit {
@@ -233,19 +266,6 @@ const skills = [
 	@media (hover: hover) {
 		.about-card:hover .about-rabbit {
 			transform: rotate(-2deg) translateY(-6px);
-		}
-
-		.habit-card {
-			transition:
-				transform var(--dur-hover) var(--ease-out-expo),
-				box-shadow var(--dur-hover) var(--ease-out-expo),
-				border-color 0.3s ease;
-		}
-
-		.habit-card:hover {
-			transform: translateY(-4px);
-			border-color: var(--line-strong);
-			box-shadow: var(--shadow-frame);
 		}
 	}
 
@@ -300,9 +320,30 @@ const skills = [
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.about-moon,
-		.cta-ring-dash {
+		.about-moon {
 			animation: none;
 		}
 	}
 </style>
+
+<script>
+	document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+		const tip = button.querySelector<HTMLElement>('[data-copy-tip]');
+		let timer = 0;
+		button.addEventListener('click', async () => {
+			if (!tip) return;
+			try {
+				await navigator.clipboard.writeText(button.dataset.copy ?? '');
+				tip.textContent = '已复制';
+			} catch {
+				tip.textContent = '复制失败，请手动选择';
+			}
+			tip.toggleAttribute('data-done', true);
+			clearTimeout(timer);
+			timer = window.setTimeout(() => {
+				tip.toggleAttribute('data-done', false);
+				tip.textContent = '点击复制';
+			}, 1600);
+		});
+	});
+</script>

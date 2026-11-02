@@ -10,7 +10,7 @@ type Props = {
 	class?: string;
 	transitionName?: string;
 };
-const { shots, title, href, interval = 5200, class: className, transitionName } = Astro.props;
+const { shots, title, href, interval = 4000, class: className, transitionName } = Astro.props;
 const Viewport = href ? 'a' : 'div';
 
 // 视口比例取截图比例的中位数：同尺寸截图完整铺满，比例差异较大的截图（如迷你窗）
@@ -38,7 +38,7 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 				{shots[0].caption}
 			</span>
 		</span>
-		<div class="flex shrink-0 items-center gap-1" role="group" aria-label="切换截图">
+		<div class="-mr-1 flex shrink-0 items-center" role="group" aria-label="切换截图">
 			{shots.map((shot, i) => (
 				<button
 					type="button"
@@ -92,22 +92,23 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 </figure>
 
 <style>
+	/*
+	 * 切换全程两张图都保持不透明：新图在上层按方向擦入，旧图在下层轻微后退，
+	 * 避免交叉淡化时两张半透明截图叠影、底色透出造成的「发灰」
+	 */
 	.slide {
-		opacity: 0;
-		transform: scale(1.025);
-		transition:
-			opacity 1s var(--ease-out-expo),
-			transform 2.4s var(--ease-out-expo);
+		visibility: hidden;
+		overflow: hidden;
 	}
 
 	.slide.is-active {
-		opacity: 1;
-		transform: none;
+		visibility: visible;
+		z-index: 2;
 	}
 
 	.slide.is-leaving {
-		opacity: 0;
-		transition-duration: 0.8s, 0.8s;
+		visibility: visible;
+		z-index: 1;
 	}
 
 	.caption {
@@ -122,16 +123,17 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 		transform: translateY(-4px);
 	}
 
+	/* 视觉上是 2px 细线，点按区域放大到 1.5rem 见方 */
 	.bar {
 		position: relative;
-		width: 1rem;
-		height: 1.25rem;
+		width: 1.5rem;
+		height: 1.5rem;
 		cursor: pointer;
-		transition: width var(--dur-hover) var(--ease-out-expo);
+		transition: width 0.6s var(--ease-out-expo);
 	}
 
 	.bar.is-active {
-		width: 1.75rem;
+		width: 2.25rem;
 	}
 
 	/* 触屏加高点按区域，视觉上仍是 2px 细线 */
@@ -145,7 +147,7 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 	.bar-fill {
 		content: '';
 		position: absolute;
-		inset: auto 0;
+		inset: auto 0.25rem;
 		top: 50%;
 		height: 2px;
 		margin-top: -1px;
@@ -199,21 +201,54 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 		const caption = root.querySelector<HTMLElement>('[data-caption]');
 		let current = 0;
 
+		let running: Animation[] = [];
+		const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
 		const go = (next: number) => {
 			if (next === current) return;
+			// 连续点击时先让上一次切换落定，再开始新的
+			running.forEach((anim) => anim.finish());
+			running = [];
+
+			// 自动轮播总是向前；手动点击按序号判断方向，从末张回到首张视为向前
+			const forward = next > current || (current === slides.length - 1 && next === 0);
+			const dir = forward ? 1 : -1;
 			const prev = slides[current];
+			const incoming = slides[next];
+
 			prev.classList.remove('is-active');
 			prev.classList.add('is-leaving');
-			setTimeout(() => prev.classList.remove('is-leaving'), 900);
+			incoming.classList.add('is-active');
 
 			bars[current].classList.remove('is-active');
 			bars[current].setAttribute('aria-pressed', 'false');
 			current = next;
-			slides[current].classList.add('is-active');
 			// 重新挂上 is-active 才能让进度动画从头开始
 			void bars[current].offsetWidth;
 			bars[current].classList.add('is-active');
 			bars[current].setAttribute('aria-pressed', 'true');
+
+			const done = () => prev.classList.remove('is-leaving');
+			if (reduceMotion || !incoming.animate) {
+				done();
+			} else {
+				const timing = { duration: 900, easing };
+				running = [
+					incoming.animate(
+						{ clipPath: [forward ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)', 'inset(0 0 0 0)'] },
+						timing,
+					),
+					// 新图内容反向位移，形成视差；旧图同向后退并略微压暗
+					...[...incoming.querySelectorAll('img')].map((img) =>
+						img.animate({ transform: [`translateX(${dir * 8}%)`, 'none'] }, timing),
+					),
+					prev.animate(
+						{ transform: ['none', `translateX(${dir * -6}%)`], filter: ['none', 'brightness(0.85)'] },
+						timing,
+					),
+				];
+				running[running.length - 1].finished.then(done, done);
+			}
 
 			if (caption) {
 				caption.classList.add('is-swapping');

@@ -60,7 +60,10 @@ let order = 0;
 		))}
 	</svg>
 
-	<div class="map-core absolute grid size-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full" style={pct(cx, cy)}>
+	<div
+		class="map-core absolute grid size-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full"
+		style={pct(cx, cy)}
+	>
 		<span class="font-mono text-xs tracking-[0.18em] text-canvas uppercase">Stack</span>
 	</div>
 
@@ -73,14 +76,10 @@ let order = 0;
 				data-group={group.id}
 			>
 				{group.area}
-				<span class="font-mono text-[0.65rem] text-faint">{group.items.length}</span>
+				<span class="font-mono text-[0.65rem] text-mute">{group.items.length}</span>
 			</button>
 			{group.items.map((item) => (
-				<span
-					class="map-node absolute"
-					style={`${pct(item.x, item.y)};--i:${order++}`}
-					data-group={group.id}
-				>
+				<span class="map-node absolute" style={`${pct(item.x, item.y)};--i:${order++}`} data-group={group.id}>
 					<span class="map-chip">{item.label}</span>
 				</span>
 			))}
@@ -94,7 +93,7 @@ let order = 0;
 		<div class="reveal grid gap-3 sm:grid-cols-[8rem_1fr] sm:gap-8" style={`--d:${i}`}>
 			<p class="flex items-baseline gap-3 text-fg">
 				<span class="font-medium">{group.area}</span>
-				<span class="font-mono text-xs text-faint">{String(group.items.length).padStart(2, '0')}</span>
+				<span class="font-mono text-xs text-mute">{group.items.length}</span>
 			</p>
 			<ul class="flex flex-wrap gap-2">
 				{group.items.map((item) => (

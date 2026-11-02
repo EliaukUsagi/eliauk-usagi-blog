@@ -64,34 +64,73 @@
 	};
 
 	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+	const DURATION = 700;
+	const EASING = 'cubic-bezier(0.65, 0, 0.35, 1)';
+	// 遮罩圆从中心到 78% 半径完全不透明，之后渐隐，形成墨色洇开的柔边
+	const SOLID = 0.78;
+	const softMask = CSS.supports('mask-image', 'radial-gradient(#000, transparent)');
 
-	// 新主题从按钮处以圆形铺开。用 WAAPI 直接驱动伪元素的 clip-path：
-	// 动画化注册自定义属性再拼进 mask 的写法在部分浏览器里不会逐帧重算，表现为瞬间切换
-	const switchTo = (theme: string, origin: HTMLElement) => {
+	// fill: forwards 的动画会一直挂在根元素上并作用到下一次过渡的同名伪元素；不能在 finished 后立刻取消
+	// （那一帧伪元素还在，会闪出旧画面），所以留到下一次过渡开始前再取消
+	let lastAnimation: Animation | undefined;
+	// 过渡中途再次切换会跳过当前过渡、画面直接跳到终态，所以过渡期间忽略点击
+	let running = false;
+
+	// 切到暗色：夜色从按钮处洇开；切回亮色：夜色向按钮处收拢褪去，露出底下的亮色
+	const switchTo = async (theme: string, origin: HTMLElement) => {
 		if (!document.startViewTransition || reduceMotion.matches) {
 			apply(theme);
 			return;
 		}
+		if (running) return;
+
 		const rect = origin.getBoundingClientRect();
 		const x = rect.left + rect.width / 2;
 		const y = rect.top + rect.height / 2;
 		const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-		root.toggleAttribute('data-theme-switching', true);
+		const collapse = theme === 'light';
 
+		lastAnimation?.cancel();
+		root.toggleAttribute('data-theme-switching', true);
+		root.toggleAttribute('data-theme-collapsing', collapse);
+		running = true;
 		const vt = document.startViewTransition(() => apply(theme));
-		vt.ready
-			.then(() => {
-				root.animate(
-					{ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-					{
-						duration: 750,
-						easing: 'cubic-bezier(0.65, 0, 0.35, 1)',
-						pseudoElement: '::view-transition-new(root)',
-					},
-				);
-			})
-			.catch(() => {});
-		vt.finished.finally(() => root.toggleAttribute('data-theme-switching', false));
+
+		try {
+			await vt.ready;
+			let keyframes: Keyframe[];
+			if (softMask) {
+				// 不透明部分要能盖住最远的角，所以整个遮罩直径按 SOLID 放大
+				const size = (radius * 2) / SOLID;
+				const mask = {
+					maskImage: `radial-gradient(closest-side, #000 ${SOLID * 100}%, transparent)`,
+					maskRepeat: 'no-repeat',
+				};
+				keyframes = [
+					{ ...mask, maskSize: '0px 0px', maskPosition: `${x}px ${y}px` },
+					{ ...mask, maskSize: `${size}px ${size}px`, maskPosition: `${x - size / 2}px ${y - size / 2}px` },
+				];
+			} else {
+				keyframes = [
+					{ clipPath: `circle(0px at ${x}px ${y}px)` },
+					{ clipPath: `circle(${radius}px at ${x}px ${y}px)` },
+				];
+			}
+			lastAnimation = root.animate(collapse ? keyframes.reverse() : keyframes, {
+				duration: DURATION,
+				easing: EASING,
+				// 动画结束到快照移除之间若回到初始帧，会闪一下旧画面
+				fill: 'forwards',
+				pseudoElement: collapse ? '::view-transition-old(root)' : '::view-transition-new(root)',
+			});
+			await vt.finished;
+		} catch {
+			// 过渡被浏览器跳过时主题已经切换，无需处理
+		} finally {
+			running = false;
+			root.toggleAttribute('data-theme-switching', false);
+			root.toggleAttribute('data-theme-collapsing', false);
+		}
 	};
 
 	document.querySelectorAll<HTMLElement>('[data-theme-toggle]').forEach((button) => {

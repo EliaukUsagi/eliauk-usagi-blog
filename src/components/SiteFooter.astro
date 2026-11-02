@@ -8,14 +8,15 @@ const year = new Date().getFullYear();
 const { icp, police, policeCode } = site.record;
 ---
 
-<footer class="relative mt-32 border-t border-line">
+<footer class="relative mt-24 border-t border-line">
 	<div class="mx-auto max-w-6xl px-6 pt-20 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-12">
-		<div class="flex flex-col gap-12 md:flex-row md:items-end md:justify-between">
+		<div class="flex flex-col gap-12 md:flex-row md:items-start md:justify-between">
 			<div>
-				<p class="reveal label mb-5">— 小筑在此，欢迎常来</p>
+				<p class="reveal label-cn mb-5">— 小筑在此，欢迎常来</p>
 				<a href="/" class="reveal group flex items-end gap-4" style="--d:1">
 					<Image
 						src={mascot}
+						draggable="false"
 						alt=""
 						class="size-16 transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-translate-y-1 group-hover:-rotate-6"
 					/>
@@ -23,35 +24,65 @@ const { icp, police, policeCode } = site.record;
 				</a>
 			</div>
 
-			<div class="reveal grid grid-cols-2 gap-x-14 gap-y-3 text-sm" style="--d:2">
-				{nav.map((item) => (
-					<a href={item.href} class="w-fit text-mute transition-colors hover:text-fg">
-						{item.label}
-					</a>
-				))}
-				<a
-					href={site.github}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="flex w-fit items-center gap-1.5 text-mute transition-colors hover:text-fg"
-				>
-					<SiteIcon name="github" class="size-3.5" />
-					GitHub
-				</a>
-				<a href="/rss.xml" class="flex w-fit items-center gap-1.5 text-mute transition-colors hover:text-fg">
-					<SiteIcon name="rss" class="size-3.5" />
-					RSS
-				</a>
+			<div class="reveal flex gap-16 text-sm" style="--d:2">
+				<nav aria-label="站内导航">
+					<p class="label-cn mb-5">站内</p>
+					<ul class="flex flex-col gap-3">
+						{nav.map((item) => (
+							<li>
+								<a href={item.href} class="text-mute transition-colors hover:text-fg">
+									{item.label}
+								</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+				<div>
+					<p class="label-cn mb-5">联系</p>
+					<ul class="flex flex-col gap-3">
+						<li>
+							<a
+								href={site.github}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="flex w-fit items-center gap-1.5 text-mute transition-colors hover:text-fg"
+							>
+								<SiteIcon name="github" class="size-3.5" />
+								GitHub
+							</a>
+						</li>
+						{site.email && (
+							<li>
+								<a
+									href={`mailto:${site.email}`}
+									class="flex w-fit items-center gap-1.5 text-mute transition-colors hover:text-fg"
+								>
+									<SiteIcon name="mail" class="size-3.5" />
+									邮件
+								</a>
+							</li>
+						)}
+					</ul>
+				</div>
 			</div>
 		</div>
 
-		<div class="mt-16 flex flex-col gap-3 border-t border-line pt-6 font-mono text-[0.7rem] text-faint md:flex-row md:items-center md:justify-between">
-			<p>
-				© {site.since}–{year} {site.author} · {site.nameEn}
-			</p>
+		<div class="mt-16 flex flex-col gap-3 border-t border-line pt-6 text-xs text-mute md:flex-row md:items-center md:justify-between">
+			<div class="flex flex-col gap-1.5">
+				<p>
+					© {site.since}–{year} {site.author} · {site.nameEn}
+				</p>
+				{/* 首页月面贴图的来源署名，NASA 要求注明 */}
+				<p>
+					月面贴图：
+					<a href="https://svs.gsfc.nasa.gov/4720" target="_blank" rel="noopener noreferrer" class="hover:text-fg">
+						NASA's Scientific Visualization Studio
+					</a>
+				</p>
+			</div>
 			<div class="flex flex-wrap items-center gap-x-5 gap-y-2">
 				{icp && (
-					<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="hover:text-mute">
+					<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="hover:text-fg">
 						{icp}
 					</a>
 				)}
@@ -60,7 +91,7 @@ const { icp, police, policeCode } = site.record;
 						href={`https://beian.mps.gov.cn/#/query/webSearch?code=${policeCode}`}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="hover:text-mute"
+						class="hover:text-fg"
 					>
 						{police}
 					</a>

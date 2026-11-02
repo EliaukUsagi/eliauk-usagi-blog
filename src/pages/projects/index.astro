@@ -1,27 +1,94 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHead from '@/components/PageHead.astro';
 import ProjectFeature from '@/components/ProjectFeature.astro';
+import SiteIcon from '@/components/SiteIcon.astro';
+import { repoUrl, repos, site } from '@/site.config';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout title="作品" description="Eliauk 的个人作品：桌面应用、知识系统与工程实践。">
-	<section class="mx-auto max-w-6xl px-6 pt-40">
-		<p class="rise label mb-6" style="--d:0">
-			<span class="text-accent">01</span>
-			<span class="mx-2 text-faint">/</span>Selected Works
-		</p>
-		<h1 class="rise display text-6xl text-fg md:text-8xl" style="--d:1">
-			作品<span class="text-accent">.</span>
-		</h1>
-		<p class="rise mt-6 max-w-xl text-lg leading-[1.8] text-mute" style="--d:2">
-			有的是从零开始的尝试，有的是推倒重来的第二版。每个作品都附上了当时的思路、取舍和还没解决的问题。
-		</p>
-		<div class="mt-24 flex flex-col gap-32">
+	<section class="mx-auto max-w-6xl px-6 pt-36 md:pt-40">
+		<PageHead
+			en="Selected Works"
+			title="作品"
+			desc="有的是从零开始的尝试，有的是推倒重来的第二版。每个作品都附上了当时的思路、取舍和还没解决的问题。"
+		/>
+
+		{/* 索引：先给全貌（年份、状态），再逐个展开；首页只放精选，这里是完整清单 */}
+		<ol class="rise mt-14 border-t border-line" style="--d:3" aria-label="作品索引">
+			{projects.map((project) => (
+				<li>
+					<a
+						href={`#${project.id}`}
+						class="group grid grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-1 border-b border-line py-4 text-sm md:grid-cols-[1fr_5rem_7rem_1rem]"
+					>
+						<span class="min-w-0">
+							<span class="link-underline font-medium text-fg">{project.data.title}</span>
+							<span class="mt-0.5 block truncate text-mute md:mt-0 md:ml-3 md:inline">{project.data.subtitle}</span>
+						</span>
+						<span class="font-mono text-xs text-mute">{project.data.year}</span>
+						<span
+							class:list={[
+								'status col-start-1 text-xs md:col-start-auto',
+								project.data.status === '已归档' && 'is-archived',
+							]}
+						>
+							{project.data.status}
+						</span>
+						<SiteIcon
+							name="arrow"
+							class="hidden size-3.5 rotate-90 text-faint transition-transform duration-[var(--dur-hover)] group-hover:translate-y-0.5 md:block"
+						/>
+					</a>
+				</li>
+			))}
+		</ol>
+
+		<div class="mt-24 flex flex-col gap-24">
 			{projects.map((project, index) => (
-				<ProjectFeature project={project} index={index} total={projects.length} />
+				<ProjectFeature project={project} index={index} />
 			))}
 		</div>
+
+		{/* 没有对应作品的仓库只做紧凑清单，不与作品争夺注意力 */}
+		<section class="mt-28" aria-labelledby="more-repos">
+			<div class="flex items-end justify-between gap-6 border-b border-line pb-5">
+				<h2 id="more-repos" class="reveal text-lg font-semibold text-fg">
+					其他仓库
+				</h2>
+				<a
+					href={`${site.github}?tab=repositories`}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="reveal label-cn flex items-center gap-1.5 transition-colors hover:text-fg"
+				>
+					GitHub 上的全部仓库 <SiteIcon name="external" class="size-3.5" />
+				</a>
+			</div>
+			<ul>
+				{repos.map((repo, i) => (
+					<li class="reveal" style={`--d:${i}`}>
+						<a
+							href={repoUrl(repo.name)}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="group grid grid-cols-[1fr_auto] items-baseline gap-x-6 gap-y-1 border-b border-line py-4 md:grid-cols-[16rem_1fr_auto]"
+						>
+							<span class="font-mono text-sm text-fg">
+								<span class="link-underline">{repo.name}</span>
+							</span>
+							<span class="col-span-2 row-start-2 text-sm text-mute md:col-span-1 md:row-start-auto">{repo.desc}</span>
+							<SiteIcon
+								name="external"
+								class="col-start-2 row-start-1 size-3.5 text-faint transition duration-[var(--dur-hover)] group-hover:rotate-45 group-hover:text-fg md:col-start-auto md:row-start-auto"
+							/>
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
 	</section>
 </BaseLayout>

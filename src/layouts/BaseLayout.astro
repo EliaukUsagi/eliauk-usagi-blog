@@ -4,10 +4,18 @@ import SiteHeader from '@/components/SiteHeader.astro';
 import SiteFooter from '@/components/SiteFooter.astro';
 import { site } from '@/site.config';
 
-type Props = { title?: string; description?: string };
-const { title, description = site.description } = Astro.props;
+type Props = {
+	title?: string;
+	description?: string;
+	type?: 'website' | 'article';
+	// 分享图路径，由 src/pages/og 在构建时生成
+	og?: string;
+	published?: Date;
+};
+const { title, description = site.description, type = 'website', og = '/og/default.png', published } = Astro.props;
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.author} 的个人主页`;
 const canonical = new URL(Astro.url.pathname, site.url);
+const ogImage = new URL(og, site.url);
 ---
 
 <!doctype html>
@@ -33,10 +41,20 @@ const canonical = new URL(Astro.url.pathname, site.url);
 		<link rel="canonical" href={canonical} />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />
-		<meta property="og:type" content="website" />
+		<meta property="og:type" content={type} />
+		<meta property="og:site_name" content={site.name} />
+		<meta property="og:locale" content="zh_CN" />
 		<meta property="og:title" content={fullTitle} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		{published && <meta property="article:published_time" content={published.toISOString()} />}
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={fullTitle} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
 	</head>
 	<body>
 		<div class="backdrop" aria-hidden="true"></div>

@@ -1,12 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHead from '@/components/PageHead.astro';
 import PostRow from '@/components/PostRow.astro';
 import { categories, categoryHint, sortByDate } from '@/lib/postMeta';
 
 const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sortByDate);
 const filters = [
-	{ key: 'all', label: '全部', count: posts.length, hint: undefined },
+	{ key: 'all', label: '全部', count: posts.length, hint: '大模型应用、工程实践、交互细节，以及代码之外的事' },
 	...categories.map((c) => ({
 		key: c,
 		label: c,
@@ -17,10 +18,10 @@ const filters = [
 ---
 
 <BaseLayout title="随笔" description="EliaukUsagi 的随笔：大模型应用、工程实践、交互细节，以及代码之外的事。">
-	<section class="mx-auto max-w-5xl px-6 pt-32 md:pt-36">
-		<h1 class="sr-only">随笔</h1>
+	<section class="mx-auto max-w-5xl px-6 pt-36 md:pt-40">
+		<PageHead en="Writing" title="随笔" desc="做项目时踩过的坑、想明白的事，复盘之后写下来。" />
 
-		<div class="toolbar rise sticky top-[5.25rem] z-30 md:top-24" style="--d:0">
+		<div class="toolbar rise sticky top-[5.25rem] z-30 mt-12 md:top-24" style="--d:3">
 			<div
 				data-segmented
 				class="glass relative flex w-max max-w-full gap-0.5 overflow-x-auto rounded-full p-1 [scrollbar-width:none]"
@@ -33,7 +34,7 @@ const filters = [
 						type="button"
 						data-filter={f.key}
 						aria-pressed={i === 0 ? 'true' : 'false'}
-						title={f.hint}
+						data-hint={f.hint}
 						class="seg relative z-10 flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-sm"
 					>
 						{f.label}
@@ -42,10 +43,20 @@ const filters = [
 				))}
 			</div>
 		</div>
+		{/* 分类说明直接写在页面上，触屏没有悬停提示 */}
+		<p data-hint-text class="rise mt-4 text-sm text-mute" style="--d:3">
+			{filters[0].hint}
+		</p>
 
-		<div data-post-list class="mt-10">
+		<div data-post-list class="mt-6">
 			{posts.map((post, i) => (
-				<div data-row data-category={post.data.category} data-id={post.id} class="rise" style={`--d:${Math.min(i + 1, 6)}`}>
+				<div
+					data-row
+					data-category={post.data.category}
+					data-id={post.id}
+					class="rise"
+					style={`--d:${Math.min(i + 4, 9)}`}
+				>
 					<PostRow post={post} />
 				</div>
 			))}
@@ -114,6 +125,7 @@ const filters = [
 	const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
 	const rows = [...document.querySelectorAll<HTMLElement>('[data-row]')];
 	const empty = document.querySelector<HTMLElement>('[data-empty]');
+	const hint = document.querySelector<HTMLElement>('[data-hint-text]');
 	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 	const placeThumb = (btn: HTMLElement) => {
@@ -131,6 +143,8 @@ const filters = [
 		});
 		if (empty) empty.hidden = visible > 0;
 		buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === key)));
+		const active = buttons.find((b) => b.dataset.filter === key);
+		if (hint && active?.dataset.hint) hint.textContent = active.dataset.hint;
 	};
 
 	const select = (key: string, animate: boolean) => {

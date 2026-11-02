@@ -10,6 +10,8 @@ type Props = {
 	sizes?: string;
 	class?: string;
 	transitionName?: string;
+	// 点击放大，需页面内放置 <Lightbox />
+	zoom?: boolean;
 };
 const {
 	shot,
@@ -18,7 +20,18 @@ const {
 	sizes = '(min-width: 768px) 36rem, 100vw',
 	class: className,
 	transitionName,
+	zoom = false,
 } = Astro.props;
+const Media = zoom ? 'button' : 'div';
+const mediaProps =
+	zoom && shot
+		? {
+				type: 'button' as const,
+				'data-zoom': `${title} / ${shot.caption}`,
+				'aria-label': `放大查看：${shot.caption}`,
+				class: 'block w-full cursor-zoom-in',
+			}
+		: {};
 ---
 
 <figure
@@ -43,20 +56,22 @@ const {
 		<span class="w-[2.675rem] shrink-0" aria-hidden="true"></span>
 	</div>
 	{shot ? (
-		<Image
-			src={shot.src}
-			alt={`${title}：${shot.caption}`}
-			widths={[640, 960, 1440, 2048]}
-			sizes={sizes}
-			loading={eager ? 'eager' : 'lazy'}
-			class="block h-auto w-full"
-		/>
+		<Media {...mediaProps}>
+			<Image
+				src={shot.src}
+				alt={`${title}：${shot.caption}`}
+				widths={[640, 960, 1440, 2048]}
+				sizes={sizes}
+				loading={eager ? 'eager' : 'lazy'}
+				class="block h-auto w-full"
+			/>
+		</Media>
 	) : (
 		<div class="relative grid aspect-[16/10] place-items-center overflow-hidden">
 			<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,var(--moon-glow),transparent_60%)]" />
 			<div class="relative flex flex-col items-center gap-4">
-				<Image src={mascot} alt="" class="size-16 opacity-80" />
-				<span class="label">截图整理中</span>
+				<Image src={mascot} draggable="false" alt="" class="size-16 opacity-80" />
+				<span class="label-cn">截图整理中</span>
 			</div>
 		</div>
 	)}

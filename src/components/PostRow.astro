@@ -1,28 +1,41 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import SiteIcon from '@/components/SiteIcon.astro';
+import { formatDate } from '@/lib/formatDate';
 import { readingMinutes } from '@/lib/postMeta';
 
 type Props = { post: CollectionEntry<'posts'> };
 const { post } = Astro.props;
 const { data } = post;
+const minutes = readingMinutes(post.body);
 ---
 
 <a
 	href={`/posts/${post.id}`}
 	data-category={data.category}
-	class="post-row group relative grid gap-x-10 gap-y-3 border-b border-line py-9 md:grid-cols-[5rem_1fr_auto] md:items-baseline"
+	class="post-row group relative grid gap-x-10 gap-y-3 border-b border-line py-8 md:grid-cols-[6rem_1fr_auto] md:items-baseline"
 >
 	<span class="row-wash" aria-hidden="true"></span>
-	<span class="relative font-mono text-xs tracking-wider text-accent">{data.category}</span>
+	{/* 移动端元信息合成一行；md 以上日期与分类叠放在左列，时长挪到右侧 */}
+	<div class="relative flex items-center gap-2 font-mono text-xs text-mute md:flex-col md:items-start md:gap-1.5">
+		<time datetime={data.date.toISOString()}>{formatDate(data.date)}</time>
+		<span class="text-faint md:hidden" aria-hidden="true">
+			·
+		</span>
+		<span class="text-soft">{data.category}</span>
+		<span class="text-faint md:hidden" aria-hidden="true">
+			·
+		</span>
+		<span class="md:hidden">{minutes} min</span>
+	</div>
 	<div class="relative">
 		<h3 class="display text-2xl leading-snug text-fg md:text-[1.75rem]">
 			<span class="link-underline">{data.title}</span>
 		</h3>
 		<p class="mt-3 max-w-2xl text-[0.95rem] leading-[1.8] text-mute">{data.description}</p>
 	</div>
-	<div class="relative hidden items-center gap-4 font-mono text-xs text-faint md:flex">
-		<span>{readingMinutes(post.body)} min</span>
+	<div class="relative hidden items-center gap-4 font-mono text-xs text-mute md:flex">
+		<span>{minutes} min</span>
 		<span class="grid size-8 place-items-center rounded-full border border-line transition-colors duration-300 group-hover:border-fg group-hover:bg-fg group-hover:text-canvas">
 			<SiteIcon
 				name="arrow"

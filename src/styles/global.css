@@ -10,21 +10,25 @@
 	--fg: #1c1a17;
 	--soft: #45413b;
 	--mute: #6e6961;
-	--faint: #a29c92;
+	/* faint 只用于分隔符、图标等装饰元素（≥3:1）；承载信息的文字至少用 mute（≥4.5:1） */
+	--faint: #8c857a;
 	--line: rgb(28 26 23 / 0.08);
 	--line-strong: rgb(28 26 23 / 0.15);
 	--accent: #a9512f;
 	--grid: rgb(28 26 23 / 0.04);
 	--glow-a: rgb(169 81 47 / 0.06);
 	--glow-b: rgb(28 26 23 / 0.035);
-	--glass-bg: rgb(250 249 246 / 0.62);
+	/* 玻璃底不宜太透：导航等浮层下方滚过图片和大字时，菜单文字仍需清晰可读 */
+	--glass-bg: rgb(250 249 246 / 0.82);
 	--glass-border: rgb(28 26 23 / 0.07);
 	--glass-hi: rgb(255 255 255 / 0.75);
 	--moon-glow: rgb(28 26 23 / 0.05);
 	--moon-hi: #ffffff;
 	--moon-base: #f1eee8;
 	--moon-edge: #dcd7ce;
-	--moon-crater: rgb(28 26 23 / 0.045);
+	/* 首页月球：贴图色调与晨昏线阴影。亮色主题把月面提亮压对比，免得在浅底上显得发脏 */
+	--moon-tone: grayscale(1) sepia(0.16) brightness(1.04) contrast(0.92);
+	--moon-terminator: rgb(58 46 34 / 0.34);
 	--moon-shade: rgb(28 26 23 / 0.07);
 	--orbit: rgb(28 26 23 / 0.13);
 	--orbit-soft: rgb(28 26 23 / 0.07);
@@ -33,7 +37,8 @@
 		0 1px 2px rgb(28 26 23 / 0.04), 0 12px 24px -12px rgb(28 26 23 / 0.1), 0 40px 80px -40px rgb(28 26 23 / 0.28);
 	--shadow-nav: 0 1px 2px rgb(28 26 23 / 0.04), 0 12px 32px -16px rgb(28 26 23 / 0.18);
 	--rabbit-shadow: rgb(28 26 23 / 0.18);
-	--dur-hover: 0.6s;
+	/* 交互反馈要跟手，入场动画才需要更长的时长 */
+	--dur-hover: 0.25s;
 	--dur-reveal: 1s;
 	color-scheme: light;
 }
@@ -52,14 +57,15 @@ html[data-theme='dark'] {
 	--grid: rgb(236 232 225 / 0.028);
 	--glow-a: rgb(224 145 111 / 0.05);
 	--glow-b: rgb(236 232 225 / 0.025);
-	--glass-bg: rgb(28 27 25 / 0.58);
+	--glass-bg: rgb(28 27 25 / 0.8);
 	--glass-border: rgb(236 232 225 / 0.08);
 	--glass-hi: rgb(255 255 255 / 0.05);
 	--moon-glow: rgb(236 228 214 / 0.07);
 	--moon-hi: #f6f3ee;
 	--moon-base: #d6d1c8;
 	--moon-edge: #9c968c;
-	--moon-crater: rgb(18 17 16 / 0.12);
+	--moon-tone: grayscale(1) sepia(0.15) brightness(1.08) contrast(0.95);
+	--moon-terminator: rgb(12 11 10 / 0.6);
 	--moon-shade: rgb(18 17 16 / 0.4);
 	--orbit: rgb(236 232 225 / 0.12);
 	--orbit-soft: rgb(236 232 225 / 0.06);
@@ -117,6 +123,27 @@ html[data-theme='dark'] {
 		color: var(--card);
 	}
 
+	/* 可点击元素不参与文字选择，避免快速点按时误选中文字；正文段落里的链接除外，否则复制段落会丢字 */
+	a,
+	button,
+	summary,
+	label,
+	[role='button'] {
+		-webkit-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.prose a {
+		-webkit-user-select: text;
+		user-select: text;
+	}
+
+	/* 吉祥物等装饰图禁止拖拽：draggable 属性管 Firefox，-webkit-user-drag 管 Safari / Chrome */
+	img[draggable='false'] {
+		-webkit-user-drag: none;
+	}
+
 	:focus-visible {
 		outline: 1.5px solid var(--accent);
 		outline-offset: 3px;
@@ -166,6 +193,13 @@ html[data-theme='dark'] {
 		color: var(--mute);
 	}
 
+	/* 中文没有大小写，等宽 + 大字距会显得松散，中文小标题用这一档 */
+	.label-cn {
+		font-size: 0.8rem;
+		letter-spacing: 0.02em;
+		color: var(--mute);
+	}
+
 	.display {
 		font-family: var(--font-display);
 		font-weight: 600;
@@ -183,7 +217,7 @@ html[data-theme='dark'] {
 		backdrop-filter: blur(20px) saturate(1.6);
 	}
 
-	/* 截图窗口：失焦时红黄绿为灰色，悬停时点亮，同 macOS 前后台窗口 */
+	/* 截图窗口：仿 macOS 窗口外框 */
 	.window {
 		overflow: hidden;
 		border-radius: 0.875rem;
@@ -208,26 +242,24 @@ html[data-theme='dark'] {
 		flex-shrink: 0;
 	}
 
+	/* 红黄绿常驻，内描边让圆点在亮色标题栏上也有清晰轮廓，同 macOS 前台窗口 */
 	.window-dots > span {
 		width: 0.625rem;
 		height: 0.625rem;
 		border-radius: 9999px;
-		background: var(--line-strong);
-		transition: background-color 0.4s ease;
+		box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12);
 	}
 
-	@media (hover: hover) {
-		.window:hover .window-dots > span:nth-child(1) {
-			background: #ee6a5f;
-		}
+	.window-dots > span:nth-child(1) {
+		background: #ff5f57;
+	}
 
-		.window:hover .window-dots > span:nth-child(2) {
-			background: #f5bd4f;
-		}
+	.window-dots > span:nth-child(2) {
+		background: #febc2e;
+	}
 
-		.window:hover .window-dots > span:nth-child(3) {
-			background: #61c454;
-		}
+	.window-dots > span:nth-child(3) {
+		background: #28c840;
 	}
 
 	.window-title {
@@ -253,6 +285,32 @@ html[data-theme='dark'] {
 		line-height: 1.4;
 		color: var(--mute);
 		background: color-mix(in srgb, var(--card) 70%, transparent);
+	}
+
+	/* 作品状态：进行中为强调色圆点，已归档退为灰点 */
+	.status {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		color: var(--soft);
+	}
+
+	.status::before {
+		content: '';
+		width: 0.375rem;
+		height: 0.375rem;
+		border-radius: 9999px;
+		background: var(--accent);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+	}
+
+	.status.is-archived {
+		color: var(--mute);
+	}
+
+	.status.is-archived::before {
+		background: var(--faint);
+		box-shadow: none;
 	}
 
 	.btn {
@@ -306,7 +364,7 @@ html[data-theme='dark'] {
 /*
  * 动效系统：所有进入动画共用同一缓动与时长
  * - .rise         首屏元素，加载即依次浮现
- * - .reveal       文字与卡片，进入视口时上移 + 去模糊
+ * - .reveal       文字与卡片，进入视口时淡入上移（不加模糊，快速滚动时内容不会「迟到」）
  * - .reveal-media 图片与窗口，进入视口时裁切展开 + 缩放回落
  * --d 为错峰序号；进入视口的判定在 BaseLayout 中用 IntersectionObserver 完成，
  * 仅在 html.motion（有 JS 且未开启减弱动态效果）时生效，否则内容直接可见
@@ -329,7 +387,7 @@ html[data-theme='dark'] {
 
 .motion .reveal,
 .motion .reveal-media {
-	transition-property: opacity, transform, filter, clip-path;
+	transition-property: opacity, transform, clip-path;
 	transition-duration: var(--dur-reveal);
 	transition-timing-function: var(--ease-out-expo);
 	transition-delay: calc(var(--d, 0) * 80ms);
@@ -337,8 +395,7 @@ html[data-theme='dark'] {
 
 .motion .reveal:not(.is-in) {
 	opacity: 0;
-	transform: translateY(20px);
-	filter: blur(6px);
+	transform: translateY(12px);
 }
 
 .motion .reveal-media:not(.is-in) {
@@ -350,7 +407,7 @@ html[data-theme='dark'] {
 /* 展开终点留出余量，避免裁掉窗口投影 */
 .motion .reveal-media.is-in {
 	clip-path: inset(-120px -120px -120px -120px round 0.875rem);
-	transition-duration: var(--dur-reveal), var(--dur-reveal), var(--dur-reveal), 1.4s;
+	transition-duration: var(--dur-reveal), var(--dur-reveal), 1.4s;
 }
 
 /* 跨文档页面切换：页头保持不动，正文淡出后上浮淡入 */
@@ -372,15 +429,19 @@ html[data-theme='dark'] {
 }
 
 /*
- * 主题切换：新主题快照以圆形从切换按钮处扩散，动画由 ThemeToggle 用 WAAPI 驱动。
- * 切换期间关闭元素自身的颜色过渡（否则新快照会截到过渡起点），
- * 并取消具名元素，让整页作为一张快照统一揭示
+ * 主题切换：夜色以柔边圆从切换按钮处洇开（切到暗色）或收拢褪去（切回亮色），动画由 ThemeToggle 用 WAAPI 驱动。
+ * 切换期间关闭元素自身的颜色过渡（否则新快照会截到过渡起点）
  */
 html[data-theme-switching],
 html[data-theme-switching] *,
 html[data-theme-switching] *::before,
 html[data-theme-switching] *::after {
 	transition: none !important;
+}
+
+/* 取消子元素的具名过渡，让整页作为一张快照统一揭示。不能包含 html 自身：根元素一旦失去默认的 root 命名，
+ * 就不会生成 ::view-transition-old/new(root)，动画无处挂载，表现为瞬间切换 */
+html[data-theme-switching] * {
 	view-transition-name: none !important;
 }
 
@@ -388,6 +449,11 @@ html[data-theme-switching]::view-transition-old(root),
 html[data-theme-switching]::view-transition-new(root) {
 	animation: none;
 	mix-blend-mode: normal;
+}
+
+/* 收拢时旧画面（暗色）要盖在新画面之上 */
+html[data-theme-collapsing]::view-transition-old(root) {
+	z-index: 1;
 }
 
 @keyframes vt-out {
@@ -404,16 +470,16 @@ html[data-theme-switching]::view-transition-new(root) {
 }
 
 .link-underline {
-	background: linear-gradient(currentColor, currentColor) 100% 100% / 0 1px no-repeat;
-	transition: background-size var(--dur-hover) var(--ease-out-expo);
+	background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+	/* 比通用 hover 反馈稍慢，让展开 / 收回的方向看得清 */
+	transition: background-size 0.4s var(--ease-out-expo);
 }
 
-/* 下划线从左划入、从右划出 */
+/* 锚点固定在左端：悬停时从左往右展开，移开时原路从右往左收回 */
 @media (hover: hover) {
 	.link-underline:hover,
 	a:hover .link-underline,
 	.group:hover .link-underline {
-		background-position: 0 100%;
 		background-size: 100% 1px;
 	}
 }

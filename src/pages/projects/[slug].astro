@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SiteIcon from '@/components/SiteIcon.astro';
 import WindowFrame from '@/components/WindowFrame.astro';
+import Lightbox from '@/components/Lightbox.astro';
 import { getShotGroups } from '@/lib/projectShots';
 
 export async function getStaticPaths() {
@@ -26,11 +27,11 @@ const [hero, ...rest] = groups.flatMap((g) => g.shots);
 const series = data.series ? siblings.filter((p) => p.data.series === data.series) : [];
 ---
 
-<BaseLayout title={data.title} description={data.summary}>
+<BaseLayout title={data.title} description={data.summary} og={`/og/projects/${project.id}.png`}>
 	<article class="mx-auto max-w-6xl px-6 pt-40">
 		<a
 			href="/projects"
-			class="rise label group mb-10 inline-flex items-center gap-2 transition-colors hover:text-fg"
+			class="rise label-cn group mb-10 inline-flex items-center gap-2 transition-colors hover:text-fg"
 			style="--d:0"
 		>
 			<SiteIcon
@@ -42,9 +43,14 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 
 		<header class="grid gap-10 lg:grid-cols-12">
 			<div class="lg:col-span-8">
-				<p class="rise font-mono text-xs tracking-wide text-accent" style="--d:1">
-					{data.subtitle}
-				</p>
+				<div class="rise flex flex-wrap items-center gap-x-4 gap-y-2 text-xs" style="--d:1">
+					<span class:list={['status', data.status === '已归档' && 'is-archived']}>{data.status}</span>
+					<span class="font-mono text-mute">{data.year}</span>
+					<span class="text-faint" aria-hidden="true">
+						/
+					</span>
+					<span class="text-accent">{data.subtitle}</span>
+				</div>
 				<h1 class="rise display mt-4 text-5xl leading-[1.02] text-fg md:text-7xl" style="--d:2">
 					{data.title}
 				</h1>
@@ -83,13 +89,14 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 				eager
 				sizes="(min-width: 1152px) 72rem, 100vw"
 				transitionName={`project-${project.id}`}
+				zoom
 			/>
 		</div>
 
-		<div class="mt-24 grid gap-16 lg:grid-cols-12">
+		<div class="mt-20 grid gap-16 lg:grid-cols-12">
 			<aside class="lg:col-span-4">
 				<div class="lg:sticky lg:top-28">
-					<p class="label mb-5">技术栈</p>
+					<p class="label-cn mb-5">技术栈</p>
 					<ul class="flex flex-wrap gap-1.5">
 						{data.stack.map((tech) => (
 							<li class="chip">{tech}</li>
@@ -98,21 +105,21 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 
 					{data.highlights.length > 0 && (
 						<>
-							<p class="label mt-12 mb-5">亮点</p>
-							<ol class="space-y-4">
-								{data.highlights.map((item, i) => (
+							<p class="label-cn mt-12 mb-5">亮点</p>
+							<ul class="space-y-4">
+								{data.highlights.map((item) => (
 									<li class="flex gap-3 text-sm leading-relaxed text-mute">
-										<span class="font-mono text-[0.68rem] text-accent">{String(i + 1).padStart(2, '0')}</span>
+										<span class="mt-[0.7em] h-px w-3 shrink-0 bg-accent" aria-hidden="true" />
 										{item}
 									</li>
 								))}
-							</ol>
+							</ul>
 						</>
 					)}
 
 					{series.length > 1 && (
 						<>
-							<p class="label mt-12 mb-5">版本演进</p>
+							<p class="label-cn mt-12 mb-5">版本演进</p>
 							<ol class="relative space-y-4 border-l border-line pl-5">
 								{series
 									.toSorted((a, b) => Number(a.data.year) - Number(b.data.year))
@@ -144,13 +151,13 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 		</div>
 
 		{groups.length > 0 && rest.length > 0 && (
-			<section class="mt-32">
+			<section class="mt-24">
 				<p class="reveal label mb-10">
 					<span class="text-accent">Gallery</span>
 					<span class="mx-2 text-faint">/</span>界面一览
 				</p>
 				{groups.map((group) => (
-					<div class="mb-20">
+					<div class="mb-16">
 						{group.label && <h2 class="display reveal mb-8 text-3xl text-fg">{group.label}</h2>}
 						<div class="grid items-start gap-8 md:grid-cols-2">
 							{group.shots.map((shot, i) => {
@@ -161,6 +168,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 											shot={shot}
 											title={data.title}
 											sizes={wide ? '(min-width: 1152px) 72rem, 100vw' : undefined}
+											zoom
 										/>
 									</div>
 								);
@@ -174,10 +182,10 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 		{next.id !== project.id && (
 			<a
 				href={`/projects/${next.id}`}
-				class="reveal group mt-32 flex items-end justify-between gap-6 border-t border-line pt-10"
+				class="reveal group mt-24 flex items-end justify-between gap-6 border-t border-line pt-10"
 			>
 				<div>
-					<p class="label mb-4">下一个作品</p>
+					<p class="label-cn mb-4">下一个作品</p>
 					<p class="display text-4xl text-fg md:text-6xl">
 						<span class="link-underline">{next.data.title}</span>
 					</p>
@@ -191,4 +199,5 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 			</a>
 		)}
 	</article>
+	<Lightbox />
 </BaseLayout>

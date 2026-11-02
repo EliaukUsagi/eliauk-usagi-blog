@@ -6,8 +6,7 @@ import ThemeToggle from '@/components/ThemeToggle.astro';
 import { nav, site } from '@/site.config';
 
 const path = Astro.url.pathname;
-// 锚点项（如 /#open-source）的激活态由滚动位置决定，见下方脚本
-const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
+const isActive = (href: string) => path.startsWith(href);
 ---
 
 <header class="site-header fixed inset-x-0 top-4 z-50 flex justify-center px-4">
@@ -20,26 +19,27 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 			<span class="logo-mark grid size-10 place-items-center rounded-full">
 				<Image
 					src={mascot}
+					draggable="false"
 					alt=""
 					class="size-[1.6rem] transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-rotate-12"
 				/>
 			</span>
 			<span class="flex flex-col leading-none">
 				<span class="display text-[1.05rem] text-fg">{site.name}</span>
-				<span class="mt-1 font-mono text-[0.58rem] tracking-[0.18em] text-faint uppercase">{site.nameEn}</span>
+				<span class="mt-1 font-mono text-[0.62rem] tracking-[0.16em] text-mute uppercase">{site.nameEn}</span>
 			</span>
 		</a>
 
-		<ul data-nav-list class="relative hidden items-center md:flex">
-			<span data-nav-pill class="nav-pill" aria-hidden="true"></span>
+		<ul class="hidden items-center gap-0.5 md:flex">
 			{nav.map((item) => (
 				<li class="relative">
 					<a
 						href={item.href}
 						data-nav-item
 						aria-current={isActive(item.href) ? 'page' : undefined}
-						class="nav-item relative z-10 block px-4 py-2 text-sm"
+						class="nav-item relative isolate block rounded-full px-4 py-2 text-sm"
 					>
+						{isActive(item.href) && <span class="nav-active" aria-hidden="true" />}
 						{item.label}
 					</a>
 				</li>
@@ -48,21 +48,26 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 
 		<div class="flex items-center gap-1">
 			<ThemeToggle />
+			{/* 外链只做图标入口，不在每页最显眼的位置把访客引出站 */}
 			<a
 				href={site.github}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="btn btn-primary group gap-2 px-4 py-2.5"
+				class="grid size-9 place-items-center rounded-full text-mute transition hover:bg-fg/5 hover:text-fg"
 				aria-label="GitHub"
+				title="GitHub"
 			>
-				<SiteIcon name="github" class="size-4" />
-				<span class="hidden sm:inline">GitHub</span>
+				<SiteIcon name="github" class="size-[1.05rem]" />
 			</a>
 		</div>
 	</nav>
 </header>
 
-<nav class="mobile-nav fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 md:hidden" aria-label="移动端导航">
+<nav
+	data-mobile-nav
+	class="mobile-nav fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 md:hidden"
+	aria-label="移动端导航"
+>
 	<ul class="glass flex gap-1 rounded-full p-1.5">
 		{nav.map((item) => (
 			<li>
@@ -87,6 +92,15 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 	.mobile-nav {
 		view-transition-name: mobile-nav;
 		bottom: max(1rem, env(safe-area-inset-bottom));
+		transition:
+			transform 0.4s var(--ease-out-expo),
+			opacity 0.3s ease;
+	}
+
+	/* 向下滚动阅读时让出屏幕，向上滚动即回来 */
+	.mobile-nav[data-hidden] {
+		transform: translateY(calc(100% + 2rem));
+		opacity: 0;
 	}
 
 	.site-nav {
@@ -125,30 +139,36 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 	.nav-item,
 	.mobile-item {
 		color: var(--mute);
-		transition: color 0.3s ease;
+		transition:
+			color 0.25s ease,
+			background-color 0.25s ease;
 	}
 
-	.nav-item:hover,
+	/* 悬停只在原位淡入更浅的底色，不移动当前页底色，避免与当前态混淆 */
+	.nav-item:hover {
+		color: var(--fg);
+		background: color-mix(in srgb, var(--fg) 3%, transparent);
+	}
+
 	.nav-item[aria-current] {
 		color: var(--fg);
+		background: transparent;
 	}
 
-	.nav-pill {
+	/*
+	 * 当前页底色单独成块并命名：跨页跳转时由 View Transition 把它从旧菜单项滑到新菜单项，
+	 * 悬停不会移动它。移动端菜单项底色是实色，过渡期间会盖住文字，因此不做滑动
+	 */
+	.nav-active {
 		position: absolute;
-		top: 0;
-		left: 0;
-		height: 100%;
+		inset: 0;
+		z-index: -1;
 		border-radius: 9999px;
 		background: color-mix(in srgb, var(--fg) 6%, transparent);
-		opacity: 0;
-		pointer-events: none;
-		transition:
-			transform 0.6s var(--ease-out-expo),
-			width 0.6s var(--ease-out-expo),
-			opacity 0.3s ease;
+		view-transition-name: nav-active;
 	}
 
-	.nav-item::after {
+	.nav-active::after {
 		content: '';
 		position: absolute;
 		left: 50%;
@@ -158,16 +178,6 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 		margin-left: -2px;
 		border-radius: 50%;
 		background: var(--accent);
-		opacity: 0;
-		transform: scale(0);
-		transition:
-			opacity 0.3s ease,
-			transform 0.5s var(--ease-out-expo);
-	}
-
-	.nav-item[aria-current]::after {
-		opacity: 1;
-		transform: none;
 	}
 
 	.mobile-item {
@@ -184,70 +194,25 @@ const isActive = (href: string) => !href.includes('#') && path.startsWith(href);
 
 <script>
 	const navEl = document.querySelector<HTMLElement>('[data-site-nav]');
-	const list = document.querySelector<HTMLElement>('[data-nav-list]');
-	const pill = document.querySelector<HTMLElement>('[data-nav-pill]');
-	const allItems = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav-item]')];
-	const desktopItems = list ? [...list.querySelectorAll<HTMLElement>('[data-nav-item]')] : [];
-
 	if (navEl) {
 		const onScroll = () => navEl.toggleAttribute('data-scrolled', window.scrollY > 24);
 		onScroll();
 		window.addEventListener('scroll', onScroll, { passive: true });
 	}
 
-	const current = () => desktopItems.find((el) => el.hasAttribute('aria-current'));
-
-	const moveTo = (el: HTMLElement | undefined) => {
-		if (!list || !pill) return;
-		if (!el) {
-			pill.style.opacity = '0';
-			return;
-		}
-		const offset = el.getBoundingClientRect().left - list.getBoundingClientRect().left;
-		pill.style.width = `${el.offsetWidth}px`;
-		pill.style.transform = `translateX(${offset}px)`;
-		pill.style.opacity = '1';
-	};
-
-	if (list && pill) {
-		// 首次定位不做过渡，避免从左侧滑入
-		pill.style.transition = 'none';
-		moveTo(current());
-		requestAnimationFrame(() => pill.style.removeProperty('transition'));
-
-		desktopItems.forEach((el) => el.addEventListener('mouseenter', () => moveTo(el)));
-		list.addEventListener('mouseleave', () => moveTo(current()));
-	}
-
-	// 锚点导航：目标区块位于视口中段时激活，桌面与移动端导航保持一致
-	const anchored = allItems.filter((el) => {
-		const url = new URL(el.href);
-		return url.hash && url.pathname === location.pathname;
-	});
-	const sections = [...new Set(anchored.map((el) => new URL(el.href).hash))]
-		.map((hash) => document.querySelector<HTMLElement>(hash))
-		.filter((el): el is HTMLElement => !!el);
-
-	if (sections.length) {
-		const setAnchor = (hash: string | null) => {
-			anchored.forEach((el) => {
-				if (new URL(el.href).hash === hash) el.setAttribute('aria-current', 'location');
-				else el.removeAttribute('aria-current');
-			});
-			if (!list?.matches(':hover')) moveTo(current());
-		};
-
-		// 区块从标题到内容结束都算「在读」，所以观察标题所在的整个 section
-		const observed = sections.map((el) => el.closest('section') ?? el);
-		const visible = new Set<Element>();
-		const io = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => (entry.isIntersecting ? visible.add(entry.target) : visible.delete(entry.target)));
-				const hit = observed.findIndex((el) => visible.has(el));
-				setAnchor(hit === -1 ? null : `#${sections[hit].id}`);
+	// 移动端底部导航：下滚超过一定距离后隐藏，上滚或回到页顶时显示
+	const mobileNav = document.querySelector<HTMLElement>('[data-mobile-nav]');
+	if (mobileNav) {
+		let lastY = window.scrollY;
+		window.addEventListener(
+			'scroll',
+			() => {
+				const y = window.scrollY;
+				if (Math.abs(y - lastY) < 8) return;
+				mobileNav.toggleAttribute('data-hidden', y > lastY && y > 160);
+				lastY = y;
 			},
-			{ rootMargin: '-45% 0px -45% 0px' },
+			{ passive: true },
 		);
-		observed.forEach((el) => io.observe(el));
 	}
 </script>

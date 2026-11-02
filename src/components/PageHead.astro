@@ -1,0 +1,22 @@
+---
+// 一级页面（作品 / 随笔）共用的页头，保证标题层级与节奏一致
+type Props = { en: string; title: string; desc?: string };
+const { en, title, desc } = Astro.props;
+---
+
+<header>
+	<p class="rise label mb-6 flex items-center gap-2.5" style="--d:0">
+		<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+		{en}
+	</p>
+	<h1 class="rise display text-5xl leading-[1.05] text-fg md:text-[4rem]" style="--d:1">
+		{title}
+	</h1>
+	{desc && (
+		<p class="rise mt-6 max-w-xl text-lg leading-[1.8] text-mute" style="--d:2">
+			{desc}
+		</p>
+	)}
+	<slot />
+</header>
+

@@ -3,19 +3,22 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import MoonRabbit from '@/components/MoonRabbit.astro';
 import ProjectFeature from '@/components/ProjectFeature.astro';
-import RepoCard from '@/components/RepoCard.astro';
 import SectionHead from '@/components/SectionHead.astro';
 import SiteIcon from '@/components/SiteIcon.astro';
 import PostRow from '@/components/PostRow.astro';
 import { sortByDate } from '@/lib/postMeta';
-import { repos, site } from '@/site.config';
+import { site } from '@/site.config';
 
-const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const allProjects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+// 首页只放精选，完整清单在 /projects
+const projects = allProjects.slice(0, 2);
+// 介绍文案整体放在表达式里：模板中的中文长句会被格式化工具折行，换行会渲染成多余空格
+const intro = `一名${site.role}。从前端起步，做过桌面应用和服务端，现在主要做大模型应用：让检索与问答稳定地跑在真实数据上。`;
 const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sortByDate).slice(0, 4);
 ---
 
 <BaseLayout>
-	<section class="relative mx-auto grid min-h-[100dvh] max-w-6xl items-center gap-10 px-6 pt-32 pb-16 lg:grid-cols-12">
+	<section class="relative mx-auto grid max-w-6xl items-center gap-10 px-6 pt-32 pb-12 lg:min-h-[100dvh] lg:grid-cols-12 lg:pb-16">
 		<div class="lg:col-span-7">
 			<h1 class="display text-[3.4rem] leading-[0.98] text-fg sm:text-7xl lg:text-[5.6rem]">
 				<span class="rise block" style="--d:1">
@@ -30,8 +33,7 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 			</h1>
 
 			<p class="rise mt-8 max-w-xl text-lg leading-[1.85] text-mute" style="--d:4">
-				你好，我是 <span class="text-fg">{site.author}</span>，一名{site.role}
-				。从前端起步，后来做过桌面应用、写过服务端，最近的大部分时间花在大模型应用上——检索、问答，以及怎样让它们稳定地跑在真实数据上。这里记录做过的项目和一路的笔记。
+				你好，我是 <span class="text-fg">{site.author}</span>，{intro}
 			</p>
 
 			<div class="rise mt-10 flex flex-wrap items-center gap-4" style="--d:5">
@@ -54,44 +56,26 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 		</div>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-16">
-		<SectionHead id="works" no="01" en="Selected Works" title="作品">
-			<a href="/projects" class="label group flex items-center gap-2 transition-colors hover:text-fg">
-				全部{' '}
+	<section class="mx-auto max-w-6xl px-6 pt-12">
+		<SectionHead id="works" en="Selected Works" title="作品">
+			<a href="/projects" class="label-cn group flex items-center gap-2 transition-colors hover:text-fg">
+				全部 {allProjects.length} 个{' '}
 				<SiteIcon
 					name="arrow"
 					class="size-3.5 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:translate-x-1"
 				/>
 			</a>
 		</SectionHead>
-		<div class="flex flex-col gap-32">
+		<div class="flex flex-col gap-24">
 			{projects.map((project, index) => (
-				<ProjectFeature project={project} index={index} total={projects.length} />
+				<ProjectFeature project={project} index={index} />
 			))}
 		</div>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-36">
-		<SectionHead id="open-source" no="02" en="Open Source" title="开源">
-			<a
-				href={`${site.github}?tab=repositories`}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="label flex items-center gap-2 transition-colors hover:text-fg"
-			>
-				GitHub <SiteIcon name="external" class="size-3.5" />
-			</a>
-		</SectionHead>
-		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			{repos.map((repo, index) => (
-				<RepoCard repo={repo} index={index} />
-			))}
-		</div>
-	</section>
-
-	<section class="mx-auto max-w-6xl px-6 pt-36">
-		<SectionHead no="03" en="Writing" title="随笔">
-			<a href="/posts" class="label group flex items-center gap-2 transition-colors hover:text-fg">
+	<section class="mx-auto max-w-6xl px-6 pt-28">
+		<SectionHead en="Writing" title="随笔">
+			<a href="/posts" class="label-cn group flex items-center gap-2 transition-colors hover:text-fg">
 				全部{' '}
 				<SiteIcon
 					name="arrow"

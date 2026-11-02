@@ -1,13 +1,12 @@
 ---
-type Props = { no: string; title: string; en: string; id?: string };
-const { no, title, en, id } = Astro.props;
+type Props = { title: string; en: string; id?: string };
+const { title, en, id } = Astro.props;
 ---
 
-<div id={id} class="mb-14 flex scroll-mt-28 items-end justify-between gap-6 border-b border-line pb-6">
+<div id={id} class="mb-10 flex scroll-mt-28 items-end justify-between gap-6 border-b border-line pb-6">
 	<div>
-		<p class="reveal label mb-4">
-			<span class="text-accent">{no}</span>
-			<span class="mx-2 text-faint">/</span>
+		<p class="reveal label mb-4 flex items-center gap-2.5">
+			<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
 			{en}
 		</p>
 		<h2 class="reveal display text-4xl text-fg md:text-5xl" style="--d:1">

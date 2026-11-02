@@ -23,7 +23,7 @@ pnpm shots      # 把 src/assets 下的 PNG / JPG 转为 WebP 并删除原图
 | 新增作品         | 在 `src/content/projects/` 新建 md，字段见 `src/content.config.ts`；`order` 决定排序 |
 | 添加作品截图     | 放进 `src/assets/projects/<frontmatter 的 shots>/`，见下文                           |
 | 写随笔           | 在 `src/content/posts/` 新建 md / mdx，`draft: true` 不发布                          |
-| 开源仓库列表     | `src/site.config.ts` 的 `repos`                                                      |
+| 其他仓库列表     | `src/site.config.ts` 的 `repos`（作品页底部，只放没有对应作品的仓库）                |
 | 网站名称、备案号 | `src/site.config.ts` 的 `name`、`record`                                             |
 
 ### 截图规则

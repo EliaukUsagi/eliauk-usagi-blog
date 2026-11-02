@@ -1,0 +1,148 @@
+---
+import SiteIcon from '@/components/SiteIcon.astro';
+// 页面内所有 [data-zoom] 按钮共用一个灯箱；用原生 <dialog>，焦点约束与 Esc 关闭由浏览器负责
+---
+
+<dialog data-lightbox class="lightbox" aria-label="截图预览">
+	<figure class="lb-figure">
+		<img data-lb-img alt="" decoding="async" />
+		<figcaption
+			data-lb-caption
+			class="mx-auto mt-4 w-fit rounded-full bg-black/50 px-3.5 py-1 text-center text-sm text-white/90 backdrop-blur"
+		></figcaption>
+	</figure>
+	<button type="button" data-lb-close class="lb-btn top-5 right-5" aria-label="关闭">
+		<SiteIcon name="close" class="size-5" />
+	</button>
+	<button type="button" data-lb-prev class="lb-btn top-1/2 left-5 -translate-y-1/2" aria-label="上一张">
+		<SiteIcon name="arrow" class="size-5 rotate-180" />
+	</button>
+	<button type="button" data-lb-next class="lb-btn top-1/2 right-5 -translate-y-1/2" aria-label="下一张">
+		<SiteIcon name="arrow" class="size-5" />
+	</button>
+</dialog>
+
+<style>
+	.lightbox {
+		width: 100vw;
+		max-width: none;
+		height: 100dvh;
+		max-height: none;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: #fff;
+	}
+
+	.lightbox::backdrop {
+		background: rgb(12 11 10 / 0.3);
+		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px);
+	}
+
+	.lightbox[open] {
+		display: grid;
+		place-items: center;
+	}
+
+	.lb-figure {
+		pointer-events: none;
+	}
+
+	.lb-figure img {
+		max-width: 92vw;
+		max-height: 84dvh;
+		object-fit: contain;
+		border-radius: 0.75rem;
+		box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.6);
+		pointer-events: auto;
+	}
+
+	.lightbox[open] .lb-figure {
+		animation: lb-in 0.4s var(--ease-out-expo);
+	}
+
+	.lb-btn {
+		position: absolute;
+		display: grid;
+		width: 2.75rem;
+		height: 2.75rem;
+		place-items: center;
+		border-radius: 9999px;
+		/* 遮罩较浅，按钮自带深色底，亮色页面上也看得清 */
+		background: rgb(20 19 18 / 0.55);
+		color: rgb(255 255 255 / 0.85);
+		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px);
+		transition:
+			background-color 0.2s ease,
+			color 0.2s ease;
+	}
+
+	.lb-btn:hover {
+		background: rgb(20 19 18 / 0.75);
+		color: #fff;
+	}
+
+	.lb-btn[hidden] {
+		display: none;
+	}
+
+	/* 打开灯箱时锁住页面滚动 */
+	:global(html:has(.lightbox[open])) {
+		overflow: hidden;
+	}
+
+	@keyframes lb-in {
+		from {
+			opacity: 0;
+			transform: scale(0.96);
+		}
+	}
+</style>
+
+<script>
+	const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+	const triggers = [...document.querySelectorAll<HTMLElement>('[data-zoom]')];
+
+	if (dialog && triggers.length) {
+		const img = dialog.querySelector<HTMLImageElement>('[data-lb-img]')!;
+		const caption = dialog.querySelector<HTMLElement>('[data-lb-caption]')!;
+		const prev = dialog.querySelector<HTMLButtonElement>('[data-lb-prev]')!;
+		const next = dialog.querySelector<HTMLButtonElement>('[data-lb-next]')!;
+		let index = 0;
+
+		prev.hidden = next.hidden = triggers.length < 2;
+
+		const show = (i: number) => {
+			index = (i + triggers.length) % triggers.length;
+			const source = triggers[index].querySelector('img');
+			if (!source) return;
+			// 复用原图的 srcset，让浏览器按全屏尺寸挑选更清晰的版本
+			img.srcset = source.srcset;
+			img.sizes = '92vw';
+			img.src = source.src;
+			img.alt = source.alt;
+			caption.textContent = triggers[index].dataset.zoom ?? '';
+		};
+
+		triggers.forEach((trigger, i) =>
+			trigger.addEventListener('click', () => {
+				show(i);
+				dialog.showModal();
+			}),
+		);
+		prev.addEventListener('click', () => show(index - 1));
+		next.addEventListener('click', () => show(index + 1));
+		dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
+		// 点击图片以外的区域关闭
+		dialog.addEventListener('click', (event) => {
+			if (event.target === dialog) dialog.close();
+		});
+		dialog.addEventListener('keydown', (event) => {
+			if (event.key === 'ArrowLeft') show(index - 1);
+			if (event.key === 'ArrowRight') show(index + 1);
+		});
+	}
+</script>
