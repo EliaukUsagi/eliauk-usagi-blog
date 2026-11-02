@@ -87,7 +87,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 				shot={hero}
 				title={data.title}
 				eager
-				sizes="(min-width: 1152px) 72rem, 100vw"
+				sizes="(min-width: 1152px) 69rem, calc(100vw - 3rem)"
 				transitionName={`project-${project.id}`}
 				zoom
 			/>
@@ -167,7 +167,7 @@ const series = data.series ? siblings.filter((p) => p.data.series === data.serie
 										<WindowFrame
 											shot={shot}
 											title={data.title}
-											sizes={wide ? '(min-width: 1152px) 72rem, 100vw' : undefined}
+											sizes={wide ? '(min-width: 1152px) 69rem, calc(100vw - 3rem)' : undefined}
 											zoom
 										/>
 									</div>

@@ -76,8 +76,8 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 				<ShotImage
 					shot={shot}
 					alt={`${title}：${shot.caption}`}
-					widths={[640, 960, 1440]}
-					sizes="(min-width: 1024px) 44rem, 100vw"
+					widths={[480, 720, 1080, 1440]}
+					sizes="(min-width: 1024px) 39rem, calc(100vw - 3rem)"
 					quality={80}
 					loading={i === 0 ? 'eager' : 'lazy'}
 					decoding="async"
@@ -94,20 +94,21 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 <style>
 	/*
 	 * 切换全程两张图都保持不透明：新图在上层按方向擦入，旧图在下层轻微后退，
-	 * 避免交叉淡化时两张半透明截图叠影、底色透出造成的「发灰」
+	 * 避免交叉淡化时两张半透明截图叠影、底色透出造成的「发灰」。
+	 * 不在切换中的幻灯片用 display:none 而非 visibility:hidden：后者仍在视口内，懒加载图片会被立即下载
 	 */
 	.slide {
-		visibility: hidden;
+		display: none;
 		overflow: hidden;
 	}
 
 	.slide.is-active {
-		visibility: visible;
+		display: block;
 		z-index: 2;
 	}
 
 	.slide.is-leaving {
-		visibility: visible;
+		display: block;
 		z-index: 1;
 	}
 
@@ -204,6 +205,12 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 		let running: Animation[] = [];
 		const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
+		// 预取第 i 张，切换时不出现空白；另一主题的截图不显示，不预取
+		const prefetch = (i: number) =>
+			slides[i % slides.length].querySelectorAll<HTMLImageElement>('img').forEach((img) => {
+				if (getComputedStyle(img).display !== 'none') img.loading = 'eager';
+			});
+
 		const go = (next: number) => {
 			if (next === current) return;
 			// 连续点击时先让上一次切换落定，再开始新的
@@ -257,13 +264,7 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 					caption.classList.remove('is-swapping');
 				}, 200);
 			}
-			// 预取下一张，切换时不出现空白
-			slides[(current + 1) % slides.length]
-				.querySelectorAll<HTMLImageElement>('img')
-				.forEach((img) => {
-					// 另一主题的截图不显示，不预取
-					if (getComputedStyle(img).display !== 'none') img.loading = 'eager';
-				});
+			prefetch(current + 1);
 		};
 
 		bars.forEach((bar, i) => {
@@ -283,7 +284,17 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 		root.addEventListener('mouseleave', () => hold('hover', false));
 		root.addEventListener('focusin', () => hold('focus', true));
 		root.addEventListener('focusout', () => hold('focus', false));
-		new IntersectionObserver(([entry]) => hold('view', !entry.isIntersecting), { threshold: 0.25 }).observe(root);
+		// 进入视口后预取下一张；等页面加载完再取，不和首屏资源抢带宽
+		const prefetchNext = () => prefetch(current + 1);
+		new IntersectionObserver(
+			([entry]) => {
+				hold('view', !entry.isIntersecting);
+				if (!entry.isIntersecting) return;
+				if (document.readyState === 'complete') prefetchNext();
+				else window.addEventListener('load', prefetchNext, { once: true });
+			},
+			{ threshold: 0.25 },
+		).observe(root);
 		document.addEventListener('visibilitychange', () => hold('tab', document.hidden));
 	});
 </script>

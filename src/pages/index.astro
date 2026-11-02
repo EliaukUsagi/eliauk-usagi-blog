@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import moonTexture from '@/assets/moon/lroc-color.webp';
 import MoonRabbit from '@/components/MoonRabbit.astro';
 import ProjectFeature from '@/components/ProjectFeature.astro';
 import SectionHead from '@/components/SectionHead.astro';
@@ -18,6 +19,8 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(sor
 ---
 
 <BaseLayout>
+	{/* 月面贴图是首屏最大元素（CSS 背景图），预加载让它不必等样式表解析后才开始下载 */}
+	<link slot="head" rel="preload" as="image" href={moonTexture.src} type="image/webp" fetchpriority="high" />
 	<section class="relative mx-auto grid grid-cols-1 max-w-6xl items-center gap-10 px-6 pt-32 pb-12 max-sm:overflow-x-clip lg:min-h-[100dvh] lg:grid-cols-12 lg:pb-16">
 		<div class="lg:col-span-7">
 			<h1 class="display text-[3.4rem] leading-[0.98] text-fg sm:text-7xl lg:text-[5.6rem]">

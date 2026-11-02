@@ -18,7 +18,8 @@ const {
 	shot,
 	title,
 	eager = false,
-	sizes = '(min-width: 768px) 36rem, 100vw',
+	// 默认按详情页两栏画廊：页面左右各 1.5rem 内边距、两栏间距 2rem，最宽 72rem
+	sizes = '(min-width: 1152px) 33.5rem, (min-width: 768px) calc(50vw - 2.5rem), calc(100vw - 3rem)',
 	class: className,
 	transitionName,
 	zoom = false,
@@ -61,7 +62,7 @@ const mediaProps =
 			<ShotImage
 				shot={shot}
 				alt={`${title}：${shot.caption}`}
-				widths={[640, 960, 1440, 2048]}
+				widths={[480, 720, 1080, 1440, 2048]}
 				sizes={sizes}
 				loading={eager ? 'eager' : 'lazy'}
 				class="block h-auto w-full"

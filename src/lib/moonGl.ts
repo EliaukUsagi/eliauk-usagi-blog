@@ -63,39 +63,50 @@ export type MoonRenderer = {
 	resize: () => void;
 };
 
-const loadImage = (src: string) =>
-	new Promise<HTMLImageElement>((resolve, reject) => {
-		const img = new Image();
-		img.decoding = 'async';
-		img.onload = () => resolve(img);
-		img.onerror = reject;
-		img.src = src;
-	});
+// decode() 在主线程外完成解码，上传纹理时不再同步解码整张贴图
+const loadImage = async (src: string) => {
+	const img = new Image();
+	img.src = src;
+	await img.decode();
+	return img;
+};
+
+// 让出主线程，把初始化拆成多个短任务，避免一个长任务卡住首屏交互
+const yieldToMain = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 export async function createMoonRenderer(canvas: HTMLCanvasElement, textureSrc: string, tone: MoonTone) {
 	const gl = canvas.getContext('webgl', { premultipliedAlpha: true, antialias: false });
 	if (!gl) return null;
 
+	// 贴图下载与解码和着色器编译并行进行
+	const imageReady = loadImage(textureSrc);
+	// 着色器失败提前返回时不再等待贴图，避免未处理的拒绝
+	imageReady.catch(() => undefined);
+
 	const compile = (type: number, source: string) => {
 		const shader = gl.createShader(type)!;
 		gl.shaderSource(shader, source);
 		gl.compileShader(shader);
-		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-			console.warn('[moon] 着色器编译失败：', gl.getShaderInfoLog(shader));
-			return null;
-		}
 		return shader;
 	};
 	const vs = compile(gl.VERTEX_SHADER, VERT);
 	const fs = compile(gl.FRAGMENT_SHADER, FRAG);
-	if (!vs || !fs) return null;
-
 	const program = gl.createProgram()!;
 	gl.attachShader(program, vs);
 	gl.attachShader(program, fs);
 	gl.linkProgram(program);
+
+	// 查询编译状态会强制同步等待编译完成；支持并行编译扩展时先轮询完成标志，期间不占主线程
+	const parallel = gl.getExtension('KHR_parallel_shader_compile');
+	if (parallel) {
+		while (!gl.getProgramParameter(program, parallel.COMPLETION_STATUS_KHR)) {
+			await new Promise((resolve) => requestAnimationFrame(resolve));
+		}
+	} else {
+		await yieldToMain();
+	}
 	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		console.warn('[moon] 着色器链接失败：', gl.getProgramInfoLog(program));
+		console.warn('[moon] 着色器编译或链接失败：', gl.getShaderInfoLog(vs), gl.getShaderInfoLog(fs), gl.getProgramInfoLog(program));
 		return null;
 	}
 	gl.useProgram(program);
@@ -109,7 +120,7 @@ export async function createMoonRenderer(canvas: HTMLCanvasElement, textureSrc: 
 
 	let image: HTMLImageElement;
 	try {
-		image = await loadImage(textureSrc);
+		image = await imageReady;
 	} catch {
 		console.warn('[moon] 月面贴图加载失败，保留 CSS 版本');
 		return null;
@@ -122,6 +133,7 @@ export async function createMoonRenderer(canvas: HTMLCanvasElement, textureSrc: 
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	await yieldToMain();
 
 	const loc = (name: string) => gl.getUniformLocation(program, name);
 	const u = {

@@ -13,7 +13,7 @@ export const site = {
 	email: 'chang_sowing@163.com' as string,
 	// 备案号拿到后填写，留空则不显示
 	record: {
-		icp: '',
+		icp: '鄂ICP备2026063413号',
 		police: '',
 		policeCode: '',
 	},

@@ -189,7 +189,14 @@ const start = orbitPoint(START);
 		const SWAY = (35 * Math.PI) / 180;
 		const SWAY_PERIOD = 40000;
 
-		createMoonRenderer(canvas, canvas.dataset.texture, toneOf()).then((moon) => {
+		// 着色器版是增强效果：首屏先由 CSS 版呈现，等页面加载完、主线程空闲后再初始化，不与首屏渲染抢资源
+		const whenIdle = (fn: () => void) => {
+			const run = () => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200));
+			if (document.readyState === 'complete') run();
+			else window.addEventListener('load', run, { once: true });
+		};
+
+		whenIdle(() => createMoonRenderer(canvas, canvas.dataset.texture!, toneOf()).then((moon) => {
 			if (!moon) return;
 			let phase = 0;
 			let last = 0;
@@ -232,7 +239,7 @@ const start = orbitPoint(START);
 				cancelAnimationFrame(frame);
 				disc.toggleAttribute('data-gl', false);
 			});
-		});
+		}));
 	}
 </script>
 

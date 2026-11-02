@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import mascot from '@/assets/brand/usagi-mascot.svg';
+import policeBadge from '@/assets/brand/police-badge.png';
 import SiteIcon from '@/components/SiteIcon.astro';
 import { nav, site } from '@/site.config';
 
@@ -67,7 +68,7 @@ const { icp, police, policeCode } = site.record;
 			</div>
 		</div>
 
-		<div class="mt-16 flex flex-col gap-3 border-t border-line pt-6 text-xs text-mute md:flex-row md:items-center md:justify-between">
+		<div class="mt-16 border-t border-line pt-6 text-xs text-mute">
 			<div class="flex flex-col gap-1.5">
 				<p>
 					© {site.since}–{year} {site.author} · {site.nameEn}
@@ -80,7 +81,8 @@ const { icp, police, policeCode } = site.record;
 					</a>
 				</p>
 			</div>
-			<div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+			{/* 备案要求：备案号放在页面底部中间位置，并链接到工信部备案系统 */}
+			<div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 empty:hidden">
 				{icp && (
 					<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="hover:text-fg">
 						{icp}
@@ -91,8 +93,10 @@ const { icp, police, policeCode } = site.record;
 						href={`https://beian.mps.gov.cn/#/query/webSearch?code=${policeCode}`}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="hover:text-fg"
+						class="flex items-center gap-1.5 hover:text-fg"
 					>
+						{/* 公安备案要求备案号前带官方图标 */}
+						<Image src={policeBadge} alt="" draggable="false" class="h-3.5 w-auto" />
 						{police}
 					</a>
 				)}
