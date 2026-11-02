@@ -1,0 +1,22 @@
+---
+import { Image } from 'astro:assets';
+import type { Shot } from '@/lib/projectShots';
+
+// 截图有暗色版时同时输出两张，由全局样式按 html[data-theme] 只显示一张；
+// 暗色版固定懒加载，display:none 的懒加载图片不会被下载
+type Props = {
+	shot: Shot;
+	alt: string;
+	widths: number[];
+	sizes: string;
+	quality?: number;
+	loading?: 'eager' | 'lazy';
+	decoding?: 'async' | 'sync' | 'auto';
+	class?: string;
+};
+const { shot, class: className, ...rest } = Astro.props;
+const dark = shot.dark;
+---
+
+<Image {...rest} src={shot.src} class:list={[className, dark ? 'shot-light' : 'shot-solo']} />
+{dark && <Image {...rest} src={dark} loading="lazy" class:list={[className, 'shot-dark']} />}

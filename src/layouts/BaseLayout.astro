@@ -76,6 +76,14 @@ const ogImage = new URL(og, site.url);
 				{ rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
 			);
 			targets.forEach((el) => io.observe(el));
+
+			// 图片禁止拖拽：Firefox 不认 -webkit-user-drag；包着图片的链接在 Chrome 里会改为拖整个链接，一并拦下
+			document.addEventListener('dragstart', (event) => {
+				const el = event.target;
+				if (el instanceof HTMLImageElement || (el instanceof HTMLAnchorElement && el.querySelector('img'))) {
+					event.preventDefault();
+				}
+			});
 		</script>
 	</body>
 </html>

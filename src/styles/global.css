@@ -24,10 +24,10 @@
 	--glass-hi: rgb(255 255 255 / 0.75);
 	--moon-glow: rgb(28 26 23 / 0.05);
 	--moon-hi: #ffffff;
-	--moon-base: #f1eee8;
-	--moon-edge: #dcd7ce;
+	--moon-base: #f2ece2;
+	--moon-edge: #ddd2c1;
 	/* 首页月球：贴图色调与晨昏线阴影。亮色主题把月面提亮压对比，免得在浅底上显得发脏 */
-	--moon-tone: grayscale(1) sepia(0.16) brightness(1.04) contrast(0.92);
+	--moon-tone: grayscale(1) sepia(0.3) brightness(1.04) contrast(0.92);
 	--moon-terminator: rgb(58 46 34 / 0.34);
 	--moon-shade: rgb(28 26 23 / 0.07);
 	--orbit: rgb(28 26 23 / 0.13);
@@ -53,9 +53,9 @@ html[data-theme='dark'] {
 	--faint: #6b665e;
 	--line: rgb(236 232 225 / 0.08);
 	--line-strong: rgb(236 232 225 / 0.15);
-	--accent: #e0916f;
+	--accent: #d4906a;
 	--grid: rgb(236 232 225 / 0.028);
-	--glow-a: rgb(224 145 111 / 0.05);
+	--glow-a: rgb(212 144 106 / 0.05);
 	--glow-b: rgb(236 232 225 / 0.025);
 	--glass-bg: rgb(28 27 25 / 0.8);
 	--glass-border: rgb(236 232 225 / 0.08);
@@ -139,8 +139,8 @@ html[data-theme='dark'] {
 		user-select: text;
 	}
 
-	/* 吉祥物等装饰图禁止拖拽：draggable 属性管 Firefox，-webkit-user-drag 管 Safari / Chrome */
-	img[draggable='false'] {
+	/* 全站图片禁止拖拽：-webkit-user-drag 管 Safari / Chrome，Firefox 由 BaseLayout 拦截 dragstart */
+	img {
 		-webkit-user-drag: none;
 	}
 
@@ -538,4 +538,15 @@ html[data-theme='dark'] .astro-code,
 html[data-theme='dark'] .astro-code span {
 	color: var(--shiki-dark) !important;
 	background-color: var(--shiki-dark-bg) !important;
+}
+
+/* 作品截图按主题切换亮暗两版（见 ShotImage.astro）。不放进 @layer：图片自带 block 等工具类，层内规则会被覆盖 */
+html:not([data-theme='dark']) .shot-dark,
+html[data-theme='dark'] .shot-light {
+	display: none;
+}
+
+/* 没有暗色版的截图在暗色页面上略微压暗，避免亮图像灯箱一样抢走排版层次 */
+html[data-theme='dark'] .shot-solo {
+	filter: brightness(0.86);
 }

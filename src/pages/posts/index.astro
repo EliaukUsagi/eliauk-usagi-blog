@@ -100,6 +100,23 @@ const filters = [
 		background: transparent;
 	}
 
+	/* 窄屏放不下时横向滑动：隐藏滚动条，哪一侧还有内容就在哪一侧渐隐，提示可以滑动 */
+	[data-segmented]::-webkit-scrollbar {
+		display: none;
+	}
+
+	[data-segmented][data-more-start] {
+		mask-image: linear-gradient(to right, transparent, #000 2.5rem);
+	}
+
+	[data-segmented][data-more-end] {
+		mask-image: linear-gradient(to left, transparent, #000 2.5rem);
+	}
+
+	[data-segmented][data-more-start][data-more-end] {
+		mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent);
+	}
+
 	.thumb {
 		opacity: 0;
 	}
@@ -134,6 +151,22 @@ const filters = [
 		thumb.style.transform = `translateX(${btn.offsetLeft}px)`;
 	};
 
+	// 选中项滚到居中，首尾项自然贴边；用 scrollTo 而不是 scrollIntoView，后者会连带页面纵向滚动
+	const reveal = (btn: HTMLElement, animate: boolean) => {
+		if (!group || group.scrollWidth <= group.clientWidth) return;
+		group.scrollTo({
+			left: btn.offsetLeft - (group.clientWidth - btn.offsetWidth) / 2,
+			behavior: animate && !reduceMotion ? 'smooth' : 'auto',
+		});
+	};
+
+	const markOverflow = () => {
+		if (!group) return;
+		const max = group.scrollWidth - group.clientWidth;
+		group.toggleAttribute('data-more-start', group.scrollLeft > 1);
+		group.toggleAttribute('data-more-end', group.scrollLeft < max - 1);
+	};
+
 	const render = (key: string) => {
 		let visible = 0;
 		rows.forEach((row) => {
@@ -150,6 +183,7 @@ const filters = [
 	const select = (key: string, animate: boolean) => {
 		const btn = buttons.find((b) => b.dataset.filter === key) ?? buttons[0];
 		placeThumb(btn);
+		reveal(btn, animate);
 		const url = new URL(location.href);
 		if (key === 'all') url.searchParams.delete('c');
 		else url.searchParams.set('c', key);
@@ -177,9 +211,16 @@ const filters = [
 	requestAnimationFrame(() => thumb?.style.removeProperty('transition'));
 
 	buttons.forEach((btn) => btn.addEventListener('click', () => select(btn.dataset.filter!, true)));
+	markOverflow();
+	group?.addEventListener('scroll', markOverflow, { passive: true });
+	window.addEventListener('resize', markOverflow);
 	// 字体加载完成后按钮宽度会变化，重新对齐滑块
 	document.fonts?.ready.then(() => {
 		const active = buttons.find((b) => b.getAttribute('aria-pressed') === 'true');
-		if (active) placeThumb(active);
+		if (active) {
+			placeThumb(active);
+			reveal(active, false);
+		}
+		markOverflow();
 	});
 </script>

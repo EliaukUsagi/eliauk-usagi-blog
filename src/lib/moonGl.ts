@@ -53,7 +53,7 @@ export type MoonTone = { tint: [number, number, number]; lo: number; hi: number;
 
 // 亮色主题像「宣纸上的淡墨」：整体偏亮偏暖、背光面只是略灰，不能在浅底上显得发黑；暗色主题月球在夜色里依然是亮的
 export const moonTones: Record<'light' | 'dark', MoonTone> = {
-	light: { tint: [1, 0.972, 0.93], lo: 0.6, hi: 0.94, ambient: 0.68, limb: 0.12 },
+	light: { tint: [1, 0.958, 0.895], lo: 0.6, hi: 0.94, ambient: 0.68, limb: 0.12 },
 	dark: { tint: [1, 0.975, 0.94], lo: 0.42, hi: 0.98, ambient: 0.16, limb: 0.18 },
 };
 

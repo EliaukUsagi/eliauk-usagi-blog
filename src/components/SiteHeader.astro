@@ -97,7 +97,7 @@ const isActive = (href: string) => path.startsWith(href);
 			opacity 0.3s ease;
 	}
 
-	/* 向下滚动阅读时让出屏幕，向上滚动即回来 */
+	/* 向下滚动阅读时让出屏幕，向上滚动或停下即回来 */
 	.mobile-nav[data-hidden] {
 		transform: translateY(calc(100% + 2rem));
 		opacity: 0;
@@ -200,13 +200,17 @@ const isActive = (href: string) => path.startsWith(href);
 		window.addEventListener('scroll', onScroll, { passive: true });
 	}
 
-	// 移动端底部导航：下滚超过一定距离后隐藏，上滚或回到页顶时显示
+	// 移动端底部导航：下滚超过一定距离后隐藏，上滚、回到页顶或停止滚动时显示。
+	// 惯性滚动期间 scroll 事件持续触发，计时器会在真正停稳后才把导航放回来
 	const mobileNav = document.querySelector<HTMLElement>('[data-mobile-nav]');
 	if (mobileNav) {
 		let lastY = window.scrollY;
+		let idle: ReturnType<typeof setTimeout> | undefined;
 		window.addEventListener(
 			'scroll',
 			() => {
+				clearTimeout(idle);
+				idle = setTimeout(() => mobileNav.removeAttribute('data-hidden'), 200);
 				const y = window.scrollY;
 				if (Math.abs(y - lastY) < 8) return;
 				mobileNav.toggleAttribute('data-hidden', y > lastY && y > 160);

@@ -117,7 +117,8 @@ import SiteIcon from '@/components/SiteIcon.astro';
 
 		const show = (i: number) => {
 			index = (i + triggers.length) % triggers.length;
-			const source = triggers[index].querySelector('img');
+			// 截图有亮暗两版时取当前主题下显示的那张
+			const source = [...triggers[index].querySelectorAll('img')].find((el) => getComputedStyle(el).display !== 'none');
 			if (!source) return;
 			// 复用原图的 srcset，让浏览器按全屏尺寸挑选更清晰的版本
 			img.srcset = source.srcset;

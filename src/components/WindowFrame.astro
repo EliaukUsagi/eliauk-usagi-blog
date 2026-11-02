@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import ShotImage from '@/components/ShotImage.astro';
 import type { Shot } from '@/lib/projectShots';
 import mascot from '@/assets/brand/usagi-mascot.svg';
 
@@ -57,8 +58,8 @@ const mediaProps =
 	</div>
 	{shot ? (
 		<Media {...mediaProps}>
-			<Image
-				src={shot.src}
+			<ShotImage
+				shot={shot}
 				alt={`${title}：${shot.caption}`}
 				widths={[640, 960, 1440, 2048]}
 				sizes={sizes}
