@@ -1,0 +1,13 @@
+{
+	"css.lint.unknownAtRules": "ignore",
+	"files.watcherExclude": {
+		"**/node_modules/**": true,
+		"**/dist/**": true,
+		"**/.astro/**": true
+	},
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/dist": true,
+		"**/.astro": true
+	}
+}
