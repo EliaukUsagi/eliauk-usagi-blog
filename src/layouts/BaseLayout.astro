@@ -3,6 +3,7 @@ import '@/styles/global.css';
 import SiteHeader from '@/components/SiteHeader.astro';
 import SiteFooter from '@/components/SiteFooter.astro';
 import { site } from '@/site.config';
+import { themeColor } from '@/lib/theme';
 
 type Props = {
 	title?: string;
@@ -26,14 +27,15 @@ const ogImage = new URL(og, site.url);
 		<title>{fullTitle}</title>
 		<meta name="description" content={description} />
 		<meta name="author" content={site.author} />
-		<meta name="theme-color" content="#f5f3ef" />
-		<script is:inline>
+		<meta name="theme-color" content={themeColor.light} />
+		<script is:inline define:vars={{ themeColor }}>
 			(() => {
 				const saved = localStorage.getItem('theme');
 				const theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 				const root = document.documentElement;
 				root.dataset.theme = theme;
-				if (theme === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#121110');
+				if (theme === 'dark')
+					document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor.dark);
 				// 进入动画只在有 JS 且未要求减弱动态时启用，避免内容因脚本失败而不可见
 				if (!matchMedia('(prefers-reduced-motion: reduce)').matches) root.classList.add('motion');
 			})();

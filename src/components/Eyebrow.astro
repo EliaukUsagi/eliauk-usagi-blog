@@ -1,0 +1,30 @@
+---
+// 页头 / 区块头的眉标；dot 为英文小标签，slash 为「强调色英文 / 中文说明」
+type Props = {
+	en: string;
+	label?: string;
+	variant?: 'dot' | 'slash';
+	class?: string;
+	style?: string;
+};
+const { en, label, variant = 'dot', class: className, style } = Astro.props;
+---
+
+<p class:list={['flex items-center gap-2.5 text-xs text-mute', className]} style={style}>
+	{variant === 'dot' ? (
+		<>
+			<span class="size-1.5 rounded-full bg-accent" aria-hidden="true" />
+			<span class="font-mono tracking-label uppercase">{en}</span>
+		</>
+	) : (
+		<>
+			<span class="font-mono tracking-label text-accent uppercase">{en}</span>
+			{label && (
+				<>
+					<span class="mx-2 text-faint">/</span>
+					<span>{label}</span>
+				</>
+			)}
+		</>
+	)}
+</p>

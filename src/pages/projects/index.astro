@@ -40,7 +40,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 						</span>
 						<SiteIcon
 							name="arrow"
-							class="hidden size-3.5 rotate-90 text-faint transition-transform duration-[var(--dur-hover)] group-hover:translate-y-0.5 md:block"
+							class="hidden size-3.5 rotate-90 text-faint transition-transform duration-hover group-hover:translate-y-0.5 md:block"
 						/>
 					</a>
 				</li>
@@ -83,7 +83,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 							<span class="col-span-2 row-start-2 text-sm text-mute md:col-span-1 md:row-start-auto">{repo.desc}</span>
 							<SiteIcon
 								name="external"
-								class="col-start-2 row-start-1 size-3.5 text-faint transition duration-[var(--dur-hover)] group-hover:rotate-45 group-hover:text-fg md:col-start-auto md:row-start-auto"
+								class="col-start-2 row-start-1 size-3.5 text-faint transition duration-hover group-hover:rotate-45 group-hover:text-fg md:col-start-auto md:row-start-auto"
 							/>
 						</a>
 					</li>

@@ -8,7 +8,7 @@ import SiteIcon from '@/components/SiteIcon.astro';
 		<img data-lb-img alt="" decoding="async" />
 		<figcaption
 			data-lb-caption
-			class="mx-auto mt-4 w-fit rounded-full bg-black/50 px-3.5 py-1 text-center text-sm text-white/90 backdrop-blur"
+			class="lb-caption mx-auto mt-4 w-fit rounded-full px-3.5 py-1 text-center text-sm backdrop-blur"
 		></figcaption>
 	</figure>
 	<button type="button" data-lb-close class="lb-btn top-5 right-5" aria-label="关闭">
@@ -24,6 +24,15 @@ import SiteIcon from '@/components/SiteIcon.astro';
 
 <style>
 	.lightbox {
+		/* 覆盖层固定为深色，不随主题切换；局部 token 集中维护 */
+		--lb-fg: #fff;
+		--lb-fg-soft: rgb(255 255 255 / 0.85);
+		--lb-scrim: rgb(12 11 10 / 0.3);
+		--lb-btn: rgb(20 19 18 / 0.55);
+		--lb-btn-hover: rgb(20 19 18 / 0.75);
+		--lb-caption-bg: rgb(0 0 0 / 0.5);
+		--lb-caption-fg: rgb(255 255 255 / 0.9);
+		--lb-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.6);
 		width: 100vw;
 		max-width: none;
 		height: 100dvh;
@@ -32,11 +41,11 @@ import SiteIcon from '@/components/SiteIcon.astro';
 		padding: 0;
 		border: 0;
 		background: transparent;
-		color: #fff;
+		color: var(--lb-fg);
 	}
 
 	.lightbox::backdrop {
-		background: rgb(12 11 10 / 0.3);
+		background: var(--lb-scrim);
 		-webkit-backdrop-filter: blur(8px);
 		backdrop-filter: blur(8px);
 	}
@@ -54,13 +63,18 @@ import SiteIcon from '@/components/SiteIcon.astro';
 		max-width: 92vw;
 		max-height: 84dvh;
 		object-fit: contain;
-		border-radius: 0.75rem;
-		box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.6);
+		border-radius: var(--radius-xl);
+		box-shadow: var(--lb-shadow);
 		pointer-events: auto;
 	}
 
+	.lb-caption {
+		background: var(--lb-caption-bg);
+		color: var(--lb-caption-fg);
+	}
+
 	.lightbox[open] .lb-figure {
-		animation: lb-in 0.4s var(--ease-out-expo);
+		animation: lb-in var(--dur-slow) var(--ease-out-expo);
 	}
 
 	.lb-btn {
@@ -71,18 +85,18 @@ import SiteIcon from '@/components/SiteIcon.astro';
 		place-items: center;
 		border-radius: 9999px;
 		/* 遮罩较浅，按钮自带深色底，亮色页面上也看得清 */
-		background: rgb(20 19 18 / 0.55);
-		color: rgb(255 255 255 / 0.85);
+		background: var(--lb-btn);
+		color: var(--lb-fg-soft);
 		-webkit-backdrop-filter: blur(8px);
 		backdrop-filter: blur(8px);
 		transition:
-			background-color 0.2s ease,
-			color 0.2s ease;
+			background-color var(--dur-fast) ease,
+			color var(--dur-fast) ease;
 	}
 
 	.lb-btn:hover {
-		background: rgb(20 19 18 / 0.75);
-		color: #fff;
+		background: var(--lb-btn-hover);
+		color: var(--lb-fg);
 	}
 
 	.lb-btn[hidden] {

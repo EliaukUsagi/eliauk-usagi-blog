@@ -1,7 +1,7 @@
 <button
 	type="button"
 	data-theme-toggle
-	class="relative grid size-9 place-items-center rounded-full text-mute transition hover:bg-fg/5 hover:text-fg"
+	class="relative grid size-9 place-items-center rounded-full text-mute transition hover:bg-wash-strong hover:text-fg"
 	aria-label="切换亮色 / 暗色"
 	title="切换亮色 / 暗色"
 >
@@ -36,8 +36,8 @@
 	.theme-moon {
 		position: absolute;
 		transition:
-			transform 0.6s var(--ease-out-expo),
-			opacity 0.3s ease;
+			transform var(--dur-slow) var(--ease-out-expo),
+			opacity var(--dur-base) ease;
 	}
 
 	.theme-moon,
@@ -53,6 +53,9 @@
 </style>
 
 <script>
+	import { easeInOut, easeInOutBezier, dur } from '@/lib/motion';
+	import { themeColor } from '@/lib/theme';
+
 	const root = document.documentElement;
 	const media = matchMedia('(prefers-color-scheme: dark)');
 
@@ -60,13 +63,12 @@
 		root.dataset.theme = theme;
 		document
 			.querySelector('meta[name="theme-color"]')
-			?.setAttribute('content', theme === 'dark' ? '#121110' : '#f5f3ef');
+			?.setAttribute('content', theme === 'dark' ? themeColor.dark : themeColor.light);
 	};
 
 	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-	const DURATION = 700;
-	const BEZIER = [0.65, 0, 0.35, 1] as const;
-	const EASING = `cubic-bezier(${BEZIER.join(', ')})`;
+	const DURATION = dur.theme;
+	const EASING = easeInOut;
 	// 遮罩圆从中心到 78% 半径完全不透明，之后渐隐，形成墨色洇开的柔边
 	const SOLID = 0.78;
 	const softMask = CSS.supports('mask-image', 'radial-gradient(#000, transparent)');
@@ -79,7 +81,7 @@
 
 	// 缓动曲线的反函数：已知进度（圆半径占比）求对应的时间占比。y 随参数单调递增，二分即可
 	const timeAt = (progress: number) => {
-		const [x1, y1, x2, y2] = BEZIER;
+		const [x1, y1, x2, y2] = easeInOutBezier;
 		const curve = (p1: number, p2: number, t: number) => 3 * p1 * t * (1 - t) ** 2 + 3 * p2 * t * t * (1 - t) + t ** 3;
 		let lo = 0;
 		let hi = 1;

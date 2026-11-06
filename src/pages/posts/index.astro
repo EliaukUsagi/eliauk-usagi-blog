@@ -38,7 +38,7 @@ const filters = [
 						class="seg relative z-10 flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-sm"
 					>
 						{f.label}
-						<span class="font-mono text-[0.65rem] opacity-60">{f.count}</span>
+						<span class="font-mono text-2xs opacity-60">{f.count}</span>
 					</button>
 				))}
 			</div>
@@ -77,13 +77,13 @@ const filters = [
 		background: var(--fg);
 		box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--fg) 50%, transparent);
 		transition:
-			transform 0.6s var(--ease-out-expo),
-			width 0.6s var(--ease-out-expo);
+			transform var(--dur-slow) var(--ease-out-expo),
+			width var(--dur-slow) var(--ease-out-expo);
 	}
 
 	.seg {
 		color: var(--mute);
-		transition: color 0.35s ease;
+		transition: color var(--dur-base) ease;
 	}
 
 	.seg:hover {
@@ -132,7 +132,7 @@ const filters = [
 	}
 
 	:global(html[data-filtering]::view-transition-group(*)) {
-		animation-duration: 0.55s;
+		animation-duration: var(--dur-page);
 	}
 </style>
 

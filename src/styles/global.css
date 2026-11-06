@@ -4,10 +4,14 @@
 /* 主题色只在这里定义：亮色为默认，暗色由 html[data-theme='dark'] 覆盖 */
 :root {
 	/* 暖调「宣纸 + 墨」中性色，唯一强调色为赭红；与吉祥物的奶油色、棕色描边同一色系 */
+	/* 改 --canvas 时同步 src/lib/theme.ts（meta theme-color / OG 图取色） */
 	--canvas: #f5f3ef;
 	--card: #fbfaf8;
 	--sunk: #ece9e3;
 	--fg: #1c1a17;
+	/* 悬停/选中底色的两档透明度，与 --line 一样按主题各写一份 */
+	--wash: rgb(28 26 23 / 0.03);
+	--wash-strong: rgb(28 26 23 / 0.06);
 	--soft: #45413b;
 	--mute: #6e6961;
 	/* faint 只用于分隔符、图标等装饰元素（≥3:1）；承载信息的文字至少用 mute（≥4.5:1） */
@@ -37,9 +41,15 @@
 		0 1px 2px rgb(28 26 23 / 0.04), 0 12px 24px -12px rgb(28 26 23 / 0.1), 0 40px 80px -40px rgb(28 26 23 / 0.28);
 	--shadow-nav: 0 1px 2px rgb(28 26 23 / 0.04), 0 12px 32px -16px rgb(28 26 23 / 0.18);
 	--rabbit-shadow: rgb(28 26 23 / 0.18);
-	/* 交互反馈要跟手，入场动画才需要更长的时长 */
+	/* 交互反馈要跟手，入场动画才需要更长的时长；档位之外的时长只用于装饰循环 */
+	--dur-fast: 0.2s;
 	--dur-hover: 0.25s;
+	--dur-base: 0.3s;
+	--dur-slow: 0.5s;
+	--dur-slower: 0.8s;
 	--dur-reveal: 1s;
+	--dur-reveal-slow: 1.4s;
+	--dur-page: 0.6s;
 	color-scheme: light;
 }
 
@@ -48,6 +58,8 @@ html[data-theme='dark'] {
 	--card: #1a1917;
 	--sunk: #22201d;
 	--fg: #ece8e1;
+	--wash: rgb(236 232 225 / 0.03);
+	--wash-strong: rgb(236 232 225 / 0.06);
 	--soft: #c9c4bb;
 	--mute: #a29c92;
 	--faint: #6b665e;
@@ -87,6 +99,8 @@ html[data-theme='dark'] {
 	--color-line-strong: var(--line-strong);
 	--color-soft: var(--soft);
 	--color-accent: var(--accent);
+	--color-wash: var(--wash);
+	--color-wash-strong: var(--wash-strong);
 }
 
 @theme {
@@ -97,7 +111,45 @@ html[data-theme='dark'] {
 	--font-display: var(--font-sans);
 	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
 
+	/* 语义字号：标准档继续用 text-sm / text-lg 等，这里只补项目特有的中间档 */
+	--text-2xs: 0.68rem;
+	--text-2xs--line-height: 1.45;
+	--text-caption: 0.8rem;
+	--text-caption--line-height: 1.6;
+	--text-body: 0.95rem;
+	--text-body--line-height: 1.8;
+	--text-lead: 1.05rem;
+	--text-lead--line-height: 1.8;
+
+	/* 展示字号：只保留项目实际用到的中间档，其余继续走 Tailwind 标准档 */
+	--text-display-xs: 1.75rem;
+	--text-display-xs--line-height: 1.375;
+	--text-display-sm: 2rem;
+	--text-display-sm--line-height: 1.1;
+	--text-display-md: 2.5rem;
+	--text-display-md--line-height: 1.1;
+	--text-display-lg: 3.4rem;
+	--text-display-lg--line-height: 0.98;
+	--text-display-xl: 4rem;
+	--text-display-xl--line-height: 1.05;
+	--text-display-2xl: 5.6rem;
+	--text-display-2xl--line-height: 0.98;
+
+	/* 行高按角色取用，避免同类正文出现 1.8 / 1.85 / 1.9 三套 */
+	--leading-hero: 0.98;
+	--leading-display: 1.05;
+	--leading-heading: 1.1;
+	--leading-body: 1.8;
+	--leading-reading: 1.9;
+
+	--tracking-label: 0.14em;
+
+	--radius-window: 0.875rem;
+
 	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+	/* 裸 transition / transition-colors 统一用跟手的一档时长 */
+	--default-transition-duration: 0.25s;
 }
 
 @layer base {
@@ -105,8 +157,8 @@ html[data-theme='dark'] {
 		background: var(--canvas);
 		color: var(--fg);
 		transition:
-			background-color 0.4s ease,
-			color 0.4s ease;
+			background-color var(--dur-slow) ease,
+			color var(--dur-slow) ease;
 		scroll-behavior: smooth;
 		-webkit-font-smoothing: antialiased;
 		text-rendering: optimizeLegibility;
@@ -185,17 +237,9 @@ html[data-theme='dark'] {
 
 /* 组件类放进 components 层，才能被 Tailwind 工具类按需覆盖 */
 @layer components {
-	.label {
-		font-family: var(--font-mono);
-		font-size: 0.72rem;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
-		color: var(--mute);
-	}
-
 	/* 中文没有大小写，等宽 + 大字距会显得松散，中文小标题用这一档 */
 	.label-cn {
-		font-size: 0.8rem;
+		font-size: var(--text-caption);
 		letter-spacing: 0.02em;
 		color: var(--mute);
 	}
@@ -203,7 +247,7 @@ html[data-theme='dark'] {
 	.display {
 		font-family: var(--font-display);
 		font-weight: 600;
-		letter-spacing: -0.025em;
+		letter-spacing: var(--tracking-tight);
 	}
 
 	/* 玻璃材质：只用于浮在内容之上的层（导航、工具条），静态内容卡片保持实底以保证可读性 */
@@ -220,7 +264,7 @@ html[data-theme='dark'] {
 	/* 截图窗口：仿 macOS 窗口外框 */
 	.window {
 		overflow: hidden;
-		border-radius: 0.875rem;
+		border-radius: var(--radius-window);
 		border: 1px solid var(--line-strong);
 		background: var(--card);
 		box-shadow: var(--shadow-frame);
@@ -262,6 +306,12 @@ html[data-theme='dark'] {
 		background: #28c840;
 	}
 
+	/* 右侧留白与左侧红绿灯等宽，让标题在窗口内居中 */
+	.window-spacer {
+		width: 2.675rem;
+		flex-shrink: 0;
+	}
+
 	.window-title {
 		min-width: 0;
 		flex: 1;
@@ -270,8 +320,8 @@ html[data-theme='dark'] {
 		white-space: nowrap;
 		text-align: center;
 		font-family: var(--font-mono);
-		font-size: 0.68rem;
-		color: var(--faint);
+		font-size: var(--text-2xs);
+		color: var(--mute);
 	}
 
 	.chip {
@@ -281,7 +331,7 @@ html[data-theme='dark'] {
 		border: 1px solid var(--line);
 		padding: 0.22rem 0.65rem;
 		/* 中英混排的标签用无衬线，等宽字会把中文与「+」等符号撑出松散的间距 */
-		font-size: 0.72rem;
+		font-size: var(--text-xs);
 		line-height: 1.4;
 		color: var(--mute);
 		background: color-mix(in srgb, var(--card) 70%, transparent);
@@ -319,13 +369,19 @@ html[data-theme='dark'] {
 		gap: 0.6rem;
 		border-radius: 9999px;
 		padding: 0.75rem 1.5rem;
-		font-size: 0.875rem;
-		font-weight: 500;
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-medium);
 		transition:
 			transform var(--dur-hover) var(--ease-out-expo),
-			background-color 0.3s ease,
-			border-color 0.3s ease,
+			background-color var(--dur-base) ease,
+			border-color var(--dur-base) ease,
 			box-shadow var(--dur-hover) var(--ease-out-expo);
+	}
+
+	/* 详情页头部等紧凑场景的按钮尺寸 */
+	.btn-sm {
+		padding: 0.5rem 1rem;
+		gap: 0.5rem;
 	}
 
 	.btn:active {
@@ -356,7 +412,7 @@ html[data-theme='dark'] {
 
 		.btn-ghost:hover {
 			border-color: color-mix(in srgb, var(--fg) 30%, transparent);
-			background: color-mix(in srgb, var(--fg) 4%, transparent);
+			background: var(--wash);
 		}
 	}
 }
@@ -400,14 +456,14 @@ html[data-theme='dark'] {
 
 .motion .reveal-media:not(.is-in) {
 	opacity: 0;
-	clip-path: inset(6% 4% 6% 4% round 1.25rem);
+	clip-path: inset(6% 4% 6% 4% round calc(var(--radius-window) + 0.375rem));
 	transform: translateY(28px) scale(0.985);
 }
 
 /* 展开终点留出余量，避免裁掉窗口投影 */
 .motion .reveal-media.is-in {
-	clip-path: inset(-120px -120px -120px -120px round 0.875rem);
-	transition-duration: var(--dur-reveal), var(--dur-reveal), 1.4s;
+	clip-path: inset(-120px -120px -120px -120px round var(--radius-window));
+	transition-duration: var(--dur-reveal), var(--dur-reveal), var(--dur-reveal-slow);
 }
 
 /* 跨文档页面切换：页头保持不动，正文淡出后上浮淡入 */
@@ -416,15 +472,15 @@ html[data-theme='dark'] {
 }
 
 ::view-transition-old(root) {
-	animation: vt-out 0.22s ease both;
+	animation: vt-out var(--dur-fast) ease both;
 }
 
 ::view-transition-new(root) {
-	animation: vt-in 0.6s var(--ease-out-expo) both;
+	animation: vt-in var(--dur-page) var(--ease-out-expo) both;
 }
 
 ::view-transition-group(*) {
-	animation-duration: 0.7s;
+	animation-duration: var(--dur-page);
 	animation-timing-function: var(--ease-out-expo);
 }
 
@@ -481,7 +537,7 @@ html[data-scheme-hold='dark'] {
 .link-underline {
 	background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
 	/* 比通用 hover 反馈稍慢，让展开 / 收回的方向看得清 */
-	transition: background-size 0.4s var(--ease-out-expo);
+	transition: background-size var(--dur-slow) var(--ease-out-expo);
 }
 
 /* 锚点固定在左端：悬停时从左往右展开，移开时原路从右往左收回 */
@@ -494,6 +550,10 @@ html[data-scheme-hold='dark'] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
 	*,
 	*::before,
 	*::after {
@@ -549,4 +609,38 @@ html[data-theme='dark'] .shot-light {
 /* 没有暗色版的截图在暗色页面上略微压暗，避免亮图像灯箱一样抢走排版层次 */
 html[data-theme='dark'] .shot-solo {
 	filter: brightness(0.86);
+}
+
+/* 语义间距：页面只引用档位名，具体数值集中在这里 */
+@utility section-gap-sm {
+	padding-top: 3rem;
+}
+
+@utility section-gap {
+	padding-top: 6rem;
+}
+
+@utility section-gap-lg {
+	padding-top: 7rem;
+}
+
+/* 语义时长：与 :root 的 --dur-* 一一对应，避免过渡时长散落在组件里 */
+@utility duration-fast {
+	transition-duration: var(--dur-fast);
+}
+
+@utility duration-hover {
+	transition-duration: var(--dur-hover);
+}
+
+@utility duration-base {
+	transition-duration: var(--dur-base);
+}
+
+@utility duration-slow {
+	transition-duration: var(--dur-slow);
+}
+
+@utility duration-slower {
+	transition-duration: var(--dur-slower);
 }

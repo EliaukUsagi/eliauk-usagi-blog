@@ -191,55 +191,58 @@ const start = orbitPoint(START);
 
 		// 着色器版是增强效果：首屏先由 CSS 版呈现，等页面加载完、主线程空闲后再初始化，不与首屏渲染抢资源
 		const whenIdle = (fn: () => void) => {
-			const run = () => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200));
+			const run = () =>
+				'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200);
 			if (document.readyState === 'complete') run();
 			else window.addEventListener('load', run, { once: true });
 		};
 
-		whenIdle(() => createMoonRenderer(canvas, canvas.dataset.texture!, toneOf()).then((moon) => {
-			if (!moon) return;
-			let phase = 0;
-			let last = 0;
-			let frame = 0;
-			let visible = false;
+		whenIdle(() =>
+			createMoonRenderer(canvas, canvas.dataset.texture!, toneOf()).then((moon) => {
+				if (!moon) return;
+				let phase = 0;
+				let last = 0;
+				let frame = 0;
+				let visible = false;
 
-			const render = () => moon.draw(SWAY * Math.sin(phase));
-			const tick = (now: number) => {
-				phase += (Math.min(now - (last || now), 50) / SWAY_PERIOD) * Math.PI * 2;
-				last = now;
-				render();
-				frame = requestAnimationFrame(tick);
-			};
-			// 只在可见时摆动；减弱动态效果时停在正面，只画一帧
-			const sync = () => {
-				cancelAnimationFrame(frame);
-				last = 0;
-				if (visible && !document.hidden && !reduceMotion) frame = requestAnimationFrame(tick);
-			};
+				const render = () => moon.draw(SWAY * Math.sin(phase));
+				const tick = (now: number) => {
+					phase += (Math.min(now - (last || now), 50) / SWAY_PERIOD) * Math.PI * 2;
+					last = now;
+					render();
+					frame = requestAnimationFrame(tick);
+				};
+				// 只在可见时摆动；减弱动态效果时停在正面，只画一帧
+				const sync = () => {
+					cancelAnimationFrame(frame);
+					last = 0;
+					if (visible && !document.hidden && !reduceMotion) frame = requestAnimationFrame(tick);
+				};
 
-			render();
-			disc.toggleAttribute('data-gl', true);
+				render();
+				disc.toggleAttribute('data-gl', true);
 
-			new IntersectionObserver(([entry]) => {
-				visible = entry.isIntersecting;
-				sync();
-			}).observe(disc);
-			document.addEventListener('visibilitychange', sync);
-			new ResizeObserver(() => {
-				moon.resize();
-				render();
-			}).observe(canvas);
-			// 切换主题时同步色调
-			new MutationObserver(() => {
-				moon.setTone(toneOf());
-				render();
-			}).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-			// 渲染上下文被系统回收时退回 CSS 版
-			canvas.addEventListener('webglcontextlost', () => {
-				cancelAnimationFrame(frame);
-				disc.toggleAttribute('data-gl', false);
-			});
-		}));
+				new IntersectionObserver(([entry]) => {
+					visible = entry.isIntersecting;
+					sync();
+				}).observe(disc);
+				document.addEventListener('visibilitychange', sync);
+				new ResizeObserver(() => {
+					moon.resize();
+					render();
+				}).observe(canvas);
+				// 切换主题时同步色调
+				new MutationObserver(() => {
+					moon.setTone(toneOf());
+					render();
+				}).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+				// 渲染上下文被系统回收时退回 CSS 版
+				canvas.addEventListener('webglcontextlost', () => {
+					cancelAnimationFrame(frame);
+					disc.toggleAttribute('data-gl', false);
+				});
+			}),
+		);
 	}
 </script>
 
@@ -247,7 +250,8 @@ const start = orbitPoint(START);
 	.moon-stage {
 		--px: 0;
 		--py: 0;
-		--moon-warm: color-mix(in srgb, var(--moon-base) 82%, #e9c89b);
+		--moon-warm-tint: #e9c89b;
+		--moon-warm: color-mix(in srgb, var(--moon-base) 82%, var(--moon-warm-tint));
 		/* 兔子位置用舞台宽度的百分比（cqw）表示；舞台为正方形，纵向同样按宽度换算 */
 		container-type: inline-size;
 	}
@@ -256,7 +260,7 @@ const start = orbitPoint(START);
 		position: absolute;
 		inset: 0;
 		translate: calc(var(--px) * var(--depth) * -4) calc(var(--py) * var(--depth) * -4);
-		transition: translate 1.2s var(--ease-out-expo);
+		transition: translate var(--dur-reveal) var(--ease-out-expo);
 	}
 
 	.moon-glow {
@@ -292,7 +296,7 @@ const start = orbitPoint(START);
 		width: 100%;
 		height: 100%;
 		opacity: 0;
-		transition: opacity 0.8s ease;
+		transition: opacity var(--dur-slower) ease;
 	}
 
 	/* WebGL 首帧就绪：画布淡入，淡入结束后隐藏下层 CSS 版并暂停其动画 */
@@ -304,7 +308,7 @@ const start = orbitPoint(START);
 	[data-gl] > .moon-shade {
 		visibility: hidden;
 		animation-play-state: paused;
-		transition: visibility 0s 0.8s;
+		transition: visibility 0s var(--dur-slower);
 	}
 
 	.moon-shade {
@@ -365,8 +369,8 @@ const start = orbitPoint(START);
 		transform: translateY(6px) scale(0.92);
 		transform-origin: 0 100%;
 		transition:
-			opacity 0.4s ease,
-			transform 0.6s var(--ease-out-expo);
+			opacity var(--dur-slow) ease,
+			transform var(--dur-slow) var(--ease-out-expo);
 	}
 
 	/* 气泡只在兔子绕到前半圈时出现 */

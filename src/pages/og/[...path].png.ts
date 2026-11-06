@@ -3,6 +3,7 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import sharp from 'sharp';
 import { site } from '@/site.config';
+import { ogPalette } from '@/lib/theme';
 
 // 构建时为每篇随笔 / 作品生成 1200×630 分享图。文字由 sharp（librsvg + fontconfig）用系统字体渲染，
 // 构建机需装有中文字体（如 Noto Sans CJK SC），否则标题会显示为方框
@@ -70,33 +71,33 @@ export const GET: APIRoute = async ({ props }) => {
 	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
 	<defs>
 		<radialGradient id="moon" cx="38%" cy="30%" r="75%">
-			<stop offset="0" stop-color="#ffffff"/>
-			<stop offset="0.55" stop-color="#f1eee8"/>
-			<stop offset="1" stop-color="#dcd7ce"/>
+			<stop offset="0" stop-color="${ogPalette.moonHi}"/>
+			<stop offset="0.55" stop-color="${ogPalette.moonBase}"/>
+			<stop offset="1" stop-color="${ogPalette.moonEdge}"/>
 		</radialGradient>
 		<pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
-			<path d="M72 0H0V72" fill="none" stroke="#1c1a17" stroke-opacity="0.05"/>
+			<path d="M72 0H0V72" fill="none" stroke="${ogPalette.fg}" stroke-opacity="0.05"/>
 		</pattern>
 	</defs>
-	<rect width="${W}" height="${H}" fill="#f5f3ef"/>
+	<rect width="${W}" height="${H}" fill="${ogPalette.canvas}"/>
 	<rect width="${W}" height="${H}" fill="url(#grid)"/>
 	<circle cx="1010" cy="150" r="230" fill="url(#moon)"/>
-	<circle cx="1010" cy="150" r="300" fill="none" stroke="#1c1a17" stroke-opacity="0.08"/>
-	<circle cx="96" cy="104" r="6" fill="#a9512f"/>
-	<text x="116" y="112" font-family="${FONT}" font-size="24" fill="#6e6961" letter-spacing="1">${escape(kicker)}</text>
+	<circle cx="1010" cy="150" r="300" fill="none" stroke="${ogPalette.fg}" stroke-opacity="0.08"/>
+	<circle cx="96" cy="104" r="6" fill="${ogPalette.accent}"/>
+	<text x="116" y="112" font-family="${FONT}" font-size="24" fill="${ogPalette.mute}" letter-spacing="1">${escape(kicker)}</text>
 	${titleLines
 		.map(
 			(text, i) =>
-				`<text x="88" y="${titleTop + i * titleSize * 1.2}" font-family="${FONT}" font-size="${titleSize}" font-weight="600" fill="#1c1a17">${escape(text)}</text>`,
+				`<text x="88" y="${titleTop + i * titleSize * 1.2}" font-family="${FONT}" font-size="${titleSize}" font-weight="600" fill="${ogPalette.fg}">${escape(text)}</text>`,
 		)
 		.join('')}
 	${descLines
 		.map(
 			(text, i) =>
-				`<text x="88" y="${descTop + i * 44}" font-family="${FONT}" font-size="28" fill="#6e6961">${escape(text)}</text>`,
+				`<text x="88" y="${descTop + i * 44}" font-family="${FONT}" font-size="28" fill="${ogPalette.mute}">${escape(text)}</text>`,
 		)
 		.join('')}
-	<text x="88" y="566" xml:space="preserve" font-family="${FONT}" font-size="22" fill="#45413b">${escape(site.name)}<tspan fill="#8c857a">  ·  ${escape(new URL(site.url).host)}</tspan></text>
+	<text x="88" y="566" xml:space="preserve" font-family="${FONT}" font-size="22" fill="${ogPalette.soft}">${escape(site.name)}<tspan fill="${ogPalette.faint}">  ·  ${escape(new URL(site.url).host)}</tspan></text>
 </svg>`;
 
 	const mascot = await sharp(await readFile('src/assets/brand/usagi-mascot.svg'), { density: 600 })

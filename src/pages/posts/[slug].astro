@@ -42,7 +42,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		>
 			<SiteIcon
 				name="arrow"
-				class="size-3.5 rotate-180 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:-translate-x-1"
+				class="size-3.5 rotate-180 transition-transform duration-hover ease-out-expo group-hover:-translate-x-1"
 			/>
 			全部随笔
 		</a>
@@ -58,10 +58,10 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 				</span>
 				<span>约 {readingMinutes(post.body)} 分钟读完</span>
 			</div>
-			<h1 class="rise display mt-6 text-4xl leading-[1.12] text-balance text-fg md:text-6xl" style="--d:2">
+			<h1 class="rise display mt-6 text-4xl leading-heading text-balance text-fg md:text-6xl" style="--d:2">
 				{data.title}
 			</h1>
-			<p class="rise mt-6 text-lg leading-[1.8] text-mute md:text-xl" style="--d:3">
+			<p class="rise mt-6 text-lg leading-body text-mute md:text-xl" style="--d:3">
 				{data.description}
 			</p>
 			{data.tags.length > 0 && (
@@ -111,7 +111,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 				<span class="grid size-10 shrink-0 place-items-center rounded-full border border-line text-faint transition-colors duration-300 group-hover:border-fg group-hover:bg-fg group-hover:text-canvas">
 					<SiteIcon
 						name="arrow"
-						class="size-4 transition-transform duration-[var(--dur-hover)] ease-[var(--ease-out-expo)] group-hover:translate-x-0.5"
+						class="size-4 transition-transform duration-hover ease-out-expo group-hover:translate-x-0.5"
 					/>
 				</span>
 			</a>
@@ -121,7 +121,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			{older ? (
 				<a
 					href={`/posts/${older.id}`}
-					class="group rounded-2xl p-5 transition-colors duration-300 hover:bg-fg/[0.03] md:-ml-5"
+					class="group rounded-2xl p-5 transition-colors duration-base hover:bg-wash md:-ml-5"
 				>
 					<p class="label-cn mb-3 flex items-center gap-2">
 						<SiteIcon name="arrow" class="size-3.5 rotate-180" /> 上一篇
@@ -136,7 +136,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 			{newer && (
 				<a
 					href={`/posts/${newer.id}`}
-					class="group rounded-2xl p-5 text-right transition-colors duration-300 hover:bg-fg/[0.03] md:-mr-5"
+					class="group rounded-2xl p-5 text-right transition-colors duration-base hover:bg-wash md:-mr-5"
 				>
 					<p class="label-cn mb-3 flex items-center justify-end gap-2">
 						下一篇 <SiteIcon name="arrow" class="size-3.5" />
@@ -153,7 +153,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 <style>
 	.related {
 		transition:
-			border-color 0.3s ease,
+			border-color var(--dur-base) ease,
 			box-shadow var(--dur-hover) var(--ease-out-expo),
 			opacity var(--dur-reveal) var(--ease-out-expo),
 			transform var(--dur-reveal) var(--ease-out-expo);
@@ -199,12 +199,12 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		margin-left: -1px;
 		padding: 0.35rem 0 0.35rem 1rem;
 		border-left: 1px solid transparent;
-		font-size: 0.85rem;
+		font-size: var(--text-sm);
 		line-height: 1.5;
 		color: var(--mute);
 		transition:
-			color 0.3s ease,
-			border-color 0.3s ease;
+			color var(--dur-base) ease,
+			border-color var(--dur-base) ease;
 	}
 
 	.toc-link:hover {
@@ -218,7 +218,7 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 
 	.article-body :global(h2) {
 		font-weight: 600;
-		letter-spacing: -0.015em;
+		letter-spacing: var(--tracking-tight);
 		scroll-margin-top: 7rem;
 	}
 
@@ -234,9 +234,9 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 	.article-body :global(blockquote) {
 		font-style: normal;
 		border-left-width: 2px;
-		background: color-mix(in srgb, var(--fg) 3%, transparent);
+		background: var(--wash);
 		padding: 0.6rem 1.25rem;
-		border-radius: 0 0.75rem 0.75rem 0;
+		border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
 	}
 
 	.article-body :global(blockquote p::before),
@@ -246,8 +246,8 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 
 	.article-body :global(:not(pre) > code) {
 		padding: 0.15rem 0.4rem;
-		border-radius: 0.35rem;
-		background: color-mix(in srgb, var(--fg) 6%, transparent);
+		border-radius: var(--radius-md);
+		background: var(--wash);
 		font-size: 0.85em;
 		font-weight: 500;
 	}
@@ -259,21 +259,21 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 
 	.article-body :global(pre) {
 		border: 1px solid var(--line);
-		border-radius: 0.9rem;
-		font-size: 0.85rem;
+		border-radius: var(--radius-xl);
+		font-size: var(--text-sm);
 		line-height: 1.7;
 	}
 
 	.article-body :global(p),
 	.article-body :global(li) {
-		line-height: 1.9;
+		line-height: var(--leading-reading);
 	}
 
 	.article-body :global(a) {
 		text-decoration-thickness: 1px;
 		text-underline-offset: 0.25em;
 		text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
-		transition: text-decoration-color 0.3s ease;
+		transition: text-decoration-color var(--dur-base) ease;
 	}
 
 	.article-body :global(a:hover) {
@@ -296,14 +296,14 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		right: 0.6rem;
 		padding: 0.2rem 0.6rem;
 		border: 1px solid var(--line-strong);
-		border-radius: 0.5rem;
+		border-radius: var(--radius-lg);
 		background: var(--card);
-		font-size: 0.72rem;
+		font-size: var(--text-xs);
 		color: var(--mute);
 		opacity: 0;
 		transition:
-			opacity 0.2s ease,
-			color 0.2s ease;
+			opacity var(--dur-fast) ease,
+			color var(--dur-fast) ease;
 	}
 
 	.article-body :global(.code-block:hover .code-copy),
@@ -329,8 +329,8 @@ const project = data.project ? await getEntry('projects', data.project) : undefi
 		text-decoration: none;
 		opacity: 0;
 		transition:
-			opacity 0.2s ease,
-			color 0.2s ease;
+			opacity var(--dur-fast) ease,
+			color var(--dur-fast) ease;
 	}
 
 	.article-body :global(:is(h2, h3):hover .heading-anchor),

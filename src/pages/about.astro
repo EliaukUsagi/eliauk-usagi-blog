@@ -3,6 +3,8 @@ import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SiteIcon from '@/components/SiteIcon.astro';
 import TechMap from '@/components/TechMap.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import Eyebrow from '@/components/Eyebrow.astro';
 import mascot from '@/assets/brand/usagi-mascot.svg';
 import { site } from '@/site.config';
 
@@ -37,11 +39,8 @@ const skills = [
 	<section class="mx-auto max-w-6xl px-6 pt-36 md:pt-40">
 		<div class="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-16">
 			<div class="lg:col-span-7">
-				<p class="rise label mb-6 flex items-center gap-2.5" style="--d:0">
-					<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
-					About
-				</p>
-				<h1 class="rise display text-5xl leading-[1.05] break-words text-fg sm:text-6xl md:text-7xl" style="--d:1">
+				<Eyebrow en="About" class="rise mb-6" style="--d:0" />
+				<h1 class="rise display text-5xl leading-display break-words text-fg sm:text-6xl md:text-7xl" style="--d:1">
 					嗨，我是
 					<br />
 					<span class="text-fg">{site.author}</span>
@@ -54,7 +53,7 @@ const skills = [
 					<span class="mx-1 h-3 w-px bg-line-strong"></span>
 					合起来，就是「快乐的 Usagi」
 				</p>
-				<div class="rise mt-8 max-w-xl space-y-4 text-[1.05rem] leading-[1.9] text-soft" style="--d:3">
+				<div class="rise mt-8 max-w-xl space-y-4 text-lead leading-reading text-soft" style="--d:3">
 					<p>{intro}</p>
 					<p class="text-mute">这里的作品和随笔，是这些过程的记录，难免有不成熟的地方，欢迎指正。</p>
 				</div>
@@ -72,8 +71,8 @@ const skills = [
 				<div class="relative mx-auto max-w-[22rem]">
 					{/* 磨砂卡片后面压一轮月亮，玻璃质感才有内容可透 */}
 					<div class="about-moon absolute -top-10 -right-2 sm:-right-8 size-56 rounded-full" aria-hidden="true"></div>
-					<div class="glass about-card relative select-none aspect-[4/5] overflow-hidden rounded-[2rem]">
-						<div class="flex items-center justify-between px-6 pt-5 font-mono text-[0.68rem] tracking-wider text-mute">
+					<div class="glass about-card relative select-none aspect-[4/5] overflow-hidden rounded-4xl">
+						<div class="flex items-center justify-between px-6 pt-5 font-mono text-2xs tracking-wider text-mute">
 							<span>USAGI.SVG</span>
 							<span>{site.nameEn}</span>
 						</div>
@@ -93,68 +92,40 @@ const skills = [
 		</div>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-24">
-		<div class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
-			<div>
-				<p class="reveal label mb-4">
-					<span class="text-accent">Path</span>
-					<span class="mx-2 text-faint">/</span>一路走来
-				</p>
-				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">
-					顺着好奇心，一路往下走
-				</h2>
-			</div>
-		</div>
+	<section class="mx-auto max-w-6xl px-6 section-gap">
+		<SectionHead en="Path" label="一路走来" title="顺着好奇心，一路往下走" variant="slash" size="md" />
 		<ol class="path relative grid grid-cols-1 gap-10 md:grid-cols-5 md:gap-6">
 			{path.map((step, i) => (
 				<li class="reveal relative pl-8 md:pt-10 md:pl-0" style={`--d:${i}`}>
 					<span class="path-node" aria-hidden="true" data-last={i === path.length - 1 ? '' : undefined}></span>
 					<h3 class="text-lg font-semibold text-fg">{step.title}</h3>
-					<p class="mt-2 text-sm leading-[1.8] text-mute">{step.desc}</p>
+					<p class="mt-2 text-sm leading-body text-mute">{step.desc}</p>
 				</li>
 			))}
 		</ol>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-24">
-		<div class="mb-12 border-b border-line pb-6">
-			<p class="reveal label mb-4">
-				<span class="text-accent">Habits</span>
-				<span class="mx-2 text-faint">/</span>做事的方式
-			</p>
-			<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">
-				慢一点，但每一步都弄清楚
-			</h2>
-		</div>
+	<section class="mx-auto max-w-6xl px-6 section-gap">
+		<SectionHead en="Habits" label="做事的方式" title="慢一点，但每一步都弄清楚" variant="slash" size="md" />
 		{/* 不加卡片外框与分栏线，区块标题下的分隔线已经完成分组，栏间靠留白区分 */}
 		<ul class="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12">
 			{habits.map((habit, i) => (
 				<li class="reveal" style={`--d:${i}`}>
 					<h3 class="text-xl font-semibold text-fg">{habit.title}</h3>
-					<p class="mt-4 text-[0.95rem] leading-[1.85] text-mute">{habit.desc}</p>
+					<p class="mt-4 text-body leading-body text-mute">{habit.desc}</p>
 				</li>
 			))}
 		</ul>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-24">
-		<div class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
-			<div>
-				<p class="reveal label mb-4">
-					<span class="text-accent">Toolbox</span>
-					<span class="mx-2 text-faint">/</span>常用技术
-				</p>
-				<h2 class="reveal display text-3xl text-fg md:text-4xl" style="--d:1">
-					技术栈地图
-				</h2>
-			</div>
-		</div>
+	<section class="mx-auto max-w-6xl px-6 section-gap">
+		<SectionHead en="Toolbox" label="常用技术" title="技术栈地图" variant="slash" size="md" />
 		<TechMap groups={skills} />
 	</section>
 
-	<section class="mx-auto max-w-6xl px-6 pt-24">
+	<section class="mx-auto max-w-6xl px-6 section-gap">
 		<div class="reveal">
-			<div class="cta relative overflow-hidden rounded-[2rem] border border-line px-8 py-12 md:px-14 md:py-14">
+			<div class="cta relative overflow-hidden rounded-4xl border border-line px-8 py-12 md:px-14 md:py-14">
 				{/* 右上角压一轮淡月，延续首页与关于页的月亮意象 */}
 				<div
 					class="cta-moon pointer-events-none absolute -top-24 -right-16 size-72 rounded-full"
@@ -162,11 +133,8 @@ const skills = [
 				></div>
 				<div class="relative grid grid-cols-1 gap-10 md:grid-cols-[1fr_auto] md:items-end">
 					<div>
-						<p class="label flex items-center gap-2.5">
-							<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
-							Say hi
-						</p>
-						<h2 class="display mt-5 text-[1.75rem] leading-[1.3] text-fg md:text-[2.4rem]">
+						<Eyebrow en="Say hi" />
+						<h2 class="display mt-5 text-display-xs leading-tight text-fg md:text-display-md">
 							有想法、问题或建议，
 							<br />
 							欢迎找我聊聊。
@@ -235,8 +203,8 @@ const skills = [
 		opacity: 0;
 		transform: translateX(-4px);
 		transition:
-			opacity 0.25s ease,
-			transform 0.4s var(--ease-out-expo);
+			opacity var(--dur-hover) ease,
+			transform var(--dur-slow) var(--ease-out-expo);
 	}
 
 	.copy-tip[data-done] {

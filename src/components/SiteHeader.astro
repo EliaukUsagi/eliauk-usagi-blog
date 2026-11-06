@@ -21,12 +21,12 @@ const isActive = (href: string) => path.startsWith(href);
 					src={mascot}
 					draggable="false"
 					alt=""
-					class="size-[1.6rem] transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-rotate-12"
+					class="size-[1.6rem] transition-transform duration-slower ease-out-expo group-hover:-rotate-12"
 				/>
 			</span>
 			<span class="flex flex-col leading-none">
-				<span class="display text-[1.05rem] text-fg">{site.name}</span>
-				<span class="mt-1 font-mono text-[0.62rem] tracking-[0.16em] text-mute uppercase">{site.nameEn}</span>
+				<span class="display text-lead leading-none text-fg">{site.name}</span>
+				<span class="mt-1 font-mono text-2xs tracking-label text-mute uppercase">{site.nameEn}</span>
 			</span>
 		</a>
 
@@ -53,7 +53,7 @@ const isActive = (href: string) => path.startsWith(href);
 				href={site.github}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="grid size-9 place-items-center rounded-full text-mute transition hover:bg-fg/5 hover:text-fg"
+				class="grid size-9 place-items-center rounded-full text-mute transition hover:bg-wash-strong hover:text-fg"
 				aria-label="GitHub"
 				title="GitHub"
 			>
@@ -93,8 +93,8 @@ const isActive = (href: string) => path.startsWith(href);
 		view-transition-name: mobile-nav;
 		bottom: max(1rem, env(safe-area-inset-bottom));
 		transition:
-			transform 0.4s var(--ease-out-expo),
-			opacity 0.3s ease;
+			transform var(--dur-slow) var(--ease-out-expo),
+			opacity var(--dur-base) ease;
 	}
 
 	/* 向下滚动阅读时让出屏幕，向上滚动或停下即回来 */
@@ -107,10 +107,10 @@ const isActive = (href: string) => path.startsWith(href);
 		max-width: 64rem;
 		border: 1px solid transparent;
 		transition:
-			max-width 0.8s var(--ease-out-expo),
-			background-color 0.5s ease,
-			border-color 0.5s ease,
-			box-shadow 0.5s ease;
+			max-width var(--dur-slower) var(--ease-out-expo),
+			background-color var(--dur-slow) ease,
+			border-color var(--dur-slow) ease,
+			box-shadow var(--dur-slow) ease;
 	}
 
 	/* 页顶时与背景融为一体，滚动后收窄并成为玻璃浮层 */
@@ -140,14 +140,14 @@ const isActive = (href: string) => path.startsWith(href);
 	.mobile-item {
 		color: var(--mute);
 		transition:
-			color 0.25s ease,
-			background-color 0.25s ease;
+			color var(--dur-hover) ease,
+			background-color var(--dur-hover) ease;
 	}
 
 	/* 悬停只在原位淡入更浅的底色，不移动当前页底色，避免与当前态混淆 */
 	.nav-item:hover {
 		color: var(--fg);
-		background: color-mix(in srgb, var(--fg) 3%, transparent);
+		background: var(--wash);
 	}
 
 	.nav-item[aria-current] {
@@ -164,7 +164,7 @@ const isActive = (href: string) => path.startsWith(href);
 		inset: 0;
 		z-index: -1;
 		border-radius: 9999px;
-		background: color-mix(in srgb, var(--fg) 6%, transparent);
+		background: var(--wash-strong);
 		view-transition-name: nav-active;
 	}
 
@@ -182,8 +182,8 @@ const isActive = (href: string) => path.startsWith(href);
 
 	.mobile-item {
 		transition:
-			color 0.3s ease,
-			background-color 0.3s ease;
+			color var(--dur-base) ease,
+			background-color var(--dur-base) ease;
 	}
 
 	.mobile-item[aria-current] {

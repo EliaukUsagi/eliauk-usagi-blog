@@ -115,8 +115,8 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 	.caption {
 		display: inline-block;
 		transition:
-			opacity 0.3s ease,
-			transform 0.5s var(--ease-out-expo);
+			opacity var(--dur-base) ease,
+			transform var(--dur-slow) var(--ease-out-expo);
 	}
 
 	.caption.is-swapping {
@@ -130,7 +130,7 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 		width: 1.5rem;
 		height: 1.5rem;
 		cursor: pointer;
-		transition: width 0.6s var(--ease-out-expo);
+		transition: width var(--dur-slow) var(--ease-out-expo);
 	}
 
 	.bar.is-active {
@@ -157,7 +157,7 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 
 	.bar::before {
 		background: var(--line-strong);
-		transition: background-color 0.3s ease;
+		transition: background-color var(--dur-base) ease;
 	}
 
 	.bar:hover::before {
@@ -194,6 +194,8 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 </style>
 
 <script>
+	import { dur, easeOutExpo } from '@/lib/motion';
+
 	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 	document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
@@ -203,7 +205,6 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 		let current = 0;
 
 		let running: Animation[] = [];
-		const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 		// 预取第 i 张，切换时不出现空白；另一主题的截图不显示，不预取
 		const prefetch = (i: number) =>
@@ -239,7 +240,7 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 			if (reduceMotion || !incoming.animate) {
 				done();
 			} else {
-				const timing = { duration: 900, easing };
+				const timing = { duration: dur.carousel, easing: easeOutExpo };
 				running = [
 					incoming.animate(
 						{ clipPath: [forward ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)', 'inset(0 0 0 0)'] },
@@ -262,7 +263,7 @@ const fits = (shot: Shot) => Math.abs(ratio(shot) - frame) / frame < 0.03;
 				setTimeout(() => {
 					caption.textContent = slides[current].dataset.caption ?? '';
 					caption.classList.remove('is-swapping');
-				}, 200);
+				}, dur.fast);
 			}
 			prefetch(current + 1);
 		};

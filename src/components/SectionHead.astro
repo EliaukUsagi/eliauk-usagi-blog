@@ -1,15 +1,23 @@
 ---
-type Props = { title: string; en: string; id?: string };
-const { title, en, id } = Astro.props;
+import Eyebrow from '@/components/Eyebrow.astro';
+
+// 一级页面（作品 / 随笔）与关于页共用的区块头，保证标题层级与节奏一致
+type Props = {
+	title: string;
+	en: string;
+	label?: string;
+	id?: string;
+	size?: 'md' | 'lg';
+	variant?: 'dot' | 'slash';
+};
+const { title, en, label, id, size = 'lg', variant = 'dot' } = Astro.props;
+const titleClass = size === 'lg' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl';
 ---
 
-<div id={id} class="mb-10 flex scroll-mt-28 items-end justify-between gap-6 border-b border-line pb-6">
+<div id={id} class="mb-10 flex scroll-mt-28 flex-wrap items-end justify-between gap-6 border-b border-line pb-6">
 	<div>
-		<p class="reveal label mb-4 flex items-center gap-2.5">
-			<span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
-			{en}
-		</p>
-		<h2 class="reveal display text-4xl text-fg md:text-5xl" style="--d:1">
+		<Eyebrow en={en} label={label} variant={variant} class="reveal mb-4" />
+		<h2 class:list={['reveal display text-fg', titleClass]} style="--d:1">
 			{title}
 		</h2>
 	</div>

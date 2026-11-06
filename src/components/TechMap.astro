@@ -64,7 +64,7 @@ let order = 0;
 		class="map-core absolute grid size-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full"
 		style={pct(cx, cy)}
 	>
-		<span class="font-mono text-xs tracking-[0.18em] text-canvas uppercase">Stack</span>
+		<span class="font-mono text-xs tracking-label text-canvas uppercase">Stack</span>
 	</div>
 
 	{nodes.map((group, gi) => (
@@ -76,7 +76,7 @@ let order = 0;
 				data-group={group.id}
 			>
 				{group.area}
-				<span class="font-mono text-[0.65rem] text-mute">{group.items.length}</span>
+				<span class="font-mono text-2xs text-mute">{group.items.length}</span>
 			</button>
 			{group.items.map((item) => (
 				<span class="map-node absolute" style={`${pct(item.x, item.y)};--i:${order++}`} data-group={group.id}>
@@ -149,8 +149,8 @@ let order = 0;
 		stroke-dasharray: 1;
 		stroke-dashoffset: 0;
 		transition:
-			stroke 0.4s ease,
-			opacity 0.4s ease;
+			stroke var(--dur-slow) ease,
+			opacity var(--dur-slow) ease;
 	}
 
 	.map-spoke {
@@ -173,16 +173,16 @@ let order = 0;
 		border-radius: 9999px;
 		border: 1px solid var(--map-line);
 		background: var(--canvas);
-		font-size: 0.85rem;
+		font-size: var(--text-sm);
 		font-weight: 600;
 		color: var(--fg);
 		white-space: nowrap;
 		cursor: default;
 		transition:
-			opacity 0.4s ease,
-			border-color 0.4s ease,
-			background-color 0.4s ease,
-			color 0.4s ease;
+			opacity var(--dur-slow) ease,
+			border-color var(--dur-slow) ease,
+			background-color var(--dur-slow) ease,
+			color var(--dur-slow) ease;
 	}
 
 	/* 居中用 transform，漂浮动画走独立的 translate 属性，两者互不覆盖 */
@@ -190,7 +190,7 @@ let order = 0;
 		transform: translate(-50%, -50%);
 		animation: node-float 7s ease-in-out infinite;
 		animation-delay: calc(var(--i) * -0.6s);
-		transition: opacity 0.4s ease;
+		transition: opacity var(--dur-slow) ease;
 	}
 
 	.map-chip {
@@ -200,13 +200,13 @@ let order = 0;
 		border: 1px solid var(--line);
 		/* 与页面同底色，连线在标签边缘干净地收住 */
 		background: var(--canvas);
-		font-size: 0.78rem;
+		font-size: var(--text-caption);
 		color: var(--soft);
 		white-space: nowrap;
 		transition:
-			border-color 0.4s ease,
-			color 0.4s ease,
-			background-color 0.4s ease,
+			border-color var(--dur-slow) ease,
+			color var(--dur-slow) ease,
+			background-color var(--dur-slow) ease,
 			transform var(--dur-hover) var(--ease-out-expo);
 	}
 
@@ -246,9 +246,9 @@ let order = 0;
 
 	:global(.motion) .tech-map .map-line {
 		transition:
-			stroke-dashoffset 1.2s var(--ease-out-expo) calc(var(--i) * 70ms),
-			stroke 0.4s ease,
-			opacity 0.4s ease;
+			stroke-dashoffset var(--dur-reveal) var(--ease-out-expo) calc(var(--i) * 70ms),
+			stroke var(--dur-slow) ease,
+			opacity var(--dur-slow) ease;
 	}
 
 	/* 进场用 filter: opacity() 与 scale，和聚焦时的 opacity 淡出分开，进场延迟不会拖慢悬停反馈 */
@@ -259,22 +259,24 @@ let order = 0;
 
 	:global(.motion) .tech-map .map-hub {
 		transition-property: filter, scale, opacity, border-color, background-color, color;
-		transition-duration: 0.9s, 0.9s, 0.4s, 0.4s, 0.4s, 0.4s;
+		transition-duration:
+			var(--dur-slower), var(--dur-slower), var(--dur-slow), var(--dur-slow), var(--dur-slow), var(--dur-slow);
 		transition-timing-function: var(--ease-out-expo);
 		transition-delay: calc(var(--i) * 90ms + 200ms), calc(var(--i) * 90ms + 200ms), 0s, 0s, 0s, 0s;
 	}
 
 	:global(.motion) .tech-map .map-chip {
 		transition-property: filter, scale, border-color, color, background-color, transform;
-		transition-duration: 0.9s, 0.9s, 0.4s, 0.4s, 0.4s, var(--dur-hover);
+		transition-duration:
+			var(--dur-slower), var(--dur-slower), var(--dur-slow), var(--dur-slow), var(--dur-slow), var(--dur-hover);
 		transition-timing-function: var(--ease-out-expo);
 		transition-delay: calc(var(--i) * 35ms + 500ms), calc(var(--i) * 35ms + 500ms), 0s, 0s, 0s, 0s;
 	}
 
 	:global(.motion) .tech-map .map-core {
 		transition:
-			filter 0.9s var(--ease-out-expo),
-			scale 0.9s var(--ease-out-expo);
+			filter var(--dur-slower) var(--ease-out-expo),
+			scale var(--dur-slower) var(--ease-out-expo);
 	}
 
 	/* 外层 .reveal 的位移与模糊交给内部动画，避免叠加 */
