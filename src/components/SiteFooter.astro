@@ -9,25 +9,33 @@ const year = new Date().getFullYear();
 const { icp, police, policeCode } = site.record;
 ---
 
-<footer class="relative mt-24 border-t border-line">
-	<div class="mx-auto max-w-6xl px-6 pt-20 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-12">
-		<div class="flex flex-col gap-12 md:flex-row md:items-start md:justify-between">
-			<div>
-				<p class="reveal label-cn mb-5">— 小筑在此，欢迎常来</p>
-				<a href="/" class="reveal group flex items-end gap-4" style="--d:1">
+<footer class="relative mt-20 border-t border-line md:mt-24">
+	<div class="mx-auto max-w-6xl px-6 pt-14 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pt-20 md:pb-12">
+		<div class="grid grid-cols-[auto_1fr_auto] gap-x-5 gap-y-6 md:flex md:items-start md:justify-between md:gap-12">
+			<div class="contents md:block">
+				<p class="reveal label-cn col-span-3 mb-0 flex items-center justify-center gap-4 md:mb-5 md:justify-start">
+					<span class="h-px w-16 bg-line md:hidden" aria-hidden="true"></span>
+					<span class="whitespace-nowrap">小筑在此，欢迎常来</span>
+					<span class="h-px w-16 bg-line md:hidden" aria-hidden="true"></span>
+				</p>
+				<a
+					href="/"
+					class="reveal group flex flex-col items-center gap-3 md:flex-row md:items-end md:gap-4"
+					style="--d:1"
+				>
 					<Image
 						src={mascot}
 						draggable="false"
 						alt=""
-						class="size-12 transition-transform duration-slower ease-out-expo group-hover:-translate-y-1 group-hover:-rotate-6"
+						class="size-10 transition-transform duration-slower ease-out-expo group-hover:-translate-y-1 group-hover:-rotate-6 sm:size-12"
 					/>
-					<span class="display text-4xl leading-none text-fg md:text-5xl">{site.name}</span>
+					<span class="display text-2xl leading-none text-fg sm:text-3xl md:text-5xl">{site.name}</span>
 				</a>
 			</div>
 
-			<div class="reveal flex gap-16 text-sm" style="--d:2">
-				<nav aria-label="站内导航">
-					<p class="label-cn mb-5">站内</p>
+			<div class="contents text-sm md:flex md:w-auto md:justify-start md:gap-16">
+				<nav aria-label="站内导航" class="reveal justify-self-center" style="--d:2">
+					<p class="label-cn mb-3 md:mb-5">站内</p>
 					<ul class="flex flex-col gap-3">
 						{nav.map((item) => (
 							<li>
@@ -38,8 +46,8 @@ const { icp, police, policeCode } = site.record;
 						))}
 					</ul>
 				</nav>
-				<div>
-					<p class="label-cn mb-5">联系</p>
+				<div class="reveal" style="--d:3">
+					<p class="label-cn mb-3 md:mb-5">联系</p>
 					<ul class="flex flex-col gap-3">
 						<li>
 							<a
@@ -68,12 +76,12 @@ const { icp, police, policeCode } = site.record;
 			</div>
 		</div>
 
-		<div class="mt-16 flex flex-col items-center gap-2.5 border-t border-line pt-6 text-center text-xs text-mute md:grid md:grid-cols-[1fr_auto_1fr] md:gap-6">
+		<div class="mt-8 flex flex-col items-start gap-2 border-t border-line pt-5 text-left text-xs text-mute md:mt-16 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6 md:pt-6 md:text-center">
 			<p class="md:justify-self-start md:text-left">
 				© {site.since}–{year} {site.author} · {site.nameEn}
 			</p>
 			{/* 备案要求：备案号放在页面底部中间位置，并链接到工信部备案系统 */}
-			<div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+			<div class="flex flex-wrap items-center justify-start gap-x-5 gap-y-2 md:justify-center">
 				{icp && (
 					<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="hover:text-fg">
 						{icp}
